@@ -7,7 +7,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 
 enable_testing()
-add_executable(archiever_tests
+add_executable(ael-tests
     bits_iterator.cpp
     bytes_iterator.cpp
     byte_data_constructor.cpp
@@ -32,7 +32,7 @@ if (CMAKE_CROSSCOMPILING)
 elseif()
     message("Not cross compiling. Use dynamic libraries.")
 endif()
-target_link_libraries(archiever_tests LINK_PUBLIC gtest_main arithmetic-encoding-lib)
+target_link_libraries(ael-tests LINK_PUBLIC gtest_main arithmetic-encoding-lib)
 
 include(GoogleTest)
-gtest_discover_tests(archiever_tests)
+gtest_discover_tests(ael-tests)
