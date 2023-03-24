@@ -78,7 +78,7 @@ set(public_headers
 set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${public_headers}")
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 
-target_link_libraries(arithmetic-encoding-lib dynamic-segment-tree)
+target_link_libraries(arithmetic-encoding-lib Boost::multiprecision dynamic-segment-tree)
 
 if (BUILD_TEST)
     add_subdirectory(test)
