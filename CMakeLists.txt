@@ -11,9 +11,6 @@ set(Boost_USE_STATIC_RUNTIME OFF)
 
 add_library(${PROJECT_NAME} STATIC)
 
-message("BOOST_ROOT:${BOOST_ROOT}")
-find_package(Boost 1.81.0 REQUIRED)
-
 add_subdirectory(thirdparty)
 
 target_sources(${PROJECT_NAME}
@@ -40,13 +37,11 @@ target_include_directories(${PROJECT_NAME}
         # where the library itself will look for its internal headers
         ${CMAKE_CURRENT_SOURCE_DIR}/src
         ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${Boost_INCLUDE_DIRS}
     PUBLIC
         # where top-level project will look for the library's public headers
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         # where external projects will look for the library's public headers
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-        ${Boost_INCLUDE_DIRS}
 )
 
 # without it public headers won't get installed
