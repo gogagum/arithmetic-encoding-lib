@@ -1,0 +1,35 @@
+name: build-dev
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+    linux-gcc:
+        name: Linux GCC
+        runs-on: ubuntu-22.04
+        env:
+            CC: gcc-12
+            CXX: g++-12
+        steps:
+            - uses: actions/checkout@v3
+            - run: |
+                  sudo apt-get update
+                  sudo apt-get install -y ninja-build g++-12 libstdc++-12-dev build-essential libicu-dev
+            - run: /bin/bash .ci/build-project.sh build-simple
+            - run: ./build-simple/test/ael-tests
+
+    linux-clang-libcpp:
+        name: Linux Clang
+        runs-on: ubuntu-22.04
+        env:
+            CC: clang-14
+            CXX: clang++-14
+        steps:
+            - uses: actions/checkout@v3
+            - run: |
+                  sudo apt-get update
+                  sudo apt-get install -y ninja-build clang-14 build-essential libicu-dev
+            - run: /bin/bash .ci/build-project.sh build-simple
+            - run: ./build-simple/test/ael-tests
