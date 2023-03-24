@@ -220,7 +220,6 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(Boost.Typeof)
 
-
 message(STATUS "FetchContent: Boost.Detail")
 
 FetchContent_Declare(
@@ -230,3 +229,123 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(Boost.Detail)
+
+message(STATUS "FetchContent: Boost.FunctionTypes")
+
+FetchContent_Declare(
+    Boost.FunctionTypes
+    GIT_REPOSITORY https://github.com/boostorg/function_types.git
+    GIT_TAG boost-1.81.0
+)
+
+FetchContent_MakeAvailable(Boost.FunctionTypes)
+
+message(STATUS "FetchContent: Boost.Fusion")
+
+FetchContent_Declare(
+    Boost.Fusion
+    GIT_REPOSITORY https://github.com/boostorg/fusion.git
+    GIT_TAG boost-1.81.0
+)
+
+FetchContent_MakeAvailable(Boost.Fusion)
+
+message(STATUS "FetchContent: Boost.MPL")
+
+FetchContent_Declare(
+    Boost.MPL
+    GIT_REPOSITORY https://github.com/boostorg/mpl.git
+    GIT_TAG boost-1.81.0
+)
+
+FetchContent_MakeAvailable(Boost.MPL)
+
+message(STATUS "FetchContent: Boost.Optional")
+
+FetchContent_Declare(
+    Boost.Optional
+    GIT_REPOSITORY https://github.com/boostorg/optional.git
+    GIT_TAG boost-1.81.0
+)
+
+FetchContent_MakeAvailable(Boost.Optional)
+
+message(STATUS "FetchContent: Boost.Utility")
+
+FetchContent_Declare(
+    Boost.Utility
+    GIT_REPOSITORY https://github.com/boostorg/utility.git
+    GIT_TAG boost-1.81.0
+)
+
+FetchContent_MakeAvailable(Boost.Utility)
+
+message(STATUS "FetchContent: Boost.Tuple")
+
+FetchContent_Declare(
+    Boost.Tuple
+    GIT_REPOSITORY https://github.com/boostorg/tuple.git
+    GIT_TAG boost-1.81.0
+)
+
+FetchContent_MakeAvailable(Boost.Tuple)
+
+message(STATUS "FetchContent: Boost.Functional")
+
+FetchContent_Declare(
+    Boost.Functional
+    GIT_REPOSITORY https://github.com/boostorg/functional.git
+    GIT_TAG boost-1.81.0
+)
+
+FetchContent_MakeAvailable(Boost.Functional)
+
+message(STATUS "FetchContent: Boost.IO")
+
+FetchContent_Declare(
+    Boost.IO
+    GIT_REPOSITORY https://github.com/boostorg/io.git
+    GIT_TAG boost-1.81.0
+)
+
+FetchContent_MakeAvailable(Boost.IO)
+
+message(STATUS "FetchContent: Boost.Function")
+
+FetchContent_Declare(
+    Boost.Function
+    GIT_REPOSITORY https://github.com/boostorg/function.git
+    GIT_TAG boost-1.81.0
+)
+
+FetchContent_MakeAvailable(Boost.Function)
+
+message(STATUS "FetchContent: Boost.Bind")
+
+FetchContent_Declare(
+    Boost.Bind
+    GIT_REPOSITORY https://github.com/boostorg/bind.git
+    GIT_TAG boost-1.81.0
+)
+
+FetchContent_MakeAvailable(Boost.Bind)
+
+message(STATUS "FetchContent: Boost.Integer")
+
+FetchContent_Declare(
+    Boost.Integer
+    GIT_REPOSITORY https://github.com/boostorg/integer.git
+    GIT_TAG boost-1.81.0
+)
+
+FetchContent_MakeAvailable(Boost.Integer)
+
+message(STATUS "FetchContent: Boost.TypeIndex")
+
+FetchContent_Declare(
+    Boost.TypeIndex
+    GIT_REPOSITORY https://github.com/boostorg/type_index.git
+    GIT_TAG boost-1.81.0
+)
+
+FetchContent_MakeAvailable(Boost.TypeIndex)
