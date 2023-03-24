@@ -1,8 +1,6 @@
 #ifndef PPMA_DICTIONARY_HPP
 #define PPMA_DICTIONARY_HPP
 
-#define BOOST_HASH_NO_EXTENSIONS
-
 #include "ael/dictionary/impl/cumulative_count.hpp"
 #include "ael/dictionary/impl/cumulative_unique_count.hpp"
 #include "word_probability_stats.hpp"
