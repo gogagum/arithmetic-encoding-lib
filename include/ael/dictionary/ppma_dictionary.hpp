@@ -7,8 +7,8 @@
 #include "ael/dictionary/impl/cumulative_unique_count.hpp"
 #include "word_probability_stats.hpp"
 
-#include <boost/container/static_vector.hpp>
 #include <boost/container_hash/hash.hpp>
+#include <boost/container/static_vector.hpp>
 #include <boost/multiprecision/cpp_int.hpp>
 #include <cstdint>
 #include <deque>
