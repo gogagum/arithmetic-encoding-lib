@@ -1,14 +1,14 @@
 #ifndef PPMA_DICTIONARY_HPP
 #define PPMA_DICTIONARY_HPP
 
+#define BOOST_HASH_NO_EXTENSIONS
+
 #include "ael/dictionary/impl/cumulative_count.hpp"
 #include "ael/dictionary/impl/cumulative_unique_count.hpp"
 #include "word_probability_stats.hpp"
 
 #include <boost/container/static_vector.hpp>
-#define BOOST_HASH_NO_EXTENSIONS
 #include <boost/container_hash/hash.hpp>
-#undef BOOST_HASH_NO_EXTENSIONS
 #include <boost/multiprecision/cpp_int.hpp>
 #include <cstdint>
 #include <deque>
