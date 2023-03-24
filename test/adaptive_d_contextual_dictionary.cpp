@@ -101,4 +101,3 @@ TEST(AdaptiveDContextualDictionary, Example) {
     EXPECT_EQ(high7 - low7, 6);
     EXPECT_EQ(total7, 250 * 14);
 }
-
