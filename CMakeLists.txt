@@ -12,7 +12,7 @@ set(Boost_USE_STATIC_RUNTIME OFF)
 add_library(${PROJECT_NAME} STATIC)
 
 message("BOOST_ROOT:${BOOST_ROOT}")
-find_package(Boost 1.74.0 REQUIRED)
+find_package(Boost 1.81.0 REQUIRED)
 
 add_subdirectory(thirdparty)
 
