@@ -23,17 +23,16 @@ jobs:
             - run: valgrind ./build-valgrind/test/ael-tests
 
     linux-clang-libcpp:
-        name: Linux Clang (libc++)
+        name: Linux Clang
         runs-on: ubuntu-22.04
         env:
             CC: clang-14
             CXX: clang++-14
-            CXXFLAGS: -stdlib=libc++
         steps:
             - uses: actions/checkout@v3
             - run: |
                   sudo apt-get update
-                  sudo apt-get install -y ninja-build clang-14 libc++-14-dev libc++abi-14-dev build-essential valgrind libicu-dev
+                  sudo apt-get install -y ninja-build clang-14 build-essential valgrind libicu-dev
             - run: /bin/bash .ci/build-project.sh build-simple
             - run: ./build-simple/test/ael-tests
             - run: /bin/bash .ci/build-project-valgrind.sh build-valgrind
