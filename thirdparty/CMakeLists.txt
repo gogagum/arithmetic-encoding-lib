@@ -160,3 +160,13 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(Boost.Multiprecision)
 
+message(STATUS "FetchContent: Boost.Iterator")
+
+FetchContent_Declare(
+    Boost.Iterator
+    GIT_REPOSITORY https://github.com/boostorg/iterator.git
+    GIT_TAG boost-1.81.0
+)
+
+FetchContent_MakeAvailable(Boost.Iterator)
+

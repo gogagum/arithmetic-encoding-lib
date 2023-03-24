@@ -82,6 +82,8 @@ target_link_libraries(arithmetic-encoding-lib
     Boost::config
     Boost::multiprecision
     Boost::container
+    Boost::container_hash
+    Boost::iterator
     dynamic-segment-tree)
 
 if (BUILD_TEST)
