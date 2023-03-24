@@ -10,6 +10,10 @@ set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
 
 add_library(${PROJECT_NAME} STATIC)
+
+message("BOOST_ROOT:${BOOST_ROOT}")
+find_package(Boost 1.81.0 REQUIRED)
+
 add_subdirectory(thirdparty)
 
 target_sources(${PROJECT_NAME}
