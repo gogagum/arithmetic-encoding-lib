@@ -84,6 +84,7 @@ target_link_libraries(arithmetic-encoding-lib
     Boost::container
     Boost::container_hash
     Boost::iterator
+    Boost::range
     dynamic-segment-tree)
 
 if (BUILD_TEST)

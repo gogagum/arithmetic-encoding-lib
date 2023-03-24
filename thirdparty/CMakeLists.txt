@@ -349,3 +349,13 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(Boost.TypeIndex)
+
+message(STATUS "FetchContent: Boost.Range")
+
+FetchContent_Declare(
+    Boost.Range
+    GIT_REPOSITORY https://github.com/boostorg/range.git
+    GIT_TAG boost-1.81.0
+)
+
+FetchContent_MakeAvailable(Boost.Range)
