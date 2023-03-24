@@ -170,3 +170,63 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(Boost.Iterator)
 
+message(STATUS "FetchContent: Boost.ConceptCheck")
+
+FetchContent_Declare(
+    Boost.ConceptCheck
+    GIT_REPOSITORY https://github.com/boostorg/concept_check.git
+    GIT_TAG boost-1.81.0
+)
+
+FetchContent_MakeAvailable(Boost.ConceptCheck)
+
+message(STATUS "FetchContent: Boost.Conversion")
+
+FetchContent_Declare(
+    Boost.Conversion
+    GIT_REPOSITORY https://github.com/boostorg/conversion.git
+    GIT_TAG boost-1.81.0
+)
+
+FetchContent_MakeAvailable(Boost.Conversion)
+
+message(STATUS "FetchContent: Boost.Preprocessor")
+
+FetchContent_Declare(
+    Boost.Preprocessor
+    GIT_REPOSITORY https://github.com/boostorg/preprocessor.git
+    GIT_TAG boost-1.81.0
+)
+
+FetchContent_MakeAvailable(Boost.Preprocessor)
+
+message(STATUS "FetchContent: Boost.SmartPtr")
+
+FetchContent_Declare(
+    Boost.SmartPtr
+    GIT_REPOSITORY https://github.com/boostorg/smart_ptr.git
+    GIT_TAG boost-1.81.0
+)
+
+FetchContent_MakeAvailable(Boost.SmartPtr)
+
+message(STATUS "FetchContent: Boost.Typeof")
+
+FetchContent_Declare(
+    Boost.Typeof
+    GIT_REPOSITORY https://github.com/boostorg/typeof.git
+    GIT_TAG boost-1.81.0
+)
+
+FetchContent_MakeAvailable(Boost.Typeof)
+
+
+message(STATUS "FetchContent: Boost.Detail")
+
+FetchContent_Declare(
+    Boost.Detail
+    GIT_REPOSITORY https://github.com/boostorg/detail.git
+    GIT_TAG boost-1.81.0
+)
+
+FetchContent_MakeAvailable(Boost.Detail)
