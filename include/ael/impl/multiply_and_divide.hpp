@@ -1,7 +1,6 @@
 #ifndef MULTIPLY_AND_DIVIDE_HPP
 #define MULTIPLY_AND_DIVIDE_HPP
 
-#include <boost/multiprecision/cpp_int/cpp_int_config.hpp>
 #include <cstddef>
 #include <cstdint>
 #include <boost/multiprecision/cpp_int.hpp>
