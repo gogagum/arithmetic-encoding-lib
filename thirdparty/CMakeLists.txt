@@ -149,3 +149,14 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(Boost.Container)
+
+message(STATUS "FetchContent: Boost.Multiprecision")
+
+FetchContent_Declare(
+    Boost.Multiprecision
+    GIT_REPOSITORY https://github.com/boostorg/multiprecision.git
+    GIT_TAG boost-1.81.0
+)
+
+FetchContent_MakeAvailable(Boost.Multiprecision)
+
