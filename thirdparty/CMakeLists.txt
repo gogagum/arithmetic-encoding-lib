@@ -359,3 +359,23 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(Boost.Range)
+
+message(STATUS "FetchContent: Boost.Array")
+
+FetchContent_Declare(
+    Boost.Array
+    GIT_REPOSITORY https://github.com/boostorg/array.git
+    GIT_TAG boost-1.81.0
+)
+
+FetchContent_MakeAvailable(Boost.Array)
+
+message(STATUS "FetchContent: Boost.Regex")
+
+FetchContent_Declare(
+    Boost.Regex
+    GIT_REPOSITORY https://github.com/boostorg/regex.git
+    GIT_TAG boost-1.81.0
+)
+
+FetchContent_MakeAvailable(Boost.Regex)
