@@ -31,7 +31,8 @@ target_sources(${PROJECT_NAME}
         src/ppma_dictionary.cpp
         src/ppmd_dictionary.cpp
         src/static_dictionary.cpp
-        src/uniform_dictionary.cpp  
+        src/uniform_dictionary.cpp
+        src/adaptive_dictionary_base.cpp
 )
 
 target_include_directories(${PROJECT_NAME}

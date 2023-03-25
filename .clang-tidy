@@ -35,7 +35,7 @@ Checks: >
   -readability-braces-around-statements,
   -readability-magic-numbers
 
-HeaderFilterRegex: ^(*gtest)
+HeaderFilterRegex: '\.hpp$'
 
 CheckOptions:
   - { key: readability-identifier-naming.NamespaceCase,            value: lower_case }

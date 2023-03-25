@@ -5,7 +5,7 @@ message(STATUS "FetchContent: dynamic-segment-tree")
 FetchContent_Declare(
     dynamic-segment-tree
     GIT_REPOSITORY https://github.com/gogagum/dynamic-segment-tree.git
-    GIT_TAG main
+    GIT_TAG 952a1075e9f734844b76a8e626c29108674e8ad9
 )
 
 FetchContent_MakeAvailable(dynamic-segment-tree)

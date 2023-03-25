@@ -86,7 +86,7 @@ ContextualDictionaryStatsBase<InternalDictT>::ContextualDictionaryStatsBase(
           _numBits(constructInfo.wordNumBits),
           _ctx(0),
           _currCtxLength(0),
-          InternalDictT(1ull << _numBits) {
+          InternalDictT(1ull << constructInfo.wordNumBits) {
     if (_ctxCellBitsLength * _ctxLength > 56) {
         throw std::invalid_argument("Too big context length.");
     }
