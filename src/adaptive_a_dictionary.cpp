@@ -25,6 +25,7 @@ auto AdaptiveADictionary::getWordOrd(Count cumulativeNumFound) const -> Ord {
 
 ////////////////////////////////////////////////////////////////////////////////
 auto AdaptiveADictionary::getProbabilityStats(Ord ord) -> ProbabilityStats {
+    assert(ord < _maxOrd && "ord is out of range");
     const auto ret = getProbabilityStats_(ord);
     this->_updateWordCnt(ord, 1);
     return ret;

@@ -28,6 +28,8 @@ add_executable(ael-tests
     decreasing_on_update_dictionary.cpp
     numerical_coder.cpp
     numerical_decoder.cpp
+    arithmetic_a_encode_decode.cpp
+    arithmetic_d_encode_decode.cpp
 )
 
 if (CMAKE_CROSSCOMPILING)

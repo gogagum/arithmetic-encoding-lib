@@ -28,12 +28,23 @@ public:
     /**
      * @brief encode - encode byte flow.
      * @param bitFlow - byte
+     * @return [wordsCount, bitsEncoded]
      */
     template <class DictT>
-    static EncodeRet encode(auto ordFlow,
-                            ByteDataConstructor& dataConstructor,
-                            DictT& dict,
-                            auto&& tick = [](){});
+    [[nodiscard]] static EncodeRet encode(auto ordFlow,
+                                          ByteDataConstructor& dataConstructor,
+                                          DictT& dict);
+
+    /**
+     * @brief encode - encode byte flow.
+     * @param bitFlow - byte
+     * @return [wordsCount, bitsEncoded]
+     */
+    template <class DictT>
+    [[nodiscard]] static EncodeRet encode(auto ordFlow,
+                                          ByteDataConstructor& dataConstructor,
+                                          DictT& dict,
+                                          auto tick);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -41,8 +52,17 @@ template <class DictT>
 auto ArithmeticCoder::encode(
         auto ordFlow,
         ByteDataConstructor& dataConstructor, 
+        DictT& dict) -> EncodeRet {
+    return encode(ordFlow, dataConstructor, dict, []{});
+}
+
+////////////////////////////////////////////////////////////////////////////////
+template <class DictT>
+auto ArithmeticCoder::encode(
+        auto ordFlow,
+        ByteDataConstructor& dataConstructor, 
         DictT& dict,
-        auto&& tick) -> EncodeRet {
+        auto tick) -> EncodeRet {
     auto ret = EncodeRet();
     using RC = impl::RangesCalc<typename DictT::Count, DictT::countNumBits>;
     auto currRange = typename RC::Range{ 0, RC::total };
