@@ -112,8 +112,7 @@ std::vector<std::uint64_t> NumericalDecoder::_decodeOrds(
         ArithmeticDecoder::decode(
             source, dictWordsDictionary,
             std::back_inserter(ords),
-            layoutInfo.dictWordsCount,
-            layoutInfo.dictWordsBitsCount, 
+            { layoutInfo.dictWordsCount, layoutInfo.dictWordsBitsCount },
             tick);
     return ords;
 }
@@ -129,8 +128,7 @@ std::vector<std::uint64_t> NumericalDecoder::_decodeCounts(
     ArithmeticDecoder::decode(
                 source, countsDictionary,
                 std::back_inserter(counts),
-                layoutInfo.dictWordsCount,
-                layoutInfo.wordsCntBitsCount,
+                { layoutInfo.dictWordsCount, layoutInfo.wordsCntBitsCount },
                 tick);
     return counts;
 }
@@ -155,10 +153,10 @@ void NumericalDecoder::_decodeContent(
                    });
     auto contentDictionary =
         dict::DecreasingOnUpdateDictionary(maxOrd, contentDictInitialCounts);
-    ArithmeticDecoder::decode(source, contentDictionary, outIter,
-                              layoutInfo.contentWordsCount,
-                              layoutInfo.contentWordsBitsCount,
-                              tick);
+    ArithmeticDecoder::decode(
+        source, contentDictionary, outIter,
+        { layoutInfo.contentWordsCount, layoutInfo.contentWordsBitsCount },
+        tick);
 }
 
 }  // ael

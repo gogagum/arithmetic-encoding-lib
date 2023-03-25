@@ -20,8 +20,8 @@ protected:
 
 protected:
 
-    AdaptiveDictionaryBase(Ord wordsCount, Count initialTotalWordsCount)
-        : _cumulativeWordCounts(Ord{0}, wordsCount, 0),
+    AdaptiveDictionaryBase(Ord maxOrd, Count initialTotalWordsCount)
+        : _cumulativeWordCounts(Ord{0}, maxOrd, 0),
           _totalWordsCnt(initialTotalWordsCount) {}
 
 protected:

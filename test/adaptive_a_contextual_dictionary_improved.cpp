@@ -1,24 +1,24 @@
 #include <gtest/gtest.h>
 
-#include <ael/dictionary/adaptive_a_contextual_dictionary.hpp>
+#include <ael/dictionary/adaptive_a_contextual_dictionary_improved.hpp>
 
-using ael::dict::AdaptiveAContextualDictionary;
+using ael::dict::AdaptiveAContextualDictionaryImproved;
 
 ////////////////////////////////////////////////////////////////////////////////
 //----------------------------------------------------------------------------//
-TEST(AdaptiveAContextualDictionary, Construct) {
-    const auto dict = AdaptiveAContextualDictionary({3, 3, 5});
+TEST(AdaptiveAContextualDictionaryImproved, Construct) {
+    const auto dict = AdaptiveAContextualDictionaryImproved({3, 3, 5});
 }
 
 //----------------------------------------------------------------------------//
-TEST(AdaptiveAContextualDictionary, WordsCountAfterInit) {
-    const auto dict = AdaptiveAContextualDictionary({8, 8, 3});
+TEST(AdaptiveAContextualDictionaryImproved, WordsCountAfterInit) {
+    const auto dict = AdaptiveAContextualDictionaryImproved({8, 8, 3});
     EXPECT_EQ(dict.getTotalWordsCnt(), 256);
 }
 
 //----------------------------------------------------------------------------//
-TEST(AdaptiveAContextualDictionary, GetInitProbabilityStatsOrd0) {
-    auto dict = AdaptiveAContextualDictionary({8, 3, 8});
+TEST(AdaptiveAContextualDictionaryImproved, GetInitProbabilityStatsOrd0) {
+    auto dict = AdaptiveAContextualDictionaryImproved({8, 3, 8});
     const auto [low, high, totalWordsCount] = dict.getProbabilityStats(0);
     EXPECT_EQ(low, 0);
     EXPECT_EQ(high, 1);
@@ -26,8 +26,8 @@ TEST(AdaptiveAContextualDictionary, GetInitProbabilityStatsOrd0) {
 }
 
 //----------------------------------------------------------------------------//
-TEST(AdaptiveAContextualDictionary, GetInitProbabilityStatsOrdEnd) {
-    auto dict = AdaptiveAContextualDictionary({8, 3, 8});
+TEST(AdaptiveAContextualDictionaryImproved, GetInitProbabilityStatsOrdEnd) {
+    auto dict = AdaptiveAContextualDictionaryImproved({8, 3, 8});
     const auto [low, high, totalWordsCount] = dict.getProbabilityStats(255);
     EXPECT_EQ(low, 255);
     EXPECT_EQ(high, 256);
@@ -35,8 +35,8 @@ TEST(AdaptiveAContextualDictionary, GetInitProbabilityStatsOrdEnd) {
 }
 
 //----------------------------------------------------------------------------//
-TEST(AdaptiveAContextualDictionary, GetInitProbabilityStatsOrdCenter) {
-    auto dict = AdaptiveAContextualDictionary({8, 3, 8});
+TEST(AdaptiveAContextualDictionaryImproved, GetInitProbabilityStatsOrdCenter) {
+    auto dict = AdaptiveAContextualDictionaryImproved({8, 3, 8});
     const auto [low, high, totalWordsCount] = dict.getProbabilityStats(42);
     EXPECT_EQ(low, 42);
     EXPECT_EQ(high, 43);
@@ -44,8 +44,8 @@ TEST(AdaptiveAContextualDictionary, GetInitProbabilityStatsOrdCenter) {
 }
 
 //----------------------------------------------------------------------------//
-TEST(AdaptiveAContextualDictionary, DoubleGetStatsSame) {
-    auto dict = AdaptiveAContextualDictionary({8, 3, 8});
+TEST(AdaptiveAContextualDictionaryImproved, DoubleGetStatsSame) {
+    auto dict = AdaptiveAContextualDictionaryImproved({8, 3, 8});
     [[maybe_unused]] const auto _stats = dict.getProbabilityStats(42);
     const auto [low1, high1, totalWordsCount] = dict.getProbabilityStats(42);
     EXPECT_EQ(low1, 42);
@@ -54,8 +54,8 @@ TEST(AdaptiveAContextualDictionary, DoubleGetStatsSame) {
 }
 
 //----------------------------------------------------------------------------//
-TEST(AdaptiveAContextualDictionary, DoubleGetStatsDifferent) {
-    auto dict = AdaptiveAContextualDictionary({8, 3, 8});
+TEST(AdaptiveAContextualDictionaryImproved, DoubleGetStatsDifferent) {
+    auto dict = AdaptiveAContextualDictionaryImproved({8, 3, 8});
     [[maybe_unused]] const auto _stats = dict.getProbabilityStats(42);
     const auto [low1, high1, totalWordsCount] = dict.getProbabilityStats(45);
     EXPECT_EQ(low1, 255 + 45 - 1);
@@ -64,8 +64,8 @@ TEST(AdaptiveAContextualDictionary, DoubleGetStatsDifferent) {
 }
 
 //----------------------------------------------------------------------------//
-TEST(AdaptiveAContextualDictionary, DoubleGetStatsDifferent2) {
-    auto dict = AdaptiveAContextualDictionary({8, 3, 8});
+TEST(AdaptiveAContextualDictionaryImproved, DoubleGetStatsDifferent2) {
+    auto dict = AdaptiveAContextualDictionaryImproved({8, 3, 8});
     [[maybe_unused]] const auto _stats = dict.getProbabilityStats(42);
     const auto [low1, high1, totalWordsCount] = dict.getProbabilityStats(43);
     EXPECT_EQ(low1, 255 + 43 - 1);
@@ -74,8 +74,8 @@ TEST(AdaptiveAContextualDictionary, DoubleGetStatsDifferent2) {
 }
 
 //----------------------------------------------------------------------------//
-TEST(AdaptiveAContextualDictionary, Example) {
-    auto dict = AdaptiveAContextualDictionary({8, 3, 8});
+TEST(AdaptiveAContextualDictionaryImproved, Example) {
+    auto dict = AdaptiveAContextualDictionaryImproved({8, 3, 8});
     const auto [low0, high0, total0] = dict.getProbabilityStats('I');
     EXPECT_EQ(high0 - low0, 1);
     EXPECT_EQ(total0, 256);

@@ -135,10 +135,11 @@ public:
     using difference_type = std::ptrdiff_t;
 public:
     explicit ByteBackInserter(ByteDataConstructor& owner) : _owner(&owner) {};
-    ByteBackInserter operator++(int) { return* this; }
-    ByteBackInserter& operator++()   { return *this; }
-    void operator=(std::byte byte)   { _owner->putByte(byte); }
-    ByteBackInserter& operator*()    { return* this; }
+    ByteBackInserter operator++(int)            { return* this; }
+    ByteBackInserter& operator++()              { return *this; }
+    ByteBackInserter& operator=(std::byte byte)
+    { _owner->putByte(byte); return *this; }
+    ByteBackInserter& operator*()               { return* this; }
 private:
     ByteDataConstructor* _owner;
 };
@@ -153,7 +154,8 @@ public:
     explicit BitBackInserter(ByteDataConstructor& owner) : _owner(&owner) {};
     BitBackInserter operator++(int) { return* this; }
     BitBackInserter& operator++()   { return *this; }
-    void operator=(bool bit)        { _owner->putBit(bit); }
+    BitBackInserter& operator=(bool bit)
+    { _owner->putBit(bit); return *this; }
     BitBackInserter& operator*()    { return *this; }
     ByteBackInserter getBytesIter() { return _owner->getByteBackInserter(); }
 private:

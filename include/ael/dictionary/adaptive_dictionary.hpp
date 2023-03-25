@@ -19,14 +19,21 @@ public:
     using ProbabilityStats = WordProbabilityStats<Count>;
     constexpr const static std::uint16_t countNumBits = 62; 
 
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief The AdaptiveDictionary::ConstructInfo class
+    ///
+    struct ConstructInfo {
+        Ord maxOrd;
+        std::uint64_t ratio;
+    };
+
 public:
 
     /**
      * @brief AdaptiveDictionary constructor.
-     * @param maxOrd - maximal order.
-     * @param ratio - old to new symbol probability ratio.
+     * @param constructInfo - maximal order and ratio.
      */
-    AdaptiveDictionary(Ord maxOrd, std::uint64_t ratio);
+    explicit AdaptiveDictionary(ConstructInfo constructInfo);
 
     /**
      * @brief getWord - get word by cumulative num found.
@@ -51,9 +58,9 @@ public:
 
 private:
 
-    Count _getLowerCumulativeCnt(Ord ord) const;
+    Count getLowerCumulativeCnt_(Ord ord) const;
 
-    void _updateWordCnt(Ord ord);
+    void updateWordCnt_(Ord ord);
 
 private:
     Count _ratio;

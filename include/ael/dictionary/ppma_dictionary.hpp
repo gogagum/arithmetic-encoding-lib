@@ -25,15 +25,23 @@ public:
     using Count = bm::uint256_t;
     using ProbabilityStats = WordProbabilityStats<Count>;
     constexpr const static std::uint16_t countNumBits = 240;
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief The PPMADictionary::ConstructInfo class.
+    ///
+    struct ConstructInfo {
+        Ord maxOrd;
+        std::size_t ctxLength;
+    };
 private:
     constexpr const static std::uint16_t _maxSeqLenLog2 = 40;
 public:
 
     /**
      * PPMA dictionary constructor.
-     * @param maxOrd - maximal order. 
+     * @param constructInfo - maximal order and context length.
      */
-    PPMADictionary(Ord maxOrd, std::size_t ctxLength);
+    explicit PPMADictionary(ConstructInfo constructInfo);
 
     /**
      * @brief getWordOrd - get word order index by cumulative count.

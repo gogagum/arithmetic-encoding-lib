@@ -19,7 +19,7 @@ protected:
 
 protected:
 
-    ADDictionaryBase(Ord maxOrd);
+    explicit ADDictionaryBase(Ord maxOrd);
 
     Count _getRealTotalWordsCnt() const;
 

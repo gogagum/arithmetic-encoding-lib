@@ -21,7 +21,7 @@ TEST(StaticDictionary, Ord2Bytes1) {
         std::make_pair(112, 5)
     };
 
-    const auto dict = StaticDictionary(256 * 256, countMap);
+    const auto dict = StaticDictionary(256ul * 256u, countMap);
 
     EXPECT_EQ(dict.getWordOrd(37), 112);
 }
@@ -29,14 +29,14 @@ TEST(StaticDictionary, Ord2Bytes1) {
 //----------------------------------------------------------------------------//
 TEST(StaticDictionary, Ord2BytesFromFreq) {
     const auto countMap = std::array {
-        std::make_pair(0, std::uint64_t(2)),  // 2
-        std::make_pair(1, std::uint64_t(3)),  // 5
-        std::make_pair(2, std::uint64_t(1)),  // 6
-        std::make_pair(3, std::uint64_t(2)),  // 8
-        std::make_pair(4, std::uint64_t(5)),  // 13
-        std::make_pair(5, std::uint64_t(9)),  // 22
-        std::make_pair(6, std::uint64_t(3)),  // 25
-        std::make_pair(7, std::uint64_t(0))   // 25
+        std::make_pair(0, std::uint64_t{2}),  // 2
+        std::make_pair(1, std::uint64_t{3}),  // 5
+        std::make_pair(2, std::uint64_t{1}),  // 6
+        std::make_pair(3, std::uint64_t{2}),  // 8
+        std::make_pair(4, std::uint64_t{5}),  // 13
+        std::make_pair(5, std::uint64_t{9}),  // 22
+        std::make_pair(6, std::uint64_t{3}),  // 25
+        std::make_pair(7, std::uint64_t{0})   // 25
     };
 
     const auto dict = StaticDictionary((1 << 24), countMap);
@@ -48,8 +48,8 @@ TEST(StaticDictionary, Ord2BytesFromFreq) {
 //----------------------------------------------------------------------------//
 TEST(StaticDictionary, Ord2Bytes2) {
     const auto countMap = std::array {
-        std::make_pair(42, std::uint64_t(37)),
-        std::make_pair(112, std::uint64_t(42))
+        std::make_pair(42, std::uint64_t{37}),
+        std::make_pair(112, std::uint64_t{42})
     };
 
     const auto dict = StaticDictionary((1 << 24), countMap);
@@ -60,8 +60,8 @@ TEST(StaticDictionary, Ord2Bytes2) {
 //----------------------------------------------------------------------------//
 TEST(StaticDictionary, CumulativeNumFoundLow) {
     auto countMap = std::array {
-        std::make_pair(42, std::uint64_t(37)),
-        std::make_pair(112, std::uint64_t(5))
+        std::make_pair(42, std::uint64_t{37}),
+        std::make_pair(112, std::uint64_t{5})
     };
 
     auto dict = StaticDictionary((1 << 16), countMap);
@@ -76,8 +76,8 @@ TEST(StaticDictionary, CumulativeNumFoundLow) {
 //----------------------------------------------------------------------------//
 TEST(StaticDictionary, CumulativeNumFoundZero) {
     const auto countMap = std::array {
-        std::make_pair(42, std::uint64_t(37)),
-        std::make_pair(112, std::uint64_t(42))
+        std::make_pair(42, std::uint64_t{37}),
+        std::make_pair(112, std::uint64_t{42})
     };
 
     auto dict = StaticDictionary(256, countMap);
@@ -90,8 +90,8 @@ TEST(StaticDictionary, CumulativeNumFoundZero) {
 //----------------------------------------------------------------------------//
 TEST(StaticDictionary, CumulativeNumFoundHigh) {
     auto countMap = std::array {
-        std::make_pair(42, std::uint64_t(37)),
-        std::make_pair(112, std::uint64_t(5))
+        std::make_pair(42, std::uint64_t{37}),
+        std::make_pair(112, std::uint64_t{5})
     };
 
     auto dict = StaticDictionary((1 << 16), countMap);

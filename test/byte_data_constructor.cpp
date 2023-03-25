@@ -83,7 +83,7 @@ TEST(ByteDataConstructor, PutByte2) {
 //----------------------------------------------------------------------------//
 TEST(ByteDataConstructor, PutInt64) {
     auto encoded = ByteDataConstructor();
-    std::int64_t tested =
+    const std::int64_t tested =
             0b0000000000100000100000000000100000000000000000100000000000100000;
             //0000000011111111222222223333333344444444555555556666666677777777
 
@@ -102,8 +102,8 @@ TEST(ByteDataConstructor, PutInt64) {
 //----------------------------------------------------------------------------//
 TEST(ByteDataConstructor, PutUInt32) {
     auto encoded = ByteDataConstructor();
-    std::uint32_t tested = 0b00000000001000001000000000001000;
-                           //00000000111111112222222233333333
+    const std::uint32_t tested = 0b00000000001000001000000000001000;
+                                 //00000000111111112222222233333333
 
     encoded.putT(tested);
     EXPECT_EQ(encoded.size(), 4);

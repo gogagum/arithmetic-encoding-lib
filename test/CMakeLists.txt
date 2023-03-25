@@ -21,7 +21,9 @@ add_executable(ael-tests
     ppma_dictionary.cpp
     ppmd_dictionary.cpp
     adaptive_a_contextual_dictionary.cpp
+    adaptive_a_contextual_dictionary_improved.cpp
     adaptive_d_contextual_dictionary.cpp
+    adaptive_d_contextual_dictionary_improved.cpp
     decreasing_counts_dictionary.cpp
     decreasing_on_update_dictionary.cpp
     numerical_coder.cpp

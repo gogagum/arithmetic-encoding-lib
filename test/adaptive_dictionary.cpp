@@ -10,43 +10,43 @@ using ael::dict::AdaptiveDictionary;
 ////////////////////////////////////////////////////////////////////////////////
 //----------------------------------------------------------------------------//
 TEST(AdaptiveDictionary, ConstructBytesWord) {
-    auto dict = AdaptiveDictionary(256 * 2, 1);
+    auto dict = AdaptiveDictionary({256ul * 2u, 1});
 }
 
 //----------------------------------------------------------------------------//
 TEST(AdaptiveDictionary, ConstructBitsWord) {
-    auto dict = AdaptiveDictionary(256 * 2, 2);
+    auto dict = AdaptiveDictionary({256ul * 2, 2});
 }
 
 //----------------------------------------------------------------------------//
 TEST(AdaptiveDictionary, ConstructIntWord) {
-    auto dict = AdaptiveDictionary(8, 3);
+    auto dict = AdaptiveDictionary({8, 3});
 }
 
 //----------------------------------------------------------------------------//
 TEST(AdaptiveDictionary, LowerAfterConstruct) {
-    auto dict = AdaptiveDictionary(256, 3);
+    auto dict = AdaptiveDictionary({256, 3});
     const auto [low, _0, _1] = dict.getProbabilityStats(37);
     EXPECT_EQ(low, 37);
 }
 
 //----------------------------------------------------------------------------//
 TEST(AdaptiveDictionary, LowerZeroAfterConstruct) {
-    auto dict = AdaptiveDictionary(256, 2);
+    auto dict = AdaptiveDictionary({256, 2});
     const auto [low, _0, _1] = dict.getProbabilityStats(0);
     EXPECT_EQ(low, 0);
 }
 
 //----------------------------------------------------------------------------//
 TEST(AdaptiveDictionary, HigherZeroAfterConstruct) {
-    auto dict = AdaptiveDictionary(256, 2);
+    auto dict = AdaptiveDictionary({256, 2});
     const auto [_0, high, _1] = dict.getProbabilityStats(42);
     EXPECT_EQ(high, 43);
 }
 
 //----------------------------------------------------------------------------//
 TEST(AdaptiveDictionary, Increase) {
-    auto dict = AdaptiveDictionary(256, 1);
+    auto dict = AdaptiveDictionary({256, 1});
     [[maybe_unused]] const auto stats = dict.getProbabilityStats(12);
     const auto [low, _0, _1] = dict.getProbabilityStats(42);
     EXPECT_EQ(low, 43);
@@ -54,7 +54,7 @@ TEST(AdaptiveDictionary, Increase) {
 
 //----------------------------------------------------------------------------//
 TEST(AdaptiveDictionary, IncreaseExactTheSame) {
-    auto dict = AdaptiveDictionary(256, 1);
+    auto dict = AdaptiveDictionary({256, 1});
 
     const auto [low1, high1, _1] = dict.getProbabilityStats(12);
     EXPECT_EQ(low1, 12);  // before first increase
@@ -66,7 +66,7 @@ TEST(AdaptiveDictionary, IncreaseExactTheSame) {
 
 //----------------------------------------------------------------------------//
 TEST(AdaptiveDictionary, IncreaseZero) {
-    auto dict = AdaptiveDictionary(256, 1);
+    auto dict = AdaptiveDictionary({256, 1});
 
     const auto [low1, high1, _1] = dict.getProbabilityStats(0);
     EXPECT_EQ(low1, 0);   // before first increase
@@ -78,14 +78,14 @@ TEST(AdaptiveDictionary, IncreaseZero) {
 
 //----------------------------------------------------------------------------//
 TEST(AdaptiveDictionary, GetWordOnStart) {
-    auto dict = AdaptiveDictionary(256, 1);
+    auto dict = AdaptiveDictionary({256, 1});
     const auto ord = dict.getWordOrd(42);
     EXPECT_EQ(ord, 42);
 }
 
 //----------------------------------------------------------------------------//
 TEST(AdaptiveDictionary, GetWordAfterUpdate) {
-    auto dict = AdaptiveDictionary(256, 1);
+    auto dict = AdaptiveDictionary({256, 1});
     [[maybe_unused]] const auto stats =
             dict.getProbabilityStats(42);
     EXPECT_EQ(dict.getWordOrd(42), 42);

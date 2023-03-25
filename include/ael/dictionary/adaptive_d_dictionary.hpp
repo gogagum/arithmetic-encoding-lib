@@ -1,7 +1,7 @@
 #ifndef ADAPTIVE_D_DICTIONARY_HPP
 #define ADAPTIVE_D_DICTIONARY_HPP
 
-#include "ael/dictionary/impl/contectual_dictionary_base_improved.hpp"
+#include "impl/contectual_dictionary_base_improved.hpp"
 #include "impl/word_probability_stats.hpp"
 #include "impl/a_d_dictionary_base.hpp"
 #include "impl/contextual_dictionary_base.hpp"
@@ -49,11 +49,11 @@ public:
 
 protected:
 
-    Count _getLowerCumulativeCnt(Ord ord) const;
+    Count getLowerCumulativeCnt_(Ord ord) const;
 
-    Count _getWordCnt(Ord ord) const;
+    Count getWordCnt_(Ord ord) const;
 
-    ProbabilityStats _getProbabilityStats(Ord ord) const;
+    ProbabilityStats getProbabilityStats_(Ord ord) const;
 
 private:
     friend class impl::ContextualDictionaryStatsBase<AdaptiveDDictionary>;

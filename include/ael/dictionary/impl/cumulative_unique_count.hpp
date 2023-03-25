@@ -20,7 +20,7 @@ public:
      * @brief CumulativeCount constructor.
      * @param maxOrd - maximalOrder;
      */
-    CumulativeUniqueCount(Ord maxOrd);
+    explicit CumulativeUniqueCount(Ord maxOrd);
 
     /**
      * @brief update - update ord info.
@@ -58,12 +58,12 @@ public:
     Count getTotalWordsCnt() const;
 
 private:
-    using _DST =
+    using DST_ =
         dst::DynamicSegmentTree<
             Ord, Count, void, dst::NoRangeGetOp, dst::NoRangeGetOp,
             std::plus<void>, std::int64_t>;
 private:
-    _DST _cumulativeUniqueCnt;
+    DST_ _cumulativeUniqueCnt;
     std::unordered_set<Ord> _ords;
     const Ord _maxOrd;
 };

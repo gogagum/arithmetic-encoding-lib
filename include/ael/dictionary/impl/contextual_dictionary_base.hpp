@@ -70,7 +70,7 @@ auto ContextualDictionaryBase<InternalDictT>::getProbabilityStats(
         }
         this->_updateContextualDictionary(searchCtx, ord);
     }
-    ret = ret.value_or(InternalDictT::_getProbabilityStats(ord));
+    ret = ret.value_or(InternalDictT::getProbabilityStats_(ord));
     this->_updateWordCnt(ord, 1);
     this->_updateCtx(ord);
     return ret.value();

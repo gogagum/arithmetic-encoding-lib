@@ -43,22 +43,22 @@ public:
      * @brief getTotalWordsCount - current number of words.
      * @return number of words. In fact, it is last decoded/encoded word.
      */
-    [[nodiscard]] Count getTotalWordsCnt() const { return _currentCount; }
+    [[nodiscard]] Count getTotalWordsCnt() const { return currentCount_; }
 
 private:
-    Count _currentCount;
+    Count currentCount_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 template <typename CountT>
 DecreasingCountDictionary<CountT>::DecreasingCountDictionary(Count initialCount)
-    : _currentCount(initialCount) {}
+    : currentCount_(initialCount) {}
 
 ////////////////////////////////////////////////////////////////////////////////
 template <typename CountT>
 auto DecreasingCountDictionary<CountT>::getWordOrd(
         Count cumulativeNumFound) const -> Ord {
-    assert (cumulativeNumFound <= _currentCount && "Non decreasing word!");
+    assert (cumulativeNumFound <= currentCount_ && "Non decreasing word!");
     return cumulativeNumFound + 1;
 }
 
@@ -66,9 +66,9 @@ auto DecreasingCountDictionary<CountT>::getWordOrd(
 template <typename CountT>
 auto DecreasingCountDictionary<CountT>::getProbabilityStats(
         Ord ord) -> ProbabilityStats {
-    assert(ord <= _currentCount && "Non decreasing word!");
-    const auto ret = ProbabilityStats{ ord - 1, ord, _currentCount };
-    _currentCount = ord;
+    assert(ord <= currentCount_ && "Non decreasing word!");
+    const auto ret = ProbabilityStats{ ord - 1, ord, currentCount_ };
+    currentCount_ = ord;
     return ret;
 }
 

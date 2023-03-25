@@ -11,12 +11,12 @@ AdaptiveADictionary::AdaptiveADictionary(Ord maxOrd)
 
 ////////////////////////////////////////////////////////////////////////////////
 auto AdaptiveADictionary::getWordOrd(Count cumulativeNumFound) const -> Ord {
-    using UintIt = ael::impl::IntegerRandomAccessIterator<std::uint64_t>;
-    const auto idxs = boost::make_iterator_range<UintIt>(0, this->_maxOrd);
-    // TODO: replace
+    using UIntIt = ael::impl::IntegerRandomAccessIterator<std::uint64_t>;
+    const auto idxs = boost::iterator_range<UIntIt>(UIntIt{0}, UIntIt{this->_maxOrd});
+    // TODO(gogagum): replace
     //auto idxs = std::ranges::iota_view(std::uint64_t{0}, WordT::wordsCount);
     const auto getLowerCumulNumFound_ = [this](std::uint64_t ord) {
-        return this->_getLowerCumulativeCnt(ord + 1);
+        return this->getLowerCumulativeCnt_(ord + 1);
     };
     const auto it = std::ranges::upper_bound(idxs, cumulativeNumFound, {},
                                              getLowerCumulNumFound_);
@@ -25,7 +25,7 @@ auto AdaptiveADictionary::getWordOrd(Count cumulativeNumFound) const -> Ord {
 
 ////////////////////////////////////////////////////////////////////////////////
 auto AdaptiveADictionary::getProbabilityStats(Ord ord) -> ProbabilityStats {
-    const auto ret = _getProbabilityStats(ord);
+    const auto ret = getProbabilityStats_(ord);
     this->_updateWordCnt(ord, 1);
     return ret;
 }
@@ -41,7 +41,7 @@ auto AdaptiveADictionary::getTotalWordsCnt() const -> Count {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto AdaptiveADictionary::_getLowerCumulativeCnt(
+auto AdaptiveADictionary::getLowerCumulativeCnt_(
         Ord ord) const -> Count {
     const auto cumulativeNumFound = this->_getRealLowerCumulativeWordCnt(ord);
     if (this->_maxOrd == this->_getTotalWordsUniqueCnt()) {
@@ -55,7 +55,7 @@ auto AdaptiveADictionary::_getLowerCumulativeCnt(
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto AdaptiveADictionary::_getWordCnt(Ord ord) const -> Count {
+auto AdaptiveADictionary::getWordCnt_(Ord ord) const -> Count {
     const auto totalUniqueWordsCnt = this->_getTotalWordsUniqueCnt();
     if (this->_maxOrd == totalUniqueWordsCnt) {
         return this->_cumulativeCnt.getCount(ord);
@@ -67,10 +67,10 @@ auto AdaptiveADictionary::_getWordCnt(Ord ord) const -> Count {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto AdaptiveADictionary::_getProbabilityStats(
+auto AdaptiveADictionary::getProbabilityStats_(
         Ord ord) const -> ProbabilityStats {
-    const auto low = _getLowerCumulativeCnt(ord);
-    const auto high = low + _getWordCnt(ord);
+    const auto low = getLowerCumulativeCnt_(ord);
+    const auto high = low + getWordCnt_(ord);
     const auto total = getTotalWordsCnt();
     assert(high > low);
     assert(total >= high);

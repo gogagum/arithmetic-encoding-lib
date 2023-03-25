@@ -10,12 +10,12 @@ using ael::dict::AdaptiveADictionary;
 ////////////////////////////////////////////////////////////////////////////////
 //----------------------------------------------------------------------------//
 TEST(AdaptiveADictionary, Construct) {
-    auto dict = AdaptiveADictionary(256 * 256);
+    auto dict = AdaptiveADictionary(256ul * 256u);
 }
 
 //----------------------------------------------------------------------------//
 TEST(AdaptiveADictionary, GetStats) {
-    auto dict = AdaptiveADictionary(256 * 256);
+    auto dict = AdaptiveADictionary(256ul * 256u);
     [[maybe_unused]] const auto [low, high, total] =
             dict.getProbabilityStats(1);
 }

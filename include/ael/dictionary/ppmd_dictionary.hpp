@@ -8,6 +8,7 @@
 #include <boost/container/static_vector.hpp>
 #include <boost/container_hash/hash.hpp>
 #include <boost/multiprecision/cpp_int.hpp>
+#include <cstddef>
 #include <cstdint>
 #include <deque>
 #include <unordered_map>
@@ -23,15 +24,24 @@ public:
     using Count = boost::multiprecision::uint256_t;
     using ProbabilityStats = WordProbabilityStats<Count>;
     constexpr const static std::uint16_t countNumBits = 240;
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief The PPMDDictionary::ConstructInfo class.
+    ///
+    struct ConstructInfo {
+        Ord maxOrd;
+        std::size_t ctxLength;
+    };
+
 private:
     constexpr const static std::uint16_t _maxSeqLenLog2 = 40;
 public:
 
     /**
      * PPMD dictionary constructor.
-     * @param maxOrd - maximal order. 
+     * @param maxOrd - maximal order and context length.
      */
-    PPMDDictionary(Ord maxOrd, std::size_t ctxLength);
+    explicit PPMDDictionary(ConstructInfo constructInfo);
     
     /**
      * @brief getWordOrd - get word order index by cumulative count.

@@ -7,18 +7,18 @@ using ael::dict::PPMADictionary;
 ////////////////////////////////////////////////////////////////////////////////
 //----------------------------------------------------------------------------//
 TEST(PPMADictionary, Construct) {
-    const auto dict = PPMADictionary(256, 1);
+    const auto dict = PPMADictionary({256, 1});
 }
 
 //----------------------------------------------------------------------------//
 TEST(PPMADictionary, WordsCountAfterInit) {
-    const auto dict = PPMADictionary(256, 1);
+    const auto dict = PPMADictionary({256, 1});
     EXPECT_EQ(dict.getTotalWordsCnt(), 256);
 }
 
 //----------------------------------------------------------------------------//
 TEST(PPMADictionary, GetInitProbabilityStatsOrd0) {
-    auto dict = PPMADictionary(256, 1);
+    auto dict = PPMADictionary({256, 1});
     const auto [low, high, totalWordsCount] = dict.getProbabilityStats(0);
     EXPECT_EQ(low, 0);
     EXPECT_EQ(high, 1);
@@ -27,7 +27,7 @@ TEST(PPMADictionary, GetInitProbabilityStatsOrd0) {
 
 //----------------------------------------------------------------------------//
 TEST(PPMADictionary, GetInitProbabilityStatsOrdEnd) {
-    auto dict = PPMADictionary(256, 1);
+    auto dict = PPMADictionary({256, 1});
     const auto [low, high, totalWordsCount] = dict.getProbabilityStats(255);
     EXPECT_EQ(low, 255);
     EXPECT_EQ(high, 256);
@@ -36,7 +36,7 @@ TEST(PPMADictionary, GetInitProbabilityStatsOrdEnd) {
 
 //----------------------------------------------------------------------------//
 TEST(PPMADictionary, GetInitProbabilityStatsOrdCenter) {
-    auto dict = PPMADictionary(256, 1);
+    auto dict = PPMADictionary({256, 1});
     const auto [low, high, totalWordsCount] = dict.getProbabilityStats(42);
     EXPECT_EQ(low, 42);
     EXPECT_EQ(high, 43);
@@ -45,7 +45,7 @@ TEST(PPMADictionary, GetInitProbabilityStatsOrdCenter) {
 
 //----------------------------------------------------------------------------//
 TEST(PPMADictionary, DoubleGetStatsSame) {
-    auto dict = PPMADictionary(256, 1);
+    auto dict = PPMADictionary({256, 1});
     [[maybe_unused]] const auto _stats = dict.getProbabilityStats(42);
     const auto [low1, high1, totalWordsCount] = dict.getProbabilityStats(42);
     EXPECT_EQ(low1, 42);
@@ -55,7 +55,7 @@ TEST(PPMADictionary, DoubleGetStatsSame) {
 
 //----------------------------------------------------------------------------//
 TEST(PPMADictionary, DoubleGetStatsDifferent) {
-    auto dict = PPMADictionary(256, 1);
+    auto dict = PPMADictionary({256, 1});
     [[maybe_unused]] const auto _stats = dict.getProbabilityStats(42);
     const auto [low1, high1, totalWordsCount] = dict.getProbabilityStats(45);
     EXPECT_EQ(low1, 255 + 45 - 1);
@@ -65,7 +65,7 @@ TEST(PPMADictionary, DoubleGetStatsDifferent) {
 
 //----------------------------------------------------------------------------//
 TEST(PPMADictionary, DoubleGetStatsDifferent2) {
-    auto dict = PPMADictionary(256, 1);
+    auto dict = PPMADictionary({256, 1});
     [[maybe_unused]] const auto _stats = dict.getProbabilityStats(42);
     const auto [low1, high1, totalWordsCount] = dict.getProbabilityStats(43);
     EXPECT_EQ(low1, 255 + 43 - 1);
@@ -75,7 +75,7 @@ TEST(PPMADictionary, DoubleGetStatsDifferent2) {
 
 //----------------------------------------------------------------------------//
 TEST(PPMADictionary, Example) {
-    auto dict = PPMADictionary(256, 5);
+    auto dict = PPMADictionary({256, 5});
     const auto [low0, high0, total0] = dict.getProbabilityStats('I');
     EXPECT_EQ(high0 - low0, 1);
     EXPECT_EQ(total0, 256);

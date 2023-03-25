@@ -11,8 +11,8 @@ using ael::dict::DecreasingOnUpdateDictionary;
 //----------------------------------------------------------------------------//
 TEST(DecreasingOnUpdateDictionary, Construct) {
     const auto freqMapping = std::array{
-        std::make_pair(std::uint64_t{42}, std::uint64_t(15)),
-        std::make_pair(std::uint64_t{105}, std::uint64_t(17))
+        std::make_pair(std::uint64_t{42}, std::uint64_t{15}),
+        std::make_pair(std::uint64_t{105}, std::uint64_t{17})
     };
     auto dict = DecreasingOnUpdateDictionary(256, freqMapping);
 }
@@ -20,8 +20,8 @@ TEST(DecreasingOnUpdateDictionary, Construct) {
 //----------------------------------------------------------------------------//
 TEST(DecreasingOnUpdateDictionary, TotalCount) {
     const auto freqMapping = std::array{
-        std::make_pair(std::uint64_t{42}, std::uint64_t(15)),
-        std::make_pair(std::uint64_t{105}, std::uint64_t(17))
+        std::make_pair(std::uint64_t{42}, std::uint64_t{15}),
+        std::make_pair(std::uint64_t{105}, std::uint64_t{17})
     };
     auto dict = DecreasingOnUpdateDictionary(256, freqMapping);
     EXPECT_EQ(dict.getTotalWordsCnt(), 32);
@@ -37,10 +37,10 @@ TEST(DecreasingOnUpdateDictionary, TotalCountEmpty) {
 //----------------------------------------------------------------------------//
 TEST(DecreasingOnUpdateDictionary, TotalCountAfterDecrease) {
     const auto freqMapping = std::array{
-        std::make_pair(std::uint64_t{42}, std::uint64_t(15)),
-        std::make_pair(std::uint64_t{105}, std::uint64_t(17))
+        std::make_pair(std::uint64_t{42}, std::uint64_t{15}),
+        std::make_pair(std::uint64_t{105}, std::uint64_t{17})
     };
-    auto dict = DecreasingOnUpdateDictionary(256 * 256, freqMapping);
+    auto dict = DecreasingOnUpdateDictionary(256ul * 256u, freqMapping);
     [[maybe_unused]] auto stats = dict.getProbabilityStats(42);
 
     EXPECT_EQ(dict.getTotalWordsCnt(), 31);
@@ -49,10 +49,10 @@ TEST(DecreasingOnUpdateDictionary, TotalCountAfterDecrease) {
 //----------------------------------------------------------------------------//
 TEST(DecreasingOnUpdateDictionary, CountAfterDecrease) {
     const auto freqMapping = std::array{
-        std::make_pair(std::uint64_t{42}, std::uint64_t(15)),
-        std::make_pair(std::uint64_t{105}, std::uint64_t(17))
+        std::make_pair(std::uint64_t{42}, std::uint64_t{15}),
+        std::make_pair(std::uint64_t{105}, std::uint64_t{17})
     };
-    auto dict = DecreasingOnUpdateDictionary(256 * 256, freqMapping);
+    auto dict = DecreasingOnUpdateDictionary(256ul * 256u, freqMapping);
     [[maybe_unused]] auto stats = dict.getProbabilityStats(42);
 
     auto [low, high, _0] = dict.getProbabilityStats(42);
@@ -64,10 +64,10 @@ TEST(DecreasingOnUpdateDictionary, CountAfterDecrease) {
 //----------------------------------------------------------------------------//
 TEST(DecreasingOnUpdateDictionary, CountAfterDecreaseTwice) {
     const auto freqMapping = std::array{
-        std::make_pair(std::uint64_t{42}, std::uint64_t(15)),
-        std::make_pair(std::uint64_t{105}, std::uint64_t(17))
+        std::make_pair(std::uint64_t{42}, std::uint64_t{15}),
+        std::make_pair(std::uint64_t{105}, std::uint64_t{17})
     };
-    auto dict = DecreasingOnUpdateDictionary(256 * 256, freqMapping);
+    auto dict = DecreasingOnUpdateDictionary(256ul * 256u, freqMapping);
     [[maybe_unused]] auto stats = dict.getProbabilityStats(42);
 
     auto [low0, high0, _0] = dict.getProbabilityStats(42);
@@ -84,10 +84,10 @@ TEST(DecreasingOnUpdateDictionary, CountAfterDecreaseTwice) {
 //----------------------------------------------------------------------------//
 TEST(DecreasingOnUpdateDictionary, GetWord) {
     const auto freqMapping = std::array{
-        std::make_pair(std::uint64_t{42}, std::uint64_t(15)),
-        std::make_pair(std::uint64_t{105}, std::uint64_t(17))
+        std::make_pair(std::uint64_t{42}, std::uint64_t{15}),
+        std::make_pair(std::uint64_t{105}, std::uint64_t{17})
     };
-    auto dict = DecreasingOnUpdateDictionary(256 * 256, freqMapping);
+    auto dict = DecreasingOnUpdateDictionary(256ul * 256u, freqMapping);
 
     const auto ord = dict.getWordOrd(12);
     EXPECT_EQ(ord, 42);

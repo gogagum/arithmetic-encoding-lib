@@ -12,17 +12,17 @@
 namespace ael::dict {
 
 ////////////////////////////////////////////////////////////////////////////////
-PPMDDictionary::PPMDDictionary(Ord maxOrd, std::size_t ctxLength)
-    : _maxOrd(maxOrd),
-      _zeroCtxCell{ impl::CumulativeCount(maxOrd),
-                    impl::CumulativeUniqueCount(maxOrd) },
-      _ctxLength(ctxLength) {
+PPMDDictionary::PPMDDictionary(ConstructInfo constructInfo)
+    : _maxOrd(constructInfo.maxOrd),
+      _zeroCtxCell{ impl::CumulativeCount(constructInfo.maxOrd),
+                    impl::CumulativeUniqueCount(constructInfo.maxOrd) },
+      _ctxLength(constructInfo.ctxLength) {
     /**
      * \tau_{ctx}_{i} < sequenceLength
      * Product of tau-s must be less than sequenceLength ^ "tau-s count"
      * Estimation: sequenceLength * l_{ctx} < maxCntBits.
      */
-    if (_maxSeqLenLog2 * ctxLength > countNumBits) {
+    if (_maxSeqLenLog2 * _ctxLength > countNumBits) {
         throw std::logic_error("Too big context.");
     }
 }
@@ -32,7 +32,7 @@ auto PPMDDictionary::getWordOrd(const Count& cumulativeNumFound) const -> Ord {
     using UIntIt = ael::impl::IntegerRandomAccessIterator<std::uint64_t>;
     const auto idxs = boost::iterator_range<UIntIt>(
         UIntIt{0}, UIntIt{this->_maxOrd});
-    // TODO: replace
+    // TODO(gogagum): replace
     //auto idxs = std::ranges::iota_view(std::uint64_t{0}, WordT::wordsCount);
     assert(cumulativeNumFound <= this->getTotalWordsCnt());
     const auto getLowerCumulNumFound_ = [this](std::uint64_t ord) {

@@ -12,6 +12,7 @@ namespace bm = boost::multiprecision;
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief The ContextualDictionaryStatsBase<InternalDict> class
+///
 template <class InternalDict>
 class ContextualDictionaryStatsBase : protected InternalDict {
 protected:
@@ -32,17 +33,23 @@ protected:
         }
     };
 
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief The ContextualDictionaryStatsBase<InternalDict>::ConstructInfo
+    /// class
+    ///
+    struct ConstructInfo {
+        std::uint16_t wordNumBits;
+        std::uint16_t ctxLength;
+        std::uint16_t ctxCellBitsLength;
+    };
+
 public:
 
     /**
      * @brief contextual dictionary constructor.
-     * @param wordNumBits word bits length.
-     * @param ctxLength number of blocks in context.
-     * @param ctxCellBitsLength context cell bits length.
+     * @param constructInfo - wordBitsCount, context length, context cell bits length.
      */
-    ContextualDictionaryStatsBase(std::uint16_t wordNumBits,
-                                  std::uint16_t ctxLength,
-                                  std::uint16_t ctxCellBitsLength);
+    explicit ContextualDictionaryStatsBase(ConstructInfo constructInfo);
 protected:
 
     Ord _getCtx(std::uint16_t length) const;
@@ -73,16 +80,14 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 template<class InternalDictT>
 ContextualDictionaryStatsBase<InternalDictT>::ContextualDictionaryStatsBase(
-    std::uint16_t wordBitsLength,
-    std::uint16_t ctxLength,
-    std::uint16_t ctxCellBitsLength) 
-        : _ctxCellBitsLength(ctxCellBitsLength),
-          _ctxLength(ctxLength),
-          _numBits(wordBitsLength),
+    ConstructInfo constructInfo)
+        : _ctxCellBitsLength(constructInfo.ctxCellBitsLength),
+          _ctxLength(constructInfo.ctxLength),
+          _numBits(constructInfo.wordNumBits),
           _ctx(0),
           _currCtxLength(0),
-          InternalDictT(1ull << wordBitsLength) {
-    if (ctxCellBitsLength * ctxLength > 56) {
+          InternalDictT(1ull << _numBits) {
+    if (_ctxCellBitsLength * _ctxLength > 56) {
         throw std::invalid_argument("Too big context length.");
     }
 }
