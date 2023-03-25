@@ -42,8 +42,10 @@ public:
         bool equal(const type& other) const
         { return _bitsPosition == other._bitsPosition; }
         ////////////////////////////////////////////////////////////////////////
-        std::ptrdiff_t distance_to(const type& other) const
-        { return static_cast<ptrdiff_t>(other._bitsPosition) - _bitsPosition; }
+        std::ptrdiff_t distance_to(const type& other) const {
+            return static_cast<ptrdiff_t>(other._bitsPosition)
+                - static_cast<ptrdiff_t>(_bitsPosition);
+        }
         ////////////////////////////////////////////////////////////////////////
         void increment()                     { ++_bitsPosition; }
         ////////////////////////////////////////////////////////////////////////

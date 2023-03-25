@@ -1,7 +1,7 @@
 #ifndef STATIC_DICTIONARY_HPP
 #define STATIC_DICTIONARY_HPP
 
-#include "word_probability_stats.hpp"
+#include "impl/word_probability_stats.hpp"
 
 #include <vector>
 #include <cstdint>

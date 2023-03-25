@@ -1,7 +1,7 @@
 #ifndef DECREASING_ON_UPDATE_DICTIONARY_HPP
 #define DECREASING_ON_UPDATE_DICTIONARY_HPP
 
-#include "word_probability_stats.hpp"
+#include "impl/word_probability_stats.hpp"
 #include "impl/adaptive_dictionary_base.hpp"
 
 #include <cstdint>

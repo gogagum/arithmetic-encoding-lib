@@ -40,13 +40,27 @@ public:
 
     static EncodeRet encode(auto& ordFlow,
                             const std::vector<CountEntry>& countsMapping,
+                            ByteDataConstructor& dataConstructor);
+
+    static EncodeRet encode(auto& ordFlow,
+                            const std::vector<CountEntry>& countsMapping,
                             ByteDataConstructor& dataConstructor,
-                            auto&& wordTick = []{},
-                            auto&& wordCntTick = []{},
-                            auto&& contentTick = []{});
+                            auto wordTick,
+                            auto wordCntTick,
+                            auto contentTick);
+
+private:
+
+    static EncodeRet _encode(auto& ordFlow,
+                            const std::vector<CountEntry>& countsMapping,
+                            ByteDataConstructor& dataConstructor,
+                            auto wordTick,
+                            auto wordCntTick,
+                            auto contentTick);
+
 private:
     
-    struct _BitsCountsPositions {
+    struct BitsCountsPositions_ {
         std::size_t countsBitsPos;
         std::size_t wordsBitsPos;
         std::size_t contentBitsPos;
@@ -57,10 +71,31 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 auto NumericalCoder::encode(auto& ordFlow,
                             const std::vector<CountEntry>& countsMapping,
+                            ByteDataConstructor& dataConstructor) -> EncodeRet {
+    return _encode(ordFlow, countsMapping, dataConstructor, []{}, []{}, []{});
+}
+
+////////////////////////////////////////////////////////////////////////////////
+auto NumericalCoder::encode(auto& ordFlow,
+                            const std::vector<CountEntry>& countsMapping,
                             ByteDataConstructor& dataConstructor,
-                            auto&& wordTick,
-                            auto&& wordCntTick,
-                            auto&& contentTick) -> EncodeRet {
+                            auto wordTick,
+                            auto wordCntTick,
+                            auto contentTick) -> EncodeRet {
+    return _encode(ordFlow, countsMapping, dataConstructor, wordTick, wordCntTick, contentTick);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+auto NumericalCoder::_encode(auto& ordFlow,
+                            const std::vector<CountEntry>& countsMapping,
+                            ByteDataConstructor& dataConstructor,
+                            auto wordTick,
+                            auto wordCntTick,
+                            auto contentTick) -> EncodeRet {
+    if (ordFlow.size() == 0) {
+        return {0, 0, 0, 0, 0};
+    }
+
     std::vector<std::uint64_t> counts;
     std::vector<std::uint64_t> dictWordsOrds;
 

@@ -25,13 +25,13 @@ protected:
           _totalWordsCnt(initialTotalWordsCount) {}
 
 protected:
-    using _DST =
+    using DST_ =
         dst::DynamicSegmentTree<
             Ord, Count, void, dst::NoRangeGetOp, dst::NoRangeGetOp,
             std::plus<void>, std::int64_t>;
 
 protected:
-    _DST _cumulativeWordCounts;
+    DST_ _cumulativeWordCounts;
     std::unordered_map<Ord, Count> _wordCnts;
     Count _totalWordsCnt;
 };

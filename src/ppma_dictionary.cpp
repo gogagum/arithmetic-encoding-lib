@@ -27,9 +27,10 @@ PPMADictionary::PPMADictionary(Ord maxOrd, std::size_t ctxLength)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto PPMADictionary::getWordOrd(Count cumulativeNumFound) const -> Ord {
-    using UintIt = ael::impl::IntegerRandomAccessIterator<std::uint64_t>;
-    const auto idxs = boost::make_iterator_range<UintIt>(0, this->_maxOrd);
+auto PPMADictionary::getWordOrd(const Count& cumulativeNumFound) const -> Ord {
+    using UIntIt = ael::impl::IntegerRandomAccessIterator<std::uint64_t>;
+    const auto idxs = boost::iterator_range<UIntIt>(
+        UIntIt{0}, UIntIt{this->_maxOrd});
     // TODO: replace
     //auto idxs = std::ranges::iota_view(std::uint64_t{0}, WordT::wordsCount);
     assert(cumulativeNumFound <= this->getTotalWordsCnt());
@@ -47,9 +48,9 @@ auto PPMADictionary::getWordOrd(Count cumulativeNumFound) const -> Ord {
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMADictionary::getProbabilityStats(Ord ord) -> ProbabilityStats {
     assert(ord < _maxOrd);
-    const auto ret = _getProbabilityStats(ord);
+    auto ret = _getProbabilityStats(ord);
     _updateWordCnt(ord, 1);
-    return ret;
+    return std::move(ret);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -127,15 +128,15 @@ auto PPMADictionary::_getProbabilityStats(Ord ord) const -> ProbabilityStats {
 ////////////////////////////////////////////////////////////////////////////////
 void PPMADictionary::_updateWordCnt(Ord ord,
                                     impl::CumulativeCount::Count cnt) {
-    for (auto ctx = _SearchCtx(_ctx.rbegin(), _ctx.rend());
+    for (auto ctx = SearchCtx_(_ctx.rbegin(), _ctx.rend());
          !ctx.empty();
          ctx.pop_back()) {
         if (!_ctxInfo.contains(ctx)) {
             _ctxInfo.emplace(ctx, _maxOrd);
         }
-        _ctxInfo.at(ctx).increaseOrdCount(ord, cnt);
+        _ctxInfo.at(ctx).increaseOrdCount(ord, static_cast<std::int64_t>(cnt));
     }
-    _zeroCtxCnt.increaseOrdCount(ord, cnt);
+    _zeroCtxCnt.increaseOrdCount(ord, static_cast<std::int64_t>(cnt));
     _zeroCtxUniqueCnt.update(ord);
     _ctx.push_back(ord);
     if (_ctx.size() > _ctxLength) {
@@ -144,8 +145,8 @@ void PPMADictionary::_updateWordCnt(Ord ord,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto PPMADictionary::_getSearchCtxEmptySkipped() const -> _SearchCtx {
-    auto ctx = _SearchCtx(_ctx.rbegin(), _ctx.rend());
+auto PPMADictionary::_getSearchCtxEmptySkipped() const -> SearchCtx_ {
+    auto ctx = SearchCtx_(_ctx.rbegin(), _ctx.rend());
     for (;
          !ctx.empty() && !_ctxInfo.contains(ctx);
          ctx.pop_back()) {

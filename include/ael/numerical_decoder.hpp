@@ -17,7 +17,7 @@ namespace ael {
 ///
 class NumericalDecoder {
 private:
-    struct _CountEntry {
+    struct CountEntry_ {
         std::uint64_t ord;
         std::uint64_t cnt;
     };
@@ -36,10 +36,17 @@ public:
             auto& source,
             OutIter outIter,
             std::uint64_t maxOrd,
+            const LayoutInfo& layoutInfo);
+
+    template <std::output_iterator<std::uint64_t> OutIter>
+    static void decode(
+            auto& source,
+            OutIter outIter,
+            std::uint64_t maxOrd,
             const LayoutInfo& layoutInfo,
-            auto&& wordTick = []{},
-            auto&& wordCountTick = []{},
-            auto&& contentTick = []{});
+            auto wordTick,
+            auto wordCountTick,
+            auto contentTick);
 private:
 
     static std::vector<std::uint64_t> _decodeCounts(
@@ -70,10 +77,20 @@ void NumericalDecoder::decode(
         auto& source,
         OutIter outIter,
         std::uint64_t maxOrd,
+        const LayoutInfo& layoutInfo) {
+    decode(source, outIter, maxOrd, layoutInfo, []{}, []{}, []{});
+}
+
+////////////////////////////////////////////////////////////////////////////////
+template <std::output_iterator<std::uint64_t> OutIter>
+void NumericalDecoder::decode(
+        auto& source,
+        OutIter outIter,
+        std::uint64_t maxOrd,
         const LayoutInfo& layoutInfo,
-        auto&& wordTick,
-        auto&& wordCountTick,
-        auto&& contentTick) {
+        auto wordTick,
+        auto wordCountTick,
+        auto contentTick) {
     // Decode dictionary words
     auto ords = _decodeOrds(source, maxOrd, layoutInfo, wordTick);
     
@@ -129,11 +146,11 @@ void NumericalDecoder::_decodeContent(
         const std::vector<std::uint64_t>& counts,
         auto&& tick) {
     assert(ords.size() == counts.size());
-    auto contentDictInitialCounts = std::vector<_CountEntry>();
+    auto contentDictInitialCounts = std::vector<CountEntry_>();
     std::transform(ords.begin(), ords.end(), counts.begin(),
                    std::back_inserter(contentDictInitialCounts),
                    [](std::uint64_t wordOrd,
-                      std::uint64_t count) -> _CountEntry {
+                      std::uint64_t count) -> CountEntry_ {
                        return { wordOrd, count };
                    });
     auto contentDictionary =

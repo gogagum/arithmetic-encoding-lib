@@ -19,7 +19,7 @@ public:
     using type = IntegerRandomAccessIterator<T>;
 public:
     //------------------------------------------------------------------------//
-    IntegerRandomAccessIterator(T initial = 0) : _val(initial) {}
+    explicit IntegerRandomAccessIterator(T initial = 0) : _val(initial) {}
     //------------------------------------------------------------------------//
     IntegerRandomAccessIterator(const type& other) = default;
 protected:

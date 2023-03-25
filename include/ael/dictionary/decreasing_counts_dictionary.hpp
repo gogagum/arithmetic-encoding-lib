@@ -3,7 +3,7 @@
 
 #include <stdexcept>
 
-#include "word_probability_stats.hpp"
+#include "impl/word_probability_stats.hpp"
 
 namespace ael::dict {
 
@@ -23,7 +23,7 @@ public:
      * @brief DecreasingCountDictionary constructor.
      * @param initialCount - intintal count.
      */
-    DecreasingCountDictionary(Count initialCount);
+    explicit DecreasingCountDictionary(Count initialCount);
 
     /**
      * @brief getWord

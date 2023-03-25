@@ -2,6 +2,7 @@
 #define BITS_ITERATOR_HPP
 
 #include <array>
+#include <cstddef>
 
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/range/iterator_range.hpp>
@@ -22,7 +23,8 @@ private:
 public:
 
     ////////////////////////////////////////////////////////////////////////////
-    BitsIterator(const T& iterated, std::ptrdiff_t offset = sizeof(T) * 8)
+    explicit BitsIterator(const T& iterated,
+                          std::ptrdiff_t offset = sizeof(T) * 8)
         : _iterated(&iterated), _offset(offset) {}
     ////////////////////////////////////////////////////////////////////////////
     BitsIterator& operator=(const BitsIterator& other) = default;
@@ -64,7 +66,7 @@ private:
 template <class T>
 class ReverseBitsIterator : public std::reverse_iterator<BitsIterator<T>> {
 public:
-    ReverseBitsIterator(const T& iterated,
+    explicit ReverseBitsIterator(const T& iterated,
                         std::ptrdiff_t offset = sizeof(T) * 8)
         : std::reverse_iterator<BitsIterator<T>>(
               BitsIterator<T>(iterated, sizeof(T) * 8 - offset)) {}

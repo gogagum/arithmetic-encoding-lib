@@ -24,6 +24,8 @@ add_executable(ael-tests
     adaptive_d_contextual_dictionary.cpp
     decreasing_counts_dictionary.cpp
     decreasing_on_update_dictionary.cpp
+    numerical_coder.cpp
+    numerical_decoder.cpp
 )
 
 if (CMAKE_CROSSCOMPILING)

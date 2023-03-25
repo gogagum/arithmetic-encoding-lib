@@ -2,6 +2,7 @@
 #define BYTES_ITERATOR_HPP
 
 #include <array>
+#include <cstddef>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/range/iterator_range.hpp>
 
@@ -20,7 +21,7 @@ private:
     using type = BytesIterator<T>;
 public:
     ////////////////////////////////////////////////////////////////////////////
-    BytesIterator(const T& iterated, std::ptrdiff_t offset = sizeof(T))
+    explicit BytesIterator(const T& iterated, std::ptrdiff_t offset = sizeof(T))
         : _iterated(&iterated), _offset(offset) {}
     ////////////////////////////////////////////////////////////////////////////
     BytesIterator& operator=(const BytesIterator& other) = default;
@@ -57,7 +58,8 @@ private:
 template <class T>
 class ReverseBytesIterator : public std::reverse_iterator<BytesIterator<T>> {
 public:
-    ReverseBytesIterator(const T& iterated, std::ptrdiff_t offset = sizeof(T))
+    explicit ReverseBytesIterator(const T& iterated,
+                                  std::ptrdiff_t offset = sizeof(T))
         : std::reverse_iterator<BytesIterator<T>>(
               BytesIterator<T>(iterated, sizeof(T) - offset)) {}
 };

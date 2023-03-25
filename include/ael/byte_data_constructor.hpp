@@ -134,7 +134,7 @@ class ByteDataConstructor::ByteBackInserter {
 public:
     using difference_type = std::ptrdiff_t;
 public:
-    ByteBackInserter(ByteDataConstructor& owner) : _owner(&owner) {};
+    explicit ByteBackInserter(ByteDataConstructor& owner) : _owner(&owner) {};
     ByteBackInserter operator++(int) { return* this; }
     ByteBackInserter& operator++()   { return *this; }
     void operator=(std::byte byte)   { _owner->putByte(byte); }
@@ -150,7 +150,7 @@ class ByteDataConstructor::BitBackInserter {
 public:
     using difference_type = std::ptrdiff_t;
 public:
-    BitBackInserter(ByteDataConstructor& owner) : _owner(&owner) {};
+    explicit BitBackInserter(ByteDataConstructor& owner) : _owner(&owner) {};
     BitBackInserter operator++(int) { return* this; }
     BitBackInserter& operator++()   { return *this; }
     void operator=(bool bit)        { _owner->putBit(bit); }
@@ -180,7 +180,8 @@ void ByteDataConstructor::putTToPosition(auto s, std::size_t position) {
         throw std::out_of_range("Can not write to position this count of bytes.");
     }
     auto& bytes = reinterpret_cast<TBytes<decltype(s)>&>(s);
-    std::copy(bytes.begin(), bytes.end(), _data.begin() + position);
+    std::copy(bytes.begin(), bytes.end(),
+              _data.begin() + static_cast<std::ptrdiff_t>(position));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

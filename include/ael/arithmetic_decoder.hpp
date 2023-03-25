@@ -9,6 +9,7 @@
 #include <cstdint>
 #include <limits>
 #include <optional>
+#include <iterator>
 
 #include "impl/ranges_calc.hpp"
 #include "impl/multiply_and_divide.hpp"
@@ -20,6 +21,14 @@ namespace ael {
 ///
 class ArithmeticDecoder {
 public:
+
+    /**
+     * @param source - source of bits.
+     * @param dict - dictionary (probability model).
+     * @param outIter - output iterator for decoded sequence.
+     * @param wordsCount - number of decoded words.
+     * @param bitsLimit - number of bits to decode.
+     */
     template <std::output_iterator<std::uint64_t> OutIter, class Dict>
     static void decode(
             auto& source,
@@ -28,21 +37,20 @@ public:
             std::size_t wordsCount,
             std::size_t bitsLimit
         );
+
+    /**
+     * @param source - source of bits.
+     * @param dict - dictionary (probability model).
+     * @param outIter - output iterator for decoded sequence.
+     * @param wordsCount - number of decoded words.
+     * @param bitsLimit - number of bits to decode.
+     * @param tick - lambda to do a tick (for example, for logging).
+     */
     template <std::output_iterator<std::uint64_t> OutIter, class Dict>
     static void decode(
             auto& source,
             Dict& dict,
             OutIter outIter,
-            std::size_t wordsCount,
-            std::size_t bitsLimit,
-            auto tick
-        );
-public:
-    template <class Dict>
-    static void _decode(
-            auto& source,
-            Dict& dict,
-            auto outIter,
             std::size_t wordsCount,
             std::size_t bitsLimit,
             auto tick
@@ -61,21 +69,10 @@ void ArithmeticDecoder::decode(auto& source,
 
 ////////////////////////////////////////////////////////////////////////////////
 template <std::output_iterator<std::uint64_t> OutIter, class Dict>
-void ArithmeticDecoder::decode(auto& source,
-                               Dict& dict,
-                               OutIter outIter,
-                               std::size_t wordsCount,
-                               std::size_t bitsLimit,
-                               auto tick) {
-    return _decode(source, dict, outIter, wordsCount, bitsLimit, tick);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-template <class Dict>
-void ArithmeticDecoder::_decode(
+void ArithmeticDecoder::decode(
         auto& source,
         Dict& dict,
-        auto outIter,
+        OutIter outIter,
         std::size_t wordsCount,
         std::size_t bitsLimit,
         auto tick) {

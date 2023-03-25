@@ -3,8 +3,8 @@
 
 #include <cstdint>
 #include <optional>
-#include <ael/dictionary/word_probability_stats.hpp>
 
+#include "word_probability_stats.hpp"
 #include "contextual_dictionary_stats_base.hpp"
 
 namespace ael::dict::impl {

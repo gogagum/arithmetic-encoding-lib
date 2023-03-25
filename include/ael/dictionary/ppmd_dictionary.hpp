@@ -3,7 +3,7 @@
 
 #include "ael/dictionary/impl/cumulative_count.hpp"
 #include "ael/dictionary/impl/cumulative_unique_count.hpp"
-#include "word_probability_stats.hpp"
+#include "impl/word_probability_stats.hpp"
 
 #include <boost/container/static_vector.hpp>
 #include <boost/container_hash/hash.hpp>
@@ -14,15 +14,13 @@
 
 namespace ael::dict {
 
-namespace bm = boost::multiprecision;
-
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief PPMDDictionary - ppmd probability model.
 ///
 class PPMDDictionary {
 public:
     using Ord = std::uint64_t;
-    using Count = bm::uint256_t;
+    using Count = boost::multiprecision::uint256_t;
     using ProbabilityStats = WordProbabilityStats<Count>;
     constexpr const static std::uint16_t countNumBits = 240;
 private:
@@ -40,7 +38,7 @@ public:
      * @param cumulativeNumFound search key.
      * @return word with exact cumulative number found.
      */
-    [[nodiscard]] Ord getWordOrd(Count cumulativeNumFound) const;
+    [[nodiscard]] Ord getWordOrd(const Count& cumulativeNumFound) const;
 
     /**
      * @brief getWordProbabilityStats - get probability stats and update.
@@ -56,16 +54,16 @@ public:
     [[nodiscard]] Count getTotalWordsCnt() const;
 
 private:
-    using _SearchCtx = boost::container::static_vector<Ord, 16>;
-    using _SearchCtxHash = boost::hash<_SearchCtx>;
-    struct _CtxCell {
+    using SearchCtx_ = boost::container::static_vector<Ord, 16>;
+    using SearchCtxHash_ = boost::hash<SearchCtx_>;
+    struct CtxCell_ {
         impl::CumulativeCount cnt;
         impl::CumulativeUniqueCount uniqueCnt;
     };
-    using _CtxCountMapping = std::unordered_map<
-        _SearchCtx,
-        _CtxCell,
-        _SearchCtxHash
+    using CtxCountMapping_ = std::unordered_map<
+        SearchCtx_,
+        CtxCell_,
+        SearchCtxHash_
     >;
 private:
 
@@ -75,13 +73,13 @@ private:
 
     void _updateWordCnt(Ord ord, impl::CumulativeCount::Count cnt);
 
-    _SearchCtx _getSearchCtxEmptySkipped() const;
+    SearchCtx_ _getSearchCtxEmptySkipped() const;
 
 private:
     std::size_t _maxOrd;
-    _CtxCell _zeroCtxCell;
+    CtxCell_ _zeroCtxCell;
     std::deque<Ord> _ctx;
-    _CtxCountMapping _ctxInfo;
+    CtxCountMapping_ _ctxInfo;
     const std::size_t _ctxLength;
 };
 

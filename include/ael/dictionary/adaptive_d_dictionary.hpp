@@ -2,7 +2,7 @@
 #define ADAPTIVE_D_DICTIONARY_HPP
 
 #include "ael/dictionary/impl/contectual_dictionary_base_improved.hpp"
-#include "word_probability_stats.hpp"
+#include "impl/word_probability_stats.hpp"
 #include "impl/a_d_dictionary_base.hpp"
 #include "impl/contextual_dictionary_base.hpp"
 
@@ -25,7 +25,7 @@ public:
      * Adaptive <<D>> dictionary constructor.
      * @param maxOrd - maximal order. 
      */
-    AdaptiveDDictionary(Ord maxOrd);
+    explicit AdaptiveDDictionary(Ord maxOrd);
 
     /**
      * @brief getWord - get word by cumulative num found.

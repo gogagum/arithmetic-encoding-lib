@@ -13,9 +13,9 @@ AdaptiveDictionary::AdaptiveDictionary(Ord maxOrd, std::uint64_t ratio)
 
 ////////////////////////////////////////////////////////////////////////////////
 auto AdaptiveDictionary::getWordOrd(Count cumulativeNumFound) const -> Ord {
-    using UintIt = ael::impl::IntegerRandomAccessIterator<std::uint64_t>;
-    const auto idxs = boost::make_iterator_range<UintIt>(0, _maxOrder);
-
+    using UIntIt = ael::impl::IntegerRandomAccessIterator<std::uint64_t>;
+    const auto idxs = boost::iterator_range<UIntIt>(
+        UIntIt{0}, UIntIt{_maxOrder});
     // TODO: replace
     //auto idxs = std::ranges::iota_view(std::uint64_t{0}, WordT::wordsCount);
     const auto getLowerCumulNumFound_ = [this](Ord ord) {

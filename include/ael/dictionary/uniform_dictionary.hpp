@@ -1,7 +1,7 @@
 #ifndef UNIFORM_DICTIONARY_HPP
 #define UNIFORM_DICTIONARY_HPP
 
-#include "word_probability_stats.hpp"
+#include "impl/word_probability_stats.hpp"
 
 #include <cstdint>
 
@@ -23,7 +23,7 @@ public:
      * @brief UniformDictionary constructor.
      * @param maxOrd - maximal word order.
      */
-    UniformDictionary(Ord maxOrd) : _maxOrd(maxOrd) {}
+    explicit UniformDictionary(Ord maxOrd) : _maxOrd(maxOrd) {}
 
     /**
      * @brief getWord - get word by cumulative num found.

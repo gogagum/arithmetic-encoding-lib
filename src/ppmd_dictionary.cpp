@@ -14,7 +14,8 @@ namespace ael::dict {
 ////////////////////////////////////////////////////////////////////////////////
 PPMDDictionary::PPMDDictionary(Ord maxOrd, std::size_t ctxLength)
     : _maxOrd(maxOrd),
-      _zeroCtxCell{ maxOrd, maxOrd },
+      _zeroCtxCell{ impl::CumulativeCount(maxOrd),
+                    impl::CumulativeUniqueCount(maxOrd) },
       _ctxLength(ctxLength) {
     /**
      * \tau_{ctx}_{i} < sequenceLength
@@ -27,9 +28,10 @@ PPMDDictionary::PPMDDictionary(Ord maxOrd, std::size_t ctxLength)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto PPMDDictionary::getWordOrd(Count cumulativeNumFound) const -> Ord {
-    using UintIt = ael::impl::IntegerRandomAccessIterator<std::uint64_t>;
-    const auto idxs = boost::make_iterator_range<UintIt>(0, this->_maxOrd);
+auto PPMDDictionary::getWordOrd(const Count& cumulativeNumFound) const -> Ord {
+    using UIntIt = ael::impl::IntegerRandomAccessIterator<std::uint64_t>;
+    const auto idxs = boost::iterator_range<UIntIt>(
+        UIntIt{0}, UIntIt{this->_maxOrd});
     // TODO: replace
     //auto idxs = std::ranges::iota_view(std::uint64_t{0}, WordT::wordsCount);
     assert(cumulativeNumFound <= this->getTotalWordsCnt());
@@ -47,9 +49,9 @@ auto PPMDDictionary::getWordOrd(Count cumulativeNumFound) const -> Ord {
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMDDictionary::getProbabilityStats(Ord ord) -> ProbabilityStats {
     assert(ord < _maxOrd);
-    const auto ret = _getProbabilityStats(ord);
+    auto ret = _getProbabilityStats(ord);
     _updateWordCnt(ord, 1);
-    return ret;
+    return std::move(ret);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -165,16 +167,18 @@ auto PPMDDictionary::_getProbabilityStats(Ord ord) const -> ProbabilityStats {
 ////////////////////////////////////////////////////////////////////////////////
 void PPMDDictionary::_updateWordCnt(Ord ord,
                                     impl::CumulativeCount::Count cnt) {
-    for (auto ctx = _SearchCtx(_ctx.rbegin(), _ctx.rend());
+    for (auto ctx = SearchCtx_(_ctx.rbegin(), _ctx.rend());
          !ctx.empty();
          ctx.pop_back()) {
         if (!_ctxInfo.contains(ctx)) {
-            _ctxInfo.emplace(ctx, _CtxCell{_maxOrd, _maxOrd});
+            _ctxInfo.emplace(ctx, CtxCell_{impl::CumulativeCount(_maxOrd),
+                                           impl::CumulativeUniqueCount(_maxOrd)});
         }
-        _ctxInfo.at(ctx).cnt.increaseOrdCount(ord, cnt);
+        _ctxInfo.at(ctx).cnt.increaseOrdCount(
+            ord, static_cast<std::int64_t>(cnt));
         _ctxInfo.at(ctx).uniqueCnt.update(ord);
     }
-    _zeroCtxCell.cnt.increaseOrdCount(ord, cnt);
+    _zeroCtxCell.cnt.increaseOrdCount(ord, static_cast<std::int64_t>(cnt));
     _zeroCtxCell.uniqueCnt.update(ord);
     _ctx.push_back(ord);
     if (_ctx.size() > _ctxLength) {
@@ -183,8 +187,8 @@ void PPMDDictionary::_updateWordCnt(Ord ord,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto PPMDDictionary::_getSearchCtxEmptySkipped() const -> _SearchCtx {
-    auto ctx = _SearchCtx(_ctx.rbegin(), _ctx.rend());
+auto PPMDDictionary::_getSearchCtxEmptySkipped() const -> SearchCtx_ {
+    auto ctx = SearchCtx_(_ctx.rbegin(), _ctx.rend());
     for (;
          !ctx.empty() && !_ctxInfo.contains(ctx);
          ctx.pop_back()) {

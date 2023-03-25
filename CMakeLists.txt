@@ -48,6 +48,8 @@ target_include_directories(${PROJECT_NAME}
 set(public_headers
     include/ael/arithmetic_coder.hpp
     include/ael/arithmetic_decoder.hpp
+    include/ael/numerical_coder.hpp
+    include/ael/numerical_decoder.hpp
     include/ael/bits_iterator.hpp
     include/ael/byte_data_constructor.hpp
     include/ael/data_parser.hpp

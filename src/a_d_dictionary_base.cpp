@@ -41,7 +41,7 @@ auto ADDictionaryBase::_getWordUniqueCnt(Ord ord) const -> Count {
 
 ////////////////////////////////////////////////////////////////////////////////
 void ADDictionaryBase::_updateWordCnt(Ord ord, Count cnt) {
-    _cumulativeCnt.increaseOrdCount(ord, cnt);
+    _cumulativeCnt.increaseOrdCount(ord, static_cast<std::int64_t>(cnt));
     _cumulativeUniqueCnt.update(ord);
 }
 

@@ -1,5 +1,6 @@
 #include <boost/range/irange.hpp>
 #include <ael/data_parser.hpp>
+#include <cstddef>
 
 namespace ael {
 
@@ -12,12 +13,12 @@ DataParser::DataParser(std::span<const std::byte> data)
 ////////////////////////////////////////////////////////////////////////////////
 std::byte DataParser::takeByte() {
     if (_inByteOffset == 0) {
-        std::byte ret = *_dataIter;
+        const std::byte ret = *_dataIter;
         ++_dataIter;
         return ret;
     }
     auto ret = std::byte{0};
-    for ([[maybe_unused]] std::size_t _: boost::irange(0, 8)) {
+    for ([[maybe_unused]] const std::size_t _: boost::irange<std::size_t>(0, 8)) {
         ret <<= 1;
         ret |= takeBit() ? std::byte{0b00000001} : std::byte{0b00000000};
     }
@@ -29,7 +30,7 @@ bool DataParser::takeBit() {
     if (_dataIter >= _data.end()) {
         return false;
     }
-    bool ret = (*_dataIter & _getByteFlag()) != std::byte{0};
+    const bool ret = (*_dataIter & _getByteFlag()) != std::byte{0};
     _moveInByteOffset();
     return ret;
 }
@@ -45,7 +46,7 @@ void DataParser::_moveInByteOffset() {
 
 ////////////////////////////////////////////////////////////////////////////////
 DataParser& DataParser::seek(std::size_t bitsOffset) {
-    _dataIter = _data.begin() + bitsOffset / 8;
+    _dataIter = _data.begin() + static_cast<ptrdiff_t>(bitsOffset / 8);
     _inByteOffset = bitsOffset % 8;
     return *this;
 }

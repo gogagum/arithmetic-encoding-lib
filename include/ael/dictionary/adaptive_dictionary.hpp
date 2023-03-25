@@ -1,7 +1,7 @@
 #ifndef ADAPTIVE_DICTIONARY_HPP
 #define ADAPTIVE_DICTIONARY_HPP
 
-#include "word_probability_stats.hpp"
+#include "impl/word_probability_stats.hpp"
 #include "impl/adaptive_dictionary_base.hpp"
 
 #include <cstdint>
