@@ -30,6 +30,7 @@ add_executable(ael-tests
     numerical_decoder.cpp
     arithmetic_a_encode_decode.cpp
     arithmetic_d_encode_decode.cpp
+    adaptive_encode_decode.cpp
 )
 
 if (CMAKE_CROSSCOMPILING)
