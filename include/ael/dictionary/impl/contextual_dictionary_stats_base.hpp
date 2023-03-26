@@ -127,7 +127,7 @@ ContextualDictionaryStatsBase<InternalDictT>::_getContextualTotalWordCnt(
     if (!this->_contextProbs.contains(searchCtx)) {
         return 0;
     }
-    return this->_contextProbs.at(searchCtx)._getRealTotalWordsCnt();
+    return this->_contextProbs.at(searchCtx).getTotalWordsCnt();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

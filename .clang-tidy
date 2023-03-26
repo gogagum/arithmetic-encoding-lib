@@ -22,7 +22,11 @@
 Checks: >
   -*,
   bugprone-*,
-  google-*,
+  google-readability-casting,
+  google-readability-todo,
+  google-runtime-int,
+  google-runtime-operator,
+  google-upgrade-googletest-case,
   misc-*,
   performance-*,
   portability-*,
