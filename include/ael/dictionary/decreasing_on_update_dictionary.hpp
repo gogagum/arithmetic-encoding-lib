@@ -25,7 +25,7 @@ public:
      * @param probRng - counts mapping.
      */
     template <std::ranges::input_range RangeT>
-    DecreasingOnUpdateDictionary(Ord maxOrd, const RangeT& probRng);
+    DecreasingOnUpdateDictionary(Ord maxOrd, const RangeT& countRng);
 
     /**
      * @brief DecreasingOnUpdateDictionary - generate uniform with `count for
@@ -64,7 +64,7 @@ protected:
     ProbabilityStats _getProbabilityStats(Ord ord) const;
 
 protected:
-    const Ord _maxOrd;
+    const Ord maxOrd_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -73,10 +73,10 @@ DecreasingOnUpdateDictionary::DecreasingOnUpdateDictionary(
         Ord maxOrd,
         const RangeT& countRng
         ) : impl::AdaptiveDictionaryBase<Count>(maxOrd, 0),
-            _maxOrd(maxOrd) {
+            maxOrd_(maxOrd) {
     for (const auto& [ord, count] : countRng) {
         this->_wordCnts[ord] = count;
-        this->_cumulativeWordCounts.update(ord, _maxOrd, count);
+        this->_cumulativeWordCounts.update(ord, maxOrd_, count);
         this->_totalWordsCnt += count;
     }
 }

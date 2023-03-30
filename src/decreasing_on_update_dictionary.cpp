@@ -14,10 +14,10 @@ DecreasingOnUpdateDictionary::DecreasingOnUpdateDictionary(
         Ord maxOrd,
         Count count
         ) : impl::AdaptiveDictionaryBase<Count>(maxOrd, maxOrd * count),
-            _maxOrd(maxOrd) {
-    for (auto ord : boost::irange<Ord>(0, _maxOrd)) {
+            maxOrd_(maxOrd) {
+    for (auto ord : boost::irange<Ord>(0, maxOrd_)) {
         this->_wordCnts[ord] = count;
-        this->_cumulativeWordCounts.update(ord, _maxOrd, count);
+        this->_cumulativeWordCounts.update(ord, maxOrd_, count);
     }
 }
 
@@ -25,15 +25,15 @@ DecreasingOnUpdateDictionary::DecreasingOnUpdateDictionary(
 auto DecreasingOnUpdateDictionary::getWordOrd(
         Count cumulativeNumFound) const -> Ord {
     using UIntIt = ael::impl::IntegerRandomAccessIterator<std::uint64_t>;
-    const auto idxs = boost::iterator_range<UIntIt>(UIntIt{0}, UIntIt{_maxOrd});
+    const auto idxs = boost::iterator_range<UIntIt>(UIntIt{0}, UIntIt{maxOrd_});
     // TODO(gogagum): replace
     //auto idxs = std::ranges::iota_view(std::uint64_t{0}, WordT::wordsCount);
     const auto getLowerCumulNumFound_ = [this](Ord ord) {
         return this->_getLowerCumulativeCnt(ord + 1);
     };
-    const auto it = std::ranges::upper_bound(idxs, cumulativeNumFound, {},
+    const auto iter = std::ranges::upper_bound(idxs, cumulativeNumFound, {},
                                              getLowerCumulNumFound_);
-    return it - idxs.begin();
+    return iter - idxs.begin();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -57,7 +57,7 @@ auto DecreasingOnUpdateDictionary::_getLowerCumulativeCnt(
 void DecreasingOnUpdateDictionary::_updateWordCnt(Ord ord, Count cnt) {
     this->_totalWordsCnt -= 1;
     this->_cumulativeWordCounts.update(
-        ord, _maxOrd, -static_cast<std::int64_t>(cnt));
+        ord, maxOrd_, -static_cast<std::int64_t>(cnt));
     --this->_wordCnts[ord];
 }
 
