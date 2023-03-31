@@ -4,14 +4,14 @@ namespace ael::dict::impl {
 
 ////////////////////////////////////////////////////////////////////////////////
 CumulativeCount::CumulativeCount(Ord maxOrd)
-    : _cumulativeCnt(0, maxOrd, 0), _totalWordsCnt(0), _maxOrd(maxOrd) {
+    : cumulativeCnt_(0, maxOrd, 0), maxOrd_(maxOrd) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void CumulativeCount::increaseOrdCount(Ord ord, std::int64_t cntChange) {
-  _cumulativeCnt.update(ord, _maxOrd, cntChange);
-  _cnt[ord] += cntChange;
-  _totalWordsCnt += cntChange;
+  cumulativeCnt_.update(ord, maxOrd_, cntChange);
+  cnt_[ord] += cntChange;
+  totalWordsCnt_ += cntChange;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -21,17 +21,17 @@ auto CumulativeCount::getLowerCumulativeCount(Ord ord) const -> Count {
 
 ////////////////////////////////////////////////////////////////////////////////
 auto CumulativeCount::getCumulativeCount(Ord ord) const -> Count {
-  return _cumulativeCnt.get(ord);
+  return cumulativeCnt_.get(ord);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 auto CumulativeCount::getCount(Ord ord) const -> Count {
-  return _cnt.contains(ord) ? _cnt.at(ord) : Count{0};
+  return cnt_.contains(ord) ? cnt_.at(ord) : Count{0};
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 auto CumulativeCount::getTotalWordsCnt() const -> Count {
-  return _totalWordsCnt;
+  return totalWordsCnt_;
 }
 
 }  // namespace ael::dict::impl

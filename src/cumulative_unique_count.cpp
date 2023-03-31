@@ -4,14 +4,14 @@ namespace ael::dict::impl {
 
 ////////////////////////////////////////////////////////////////////////////////
 CumulativeUniqueCount::CumulativeUniqueCount(Ord maxOrd)
-    : _cumulativeUniqueCnt(0, maxOrd, 0), _maxOrd(maxOrd) {
+    : cumulativeUniqueCnt_(0, maxOrd, 0), maxOrd_(maxOrd) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void CumulativeUniqueCount::update(Ord ord) {
-  if (!_ords.contains(ord)) {
-    _cumulativeUniqueCnt.update(ord, _maxOrd, 1);
-    _ords.insert(ord);
+  if (!ords_.contains(ord)) {
+    cumulativeUniqueCnt_.update(ord, maxOrd_, 1);
+    ords_.insert(ord);
   }
 }
 
@@ -25,17 +25,17 @@ auto CumulativeUniqueCount::getLowerCumulativeCount(Ord ord) const -> Count {
 
 ////////////////////////////////////////////////////////////////////////////////
 auto CumulativeUniqueCount::getCumulativeCount(Ord ord) const -> Count {
-  return _cumulativeUniqueCnt.get(ord);
+  return cumulativeUniqueCnt_.get(ord);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 auto CumulativeUniqueCount::getCount(Ord ord) const -> Count {
-  return static_cast<Count>(_ords.contains(ord) ? 1 : 0);
+  return static_cast<Count>(ords_.contains(ord) ? 1 : 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 auto CumulativeUniqueCount::getTotalWordsCnt() const -> Count {
-  return _ords.size();
+  return ords_.size();
 }
 
 }  // namespace ael::dict::impl

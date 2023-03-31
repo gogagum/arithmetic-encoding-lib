@@ -50,7 +50,7 @@ public:
 template<class InternalDictT>
 auto ContextualDictionaryBaseImproved<InternalDictT>::getWordOrd(
         Count cumulativeNumFound) const -> Ord {
-    for (auto ctxLength = this->_currCtxLength; ctxLength != 0; --ctxLength) {
+    for (auto ctxLength = this->currCtxLength_; ctxLength != 0; --ctxLength) {
         const auto searchCtx = this->_getSearchCtx(ctxLength);
         if (this->_getContextualTotalWordCnt(searchCtx) >= ctxLength) {
             return this->_getContextualWordOrd(searchCtx, cumulativeNumFound); 
@@ -64,7 +64,7 @@ template<class InternalDictT>
 auto ContextualDictionaryBaseImproved<InternalDictT>::getProbabilityStats(
         Ord ord) -> ProbabilityStats {
     std::optional<ProbabilityStats> ret;
-    for (auto ctxLength = this->_currCtxLength; ctxLength != 0; --ctxLength) {
+    for (auto ctxLength = this->currCtxLength_; ctxLength != 0; --ctxLength) {
         const auto searchCtx = this->_getSearchCtx(ctxLength);
         if (this->_getContextualTotalWordCnt(searchCtx) >= ctxLength) {
             ret = ret.value_or(this->_getContextualProbStats(searchCtx, ord));
@@ -81,7 +81,7 @@ auto ContextualDictionaryBaseImproved<InternalDictT>::getProbabilityStats(
 template<class InternalDictT>
 auto ContextualDictionaryBaseImproved<InternalDictT>::getTotalWordsCnt(
         ) const -> Count {
-    for (auto ctxLength = this->_currCtxLength; ctxLength != 0; --ctxLength) {
+    for (auto ctxLength = this->currCtxLength_; ctxLength != 0; --ctxLength) {
         const auto searchCtx = this->_getSearchCtx(ctxLength);
         if (this->_getContextualTotalWordCnt(searchCtx) >= ctxLength) {
             return this->_getContextualTotalWordCnt(searchCtx);

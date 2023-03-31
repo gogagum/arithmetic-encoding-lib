@@ -7,20 +7,20 @@ namespace ael::dict {
 ////////////////////////////////////////////////////////////////////////////////
 auto StaticDictionary::getWordOrd(Count cumulativeNumFound) const -> Ord {
   const auto iter =
-      std::ranges::upper_bound(_cumulativeNumFound, cumulativeNumFound);
-  return iter - _cumulativeNumFound.begin();
+      std::ranges::upper_bound(cumulativeNumFound_, cumulativeNumFound);
+  return iter - cumulativeNumFound_.begin();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 auto StaticDictionary::getProbabilityStats(Ord ord) -> ProbabilityStats {
-  const auto low = _getLowerCumulativeCnt(ord);
-  const auto high = _getHigherCumulativeCnt(ord);
-  return {low, high, *_cumulativeNumFound.rbegin()};
+  const auto low = getLowerCumulativeCnt_(ord);
+  const auto high = getHigherCumulativeCnt_(ord);
+  return {low, high, *cumulativeNumFound_.rbegin()};
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto StaticDictionary::_getLowerCumulativeCnt(Ord ord) const -> Count {
-  return ord != 0 ? _cumulativeNumFound[ord - 1] : 0;
+auto StaticDictionary::getLowerCumulativeCnt_(Ord ord) const -> Count {
+  return ord != 0 ? cumulativeNumFound_[ord - 1] : 0;
 }
 
 }  // namespace ael::dict

@@ -4,14 +4,13 @@
 #define ARITHMETIC_DECODER_DECODED_HPP
 
 #include <array>
+#include <boost/range/adaptor/reversed.hpp>
+#include <boost/range/iterator_range.hpp>
 #include <cstddef>
 #include <ranges>
 #include <span>
-#include <vector>
 #include <stdexcept>
-
-#include <boost/range/adaptor/reversed.hpp>
-#include <boost/range/iterator_range.hpp>
+#include <vector>
 
 namespace ael {
 
@@ -19,127 +18,139 @@ namespace ael {
 /// \brief The ArithmeticDecoderDecoded class
 ///
 class DataParser {
-public:
+ public:
+  ////////////////////////////////////////////////////////////////////////////
+  /// \brief The BitIterator class
+  class BitsIterator
+      : public boost::iterators::iterator_facade<
+            BitsIterator, bool, boost::random_access_traversal_tag, bool> {
+   public:
+    using type = BitsIterator;
 
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief The BitIterator class
-    class BitsIterator: public boost::iterators::iterator_facade<
-            BitsIterator,
-            bool,
-            boost::random_access_traversal_tag,
-            bool
-        > {
-    public:
-        using type = BitsIterator;
-    public:
-        BitsIterator(DataParser& owner, std::size_t bitsPosition)
-            : _owner(&owner), _bitsPosition(bitsPosition) {}
-    protected:
-        ////////////////////////////////////////////////////////////////////////
-        bool dereference() const
-        { return _owner->seek(_bitsPosition).takeBit(); }
-        ////////////////////////////////////////////////////////////////////////
-        bool equal(const type& other) const
-        { return _bitsPosition == other._bitsPosition; }
-        ////////////////////////////////////////////////////////////////////////
-        std::ptrdiff_t distance_to(const type& other) const {
-            return static_cast<ptrdiff_t>(other._bitsPosition)
-                - static_cast<ptrdiff_t>(_bitsPosition);
-        }
-        ////////////////////////////////////////////////////////////////////////
-        void increment()                     { ++_bitsPosition; }
-        ////////////////////////////////////////////////////////////////////////
-        void advance(std::ptrdiff_t offset)  { _bitsPosition += offset; }
-    private:
-        DataParser* _owner;
-        std::size_t _bitsPosition;
-    private:
-        friend class boost::iterators::iterator_core_access;
-    };
+   public:
+    BitsIterator(DataParser& owner, std::size_t bitsPosition)
+        : owner_(&owner), bitsPosition_(bitsPosition) {
+    }
 
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief The OutOfRange class
-    class OutOfRange;
+   protected:
+    ////////////////////////////////////////////////////////////////////////
+    [[nodiscard]] bool dereference() const {
+      return owner_->seek(bitsPosition_).takeBit();
+    }
+    ////////////////////////////////////////////////////////////////////////
+    [[nodiscard]] bool equal(const type& other) const {
+      return bitsPosition_ == other.bitsPosition_;
+    }
+    ////////////////////////////////////////////////////////////////////////
+    [[nodiscard]] std::ptrdiff_t distance_to(const type& other) const {
+      return static_cast<ptrdiff_t>(other.bitsPosition_) -
+             static_cast<ptrdiff_t>(bitsPosition_);
+    }
+    ////////////////////////////////////////////////////////////////////////
+    void increment() {
+      ++bitsPosition_;
+    }
+    ////////////////////////////////////////////////////////////////////////
+    void advance(std::ptrdiff_t offset) {
+      bitsPosition_ += offset;
+    }
 
-public:
+   private:
+    DataParser* owner_;
+    std::size_t bitsPosition_;
 
-    /**
-     * @brief DataParser move constructor. 
-     */
-    DataParser(DataParser&&) = default;
+   private:
+    friend class boost::iterators::iterator_core_access;
+  };
 
-    /**
-     * @brief ArithmeticDecoderDecoded
-     * @param data
-     */
-    explicit DataParser(std::span<const std::byte> data);
+  ////////////////////////////////////////////////////////////////////////////
+  /// \brief The OutOfRange class
+  class OutOfRange;
 
-    /**
-     * @brief takeByte take one byte.
-     * @return one byte.
-     */
-    std::byte takeByte();
+ public:
+  /**
+   * @brief DataParser move constructor.
+   */
+  DataParser(DataParser&&) = default;
 
-    /**
-     * @brief takeBit get one bit from current position and move by one bit.
-     * @return one bit.
-     */
-    bool takeBit();
+  /**
+   * @brief ArithmeticDecoderDecoded
+   * @param data
+   */
+  explicit DataParser(std::span<const std::byte> data);
 
-    /**
-     * @brief takeT get T as sizeof(T) bits.
-     * @return object of type T.
-     */
-    template <class T>
-    T takeT();
+  /**
+   * @brief takeByte take one byte.
+   * @return one byte.
+   */
+  std::byte takeByte();
 
-    /**
-     * @brief getNumBytes - get number of bytes parsed.
-     * @return number of bytes.
-     */
-    std::size_t getNumBytes() const { return _data.size(); }
+  /**
+   * @brief takeBit get one bit from current position and move by one bit.
+   * @return one bit.
+   */
+  bool takeBit();
 
-    /**
-     * @brief getNumBits - get number of bits.
-     * @return number of bits.
-     */
-    std::size_t getNumBits() const { return _data.size() * 8; }
+  /**
+   * @brief takeT get T as sizeof(T) bits.
+   * @return object of type T.
+   */
+  template <class T>
+  T takeT();
 
-    /**
-     * @brief seek move to bitsOffset position.
-     * @param bitsOffset - position to move to.
-     * @return reference to self.
-     */
-    DataParser& seek(std::size_t bitsOffset);
+  /**
+   * @brief getNumBytes - get number of bytes parsed.
+   * @return number of bytes.
+   */
+  [[nodiscard]] std::size_t getNumBytes() const {
+    return data_.size();
+  }
 
-    /**
-     * @brief getBeginBitsIter
-     * @return bits begin iterator.
-     */
-    auto getBeginBitsIter() { return BitsIterator(*this, 0); }
+  /**
+   * @brief getNumBits - get number of bits.
+   * @return number of bits.
+   */
+  [[nodiscard]] std::size_t getNumBits() const {
+    return data_.size() * 8;
+  }
 
-    /**
-     * @brief getEndBitsIter
-     * @return bitsEndIterator
-     */
-    auto getEndBitsIter() { return BitsIterator(*this, _data.size() * 8); }
+  /**
+   * @brief seek move to bitsOffset position.
+   * @param bitsOffset - position to move to.
+   * @return reference to self.
+   */
+  DataParser& seek(std::size_t bitsOffset);
 
-private:
+  /**
+   * @brief getBeginBitsIter
+   * @return bits begin iterator.
+   */
+  auto getBeginBitsIter() {
+    return BitsIterator(*this, 0);
+  }
 
-    void _moveInByteOffset();
+  /**
+   * @brief getEndBitsIter
+   * @return bitsEndIterator
+   */
+  auto getEndBitsIter() {
+    return BitsIterator(*this, data_.size() * 8);
+  }
 
-    std::byte
-    _getByteFlag() const { return std::byte{0b10000000} >> _inByteOffset; }
+ private:
+  void moveInByteOffset_();
 
-private:
+  [[nodiscard]] std::byte getByteFlag_() const {
+    return std::byte{0b10000000} >> inByteOffset_;
+  }
 
-    const std::span<const std::byte> _data;
-    std::span<const std::byte>::iterator _dataIter;
-    std::uint8_t _inByteOffset;
+ private:
+  const std::span<const std::byte> data_;
+  std::span<const std::byte>::iterator dataIter_;
+  std::uint8_t inByteOffset_;
 
-private:
-
-    friend bool operator==(const DataParser& dp1, const DataParser& dp2);
+ private:
+  friend bool operator==(const DataParser& dp1, const DataParser& dp2);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -148,16 +159,15 @@ bool operator==(const DataParser& dp1, const DataParser& dp2);
 ////////////////////////////////////////////////////////////////////////////////
 template <class T>
 T DataParser::takeT() {
-    using TBytes = std::array<std::byte, sizeof(T)>;
+  using TBytes = std::array<std::byte, sizeof(T)>;
 
-    auto ret = T();
-    auto& bytes = reinterpret_cast<TBytes&>(ret);
-    for (auto& byte: bytes) {
-        byte = takeByte();
-    }
-    return ret;
+  auto ret = T();
+  auto& bytes = reinterpret_cast<TBytes&>(ret);
+  for (auto& byte : bytes) {
+    byte = takeByte();
+  }
+  return ret;
 }
-
 
 }  // namespace ael
 

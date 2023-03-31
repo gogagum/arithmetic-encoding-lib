@@ -1,10 +1,11 @@
 #ifndef CONTEXTUAL_DICTIONARY_STATS_BASE_HPP
 #define CONTEXTUAL_DICTIONARY_STATS_BASE_HPP
 
-#include "word_probability_stats.hpp"
-#include <cstdint>
 #include <boost/multiprecision/cpp_int.hpp>
+#include <cstdint>
 #include <unordered_map>
+
+#include "word_probability_stats.hpp"
 
 namespace ael::dict::impl {
 
@@ -15,148 +16,142 @@ namespace bm = boost::multiprecision;
 ///
 template <class InternalDict>
 class ContextualDictionaryStatsBase : protected InternalDict {
-protected:
-    using Ord = std::uint64_t;
-    using Count = std::uint64_t;
-    using Dict_ = InternalDict;
+ protected:
+  using Ord = std::uint64_t;
+  using Count = std::uint64_t;
+  using Dict_ = InternalDict;
 
-    struct SearchCtx_ {
-        std::uint16_t length;
-        Ord ctx;
-        friend bool operator==(SearchCtx_, SearchCtx_) = default;
-    };
+  struct SearchCtx_ {
+    std::uint16_t length;
+    Ord ctx;
+    friend bool operator==(SearchCtx_, SearchCtx_) = default;
+  };
 
-    struct SearchCtxHash_ {
-        std::size_t operator()(SearchCtx_ searchCtx) const {
-            return static_cast<std::size_t>(searchCtx.ctx)
-                ^ std::size_t{searchCtx.length};
-        }
-    };
+  struct SearchCtxHash_ {
+    std::size_t operator()(SearchCtx_ searchCtx) const {
+      return static_cast<std::size_t>(searchCtx.ctx) ^
+             std::size_t{searchCtx.length};
+    }
+  };
 
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief The ContextualDictionaryStatsBase<InternalDict>::ConstructInfo
-    /// class
-    ///
-    struct ConstructInfo {
-        std::uint16_t wordNumBits;
-        std::uint16_t ctxLength;
-        std::uint16_t ctxCellBitsLength;
-    };
+  ////////////////////////////////////////////////////////////////////////////
+  /// \brief The ContextualDictionaryStatsBase<InternalDict>::ConstructInfo
+  /// class
+  ///
+  struct ConstructInfo {
+    std::uint16_t wordNumBits;
+    std::uint16_t ctxLength;
+    std::uint16_t ctxCellBitsLength;
+  };
 
-public:
+ public:
+  /**
+   * @brief contextual dictionary constructor.
+   * @param constructInfo - wordBitsCount, context length, context cell bits
+   * length.
+   */
+  explicit ContextualDictionaryStatsBase(ConstructInfo constructInfo);
 
-    /**
-     * @brief contextual dictionary constructor.
-     * @param constructInfo - wordBitsCount, context length, context cell bits length.
-     */
-    explicit ContextualDictionaryStatsBase(ConstructInfo constructInfo);
-protected:
+ protected:
+  [[nodiscard]] Ord _getCtx(std::uint16_t length) const;
 
-    Ord _getCtx(std::uint16_t length) const;
+  SearchCtx_ _getSearchCtx(std::uint16_t length) const;
 
-    SearchCtx_ _getSearchCtx(std::uint16_t length) const;
+  void _updateCtx(Ord ord);
 
-    void _updateCtx(Ord ord);
+  Count _getContextualTotalWordCnt(const SearchCtx_& searchCtx) const;
 
-    Count _getContextualTotalWordCnt(const SearchCtx_& searchCtx) const;
+  Ord _getContextualWordOrd(const SearchCtx_& searchCtx,
+                            Count cumulativeCnt) const;
 
-    Ord _getContextualWordOrd(const SearchCtx_& searchCtx,
-                              Count cumulativeCnt) const;
+  void _updateContextualDictionary(const SearchCtx_& searchCtx, Ord ord);
 
-    void _updateContextualDictionary(const SearchCtx_& searchCtx, Ord ord);
+  WordProbabilityStats<Count> _getContextualProbStats(
+      const SearchCtx_& searchCtx, Ord ord);
 
-    WordProbabilityStats<Count>
-    _getContextualProbStats(const SearchCtx_& searchCtx, Ord ord);
-
-protected:
-    std::unordered_map<SearchCtx_, Dict_, SearchCtxHash_> _contextProbs;
-    const std::uint16_t _ctxCellBitsLength;
-    const std::uint16_t _ctxLength;
-    const std::uint16_t _numBits;
-    Ord _ctx;
-    std::uint16_t _currCtxLength;
+ protected:
+  std::unordered_map<SearchCtx_, Dict_, SearchCtxHash_> contextProbs_;
+  const std::uint16_t ctxCellBitsLength_;
+  const std::uint16_t ctxLength_;
+  const std::uint16_t numBits_;
+  Ord ctx_{0};
+  std::uint16_t currCtxLength_{0};
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-template<class InternalDictT>
+template <class InternalDictT>
 ContextualDictionaryStatsBase<InternalDictT>::ContextualDictionaryStatsBase(
     ConstructInfo constructInfo)
-        : _ctxCellBitsLength(constructInfo.ctxCellBitsLength),
-          _ctxLength(constructInfo.ctxLength),
-          _numBits(constructInfo.wordNumBits),
-          _ctx(0),
-          _currCtxLength(0),
-          InternalDictT(1ull << constructInfo.wordNumBits) {
-    if (_ctxCellBitsLength * _ctxLength > 56) {
-        throw std::invalid_argument("Too big context length.");
-    }
+    : ctxCellBitsLength_(constructInfo.ctxCellBitsLength),
+      ctxLength_(constructInfo.ctxLength),
+      numBits_(constructInfo.wordNumBits),
+      InternalDictT(1ull << constructInfo.wordNumBits) {
+  if (ctxCellBitsLength_ * ctxLength_ > 56) {
+    throw std::invalid_argument("Too big context length.");
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-template<class InternalDictT>
+template <class InternalDictT>
 auto ContextualDictionaryStatsBase<InternalDictT>::_getCtx(
-        std::uint16_t len) const -> Ord {
-    return _ctx % (1ull << (_ctxCellBitsLength * len));
+    std::uint16_t len) const -> Ord {
+  return ctx_ % (1ull << (ctxCellBitsLength_ * len));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-template<class InternalDictT>
+template <class InternalDictT>
 auto ContextualDictionaryStatsBase<InternalDictT>::_getSearchCtx(
-        std::uint16_t len) const -> SearchCtx_ {
-    return {len, _getCtx(len)};
+    std::uint16_t len) const -> SearchCtx_ {
+  return {len, _getCtx(len)};
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-template<class InternalDictT>
+template <class InternalDictT>
 void ContextualDictionaryStatsBase<InternalDictT>::_updateCtx(Ord ord) {
-    if (_currCtxLength < _ctxLength) {
-        ++_currCtxLength;
-    }
-    bm::uint128_t newCtx128 = (_ctx != 0) ? _ctx - 1 : 0;
-    newCtx128 *= (1ull << _numBits);
-    newCtx128 += ord;
-    newCtx128 %= (1ull << (_ctxCellBitsLength * _ctxLength));
-    _ctx = newCtx128.convert_to<Ord>();
+  if (currCtxLength_ < ctxLength_) {
+    ++currCtxLength_;
+  }
+  bm::uint128_t newCtx128 = (ctx_ != 0) ? ctx_ - 1 : 0;
+  newCtx128 *= (1ull << numBits_);
+  newCtx128 += ord;
+  newCtx128 %= (1ull << (ctxCellBitsLength_ * ctxLength_));
+  ctx_ = newCtx128.convert_to<Ord>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-template<class InternalDictT>
-auto
-ContextualDictionaryStatsBase<InternalDictT>::_getContextualTotalWordCnt(
-        const SearchCtx_& searchCtx) const -> Count {
-    if (!this->_contextProbs.contains(searchCtx)) {
-        return 0;
-    }
-    return this->_contextProbs.at(searchCtx).getTotalWordsCnt();
+template <class InternalDictT>
+auto ContextualDictionaryStatsBase<InternalDictT>::_getContextualTotalWordCnt(
+    const SearchCtx_& searchCtx) const -> Count {
+  if (!this->contextProbs_.contains(searchCtx)) {
+    return 0;
+  }
+  return this->contextProbs_.at(searchCtx).getTotalWordsCnt();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 template <class InternalDictT>
 auto ContextualDictionaryStatsBase<InternalDictT>::_getContextualWordOrd(
-        const SearchCtx_& searchCtx, Count cumulativeCnt) const -> Ord {
-    return this->_contextProbs.at(searchCtx).getWordOrd(cumulativeCnt);
+    const SearchCtx_& searchCtx, Count cumulativeCnt) const -> Ord {
+  return this->contextProbs_.at(searchCtx).getWordOrd(cumulativeCnt);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 template <class InternalDictT>
-void
-ContextualDictionaryStatsBase<InternalDictT>::_updateContextualDictionary(
-        const SearchCtx_& searchCtx, Ord ord) {
-    if (!this->_contextProbs.contains(searchCtx)) {
-        this->_contextProbs.emplace(searchCtx, this->_maxOrd);
-    }
-    this->_contextProbs.at(searchCtx)._updateWordCnt(ord, 1);
+void ContextualDictionaryStatsBase<InternalDictT>::_updateContextualDictionary(
+    const SearchCtx_& searchCtx, Ord ord) {
+  if (!this->contextProbs_.contains(searchCtx)) {
+    this->contextProbs_.emplace(searchCtx, this->_maxOrd);
+  }
+  this->contextProbs_.at(searchCtx)._updateWordCnt(ord, 1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 template <class InternalDictT>
-auto
-ContextualDictionaryStatsBase<InternalDictT>::_getContextualProbStats(
-        const SearchCtx_& searchCtx,
-        Ord ord) -> WordProbabilityStats<Count>{
-    return this->_contextProbs.at(searchCtx).getProbabilityStats(ord);
+auto ContextualDictionaryStatsBase<InternalDictT>::_getContextualProbStats(
+    const SearchCtx_& searchCtx, Ord ord) -> WordProbabilityStats<Count> {
+  return this->contextProbs_.at(searchCtx).getProbabilityStats(ord);
 }
 
-}  // ael::dict::impl
+}  // namespace ael::dict::impl
 
 #endif  // CONTEXTUAL_DICTIONARY_STATS_BASE_HPP

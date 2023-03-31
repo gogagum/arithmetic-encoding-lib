@@ -85,6 +85,9 @@
         "ios": "cpp",
         "locale": "cpp",
         "queue": "cpp",
-        "stack": "cpp"
+        "stack": "cpp",
+        "ranges": "cpp",
+        "span": "cpp",
+        "__std_stream": "cpp"
     }
 }

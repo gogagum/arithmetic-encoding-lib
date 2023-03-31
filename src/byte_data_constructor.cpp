@@ -5,20 +5,20 @@
 namespace ael {
 
 ////////////////////////////////////////////////////////////////////////////////
-ByteDataConstructor::ByteDataConstructor() : _currBitFlag{0b10000000} {
+ByteDataConstructor::ByteDataConstructor() : currBitFlag_{0b10000000} {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void ByteDataConstructor::putBit(bool bit) {
-  if (_currBitFlag == std::byte{0b10000000}) {
-    _data.push_back(std::byte{0b00000000});
+  if (std::byte{0b10000000} == currBitFlag_) {
+    data_.push_back(std::byte{0b00000000});
   }
   if (bit) {
-    *_data.rbegin() |= _currBitFlag;
+    *data_.rbegin() |= currBitFlag_;
   } else {
-    *_data.rbegin() &= ~_currBitFlag;
+    *data_.rbegin() &= ~currBitFlag_;
   }
-  _moveBitFlag();
+  moveBitFlag_();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -34,8 +34,8 @@ void ByteDataConstructor::putBitsRepeatWithReset(bool bit, std::size_t& num) {
 
 ////////////////////////////////////////////////////////////////////////////////
 void ByteDataConstructor::putByte(std::byte b) {
-  if (_currBitFlag == std::byte{0b10000000}) {
-    _data.push_back(b);
+  if (currBitFlag_ == std::byte{0b10000000}) {
+    data_.push_back(b);
   } else {
     std::copy_n(impl::BitsIterator(b, 0), 8, getBitBackInserter());
   }
@@ -43,7 +43,7 @@ void ByteDataConstructor::putByte(std::byte b) {
 
 ////////////////////////////////////////////////////////////////////////////////
 std::size_t ByteDataConstructor::size() const {
-  return _data.size();
+  return data_.size();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -57,10 +57,10 @@ auto ByteDataConstructor::getByteBackInserter() -> ByteBackInserter {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void ByteDataConstructor::_moveBitFlag() {
-  _currBitFlag >>= 1;
-  if (_currBitFlag == std::byte{0b00000000}) {
-    _currBitFlag = std::byte{0b10000000};
+void ByteDataConstructor::moveBitFlag_() {
+  currBitFlag_ >>= 1;
+  if (std::byte{0b00000000} == currBitFlag_) {
+    currBitFlag_ = std::byte{0b10000000};
   }
 }
 

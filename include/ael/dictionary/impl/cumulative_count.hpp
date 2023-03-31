@@ -62,10 +62,10 @@ private:
             Ord, Count, void, dst::NoRangeGetOp, dst::NoRangeGetOp,
             std::plus<void>, std::int64_t>;
 private:
-    DST_ _cumulativeCnt;
-    std::unordered_map<Ord, Count> _cnt;
-    Count _totalWordsCnt;
-    const Ord _maxOrd;
+    DST_ cumulativeCnt_;
+    std::unordered_map<Ord, Count> cnt_;
+    Count totalWordsCnt_{0};
+    const Ord maxOrd_;
 };
 
 }  // namespace ael::dict::impl

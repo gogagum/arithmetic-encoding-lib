@@ -1,10 +1,10 @@
 #ifndef ADAPTIVE_DICTIONARY_HPP
 #define ADAPTIVE_DICTIONARY_HPP
 
-#include "impl/word_probability_stats.hpp"
-#include "impl/adaptive_dictionary_base.hpp"
-
 #include <cstdint>
+
+#include "impl/adaptive_dictionary_base.hpp"
+#include "impl/word_probability_stats.hpp"
 
 namespace ael::dict {
 
@@ -12,61 +12,60 @@ namespace ael::dict {
 /// \brief The AdaptiveDictionary class
 ///
 class AdaptiveDictionary : public impl::AdaptiveDictionaryBase<std::uint64_t> {
-public:
+ public:
+  using Ord = std::uint64_t;
+  using Count = std::uint64_t;
+  using ProbabilityStats = WordProbabilityStats<Count>;
+  constexpr const static std::uint16_t countNumBits = 62;
 
-    using Ord = std::uint64_t;
-    using Count = std::uint64_t;
-    using ProbabilityStats = WordProbabilityStats<Count>;
-    constexpr const static std::uint16_t countNumBits = 62; 
+  ////////////////////////////////////////////////////////////////////////////
+  /// \brief The AdaptiveDictionary::ConstructInfo class
+  ///
+  struct ConstructInfo {
+    Ord maxOrd;
+    std::uint64_t ratio;
+  };
 
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief The AdaptiveDictionary::ConstructInfo class
-    ///
-    struct ConstructInfo {
-        Ord maxOrd;
-        std::uint64_t ratio;
-    };
+ public:
+  /**
+   * @brief AdaptiveDictionary constructor.
+   * @param constructInfo - maximal order and ratio.
+   */
+  explicit AdaptiveDictionary(ConstructInfo constructInfo);
 
-public:
+  /**
+   * @brief getWord - get word by cumulative num found.
+   * @param cumulativeNumFound - search key.
+   * @return word with exact cumulative number found.
+   */
+  [[nodiscard]] Ord getWordOrd(Count cumulativeNumFound) const;
 
-    /**
-     * @brief AdaptiveDictionary constructor.
-     * @param constructInfo - maximal order and ratio.
-     */
-    explicit AdaptiveDictionary(ConstructInfo constructInfo);
+  /**
+   * @brief getProbabilityStats reads probability statistics, updates them,
+   * and returns read.
+   * @param word
+   * @return probability estimation for a word.
+   */
+  [[nodiscard]] ProbabilityStats getProbabilityStats(Ord ord);
 
-    /**
-     * @brief getWord - get word by cumulative num found.
-     * @param cumulativeNumFound - search key.
-     * @return word with exact cumulative number found.
-     */
-    [[nodiscard]] Ord getWordOrd(Count cumulativeNumFound) const;
+  /**
+   * @brief getTotalWordsCount get total number of words according to model.
+   * @return
+   */
+  [[nodiscard]] Count getTotalWordsCnt() const {
+    return this->_totalWordsCnt;
+  }
 
-    /**
-     * @brief getProbabilityStats reads probability statistics, updates them,
-     * and returns read.
-     * @param word
-     * @return probability estimation for a word.
-     */
-    [[nodiscard]] ProbabilityStats getProbabilityStats(Ord ord);
+ private:
+  Count getLowerCumulativeCnt_(Ord ord) const;
 
-    /**
-     * @brief getTotalWordsCount get total number of words according to model.
-     * @return
-     */
-    [[nodiscard]] Count getTotalWordsCnt() const { return this->_totalWordsCnt; }
+  void updateWordCnt_(Ord ord);
 
-private:
-
-    Count getLowerCumulativeCnt_(Ord ord) const;
-
-    void updateWordCnt_(Ord ord);
-
-private:
-    Count _ratio;
-    Ord _maxOrder;
+ private:
+  Count ratio_;
+  Ord maxOrder_;
 };
 
-}  // namecpace ael::dict
+}  // namespace ael::dict
 
-#endif // ADAPTIVE_DICTIONARY_HPP
+#endif  // ADAPTIVE_DICTIONARY_HPP

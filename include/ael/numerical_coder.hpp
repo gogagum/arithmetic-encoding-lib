@@ -51,7 +51,7 @@ public:
 
 private:
 
-    static EncodeRet _encode(auto& ordFlow,
+    static EncodeRet encode_(auto& ordFlow,
                             const std::vector<CountEntry>& countsMapping,
                             ByteDataConstructor& dataConstructor,
                             auto wordTick,
@@ -72,7 +72,7 @@ private:
 auto NumericalCoder::encode(auto& ordFlow,
                             const std::vector<CountEntry>& countsMapping,
                             ByteDataConstructor& dataConstructor) -> EncodeRet {
-    return _encode(ordFlow, countsMapping, dataConstructor, []{}, []{}, []{});
+    return encode_(ordFlow, countsMapping, dataConstructor, []{}, []{}, []{});
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -82,11 +82,11 @@ auto NumericalCoder::encode(auto& ordFlow,
                             auto wordTick,
                             auto wordCntTick,
                             auto contentTick) -> EncodeRet {
-    return _encode(ordFlow, countsMapping, dataConstructor, wordTick, wordCntTick, contentTick);
+    return encode_(ordFlow, countsMapping, dataConstructor, wordTick, wordCntTick, contentTick);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto NumericalCoder::_encode(auto& ordFlow,
+auto NumericalCoder::encode_(auto& ordFlow,
                             const std::vector<CountEntry>& countsMapping,
                             ByteDataConstructor& dataConstructor,
                             auto wordTick,
@@ -150,8 +150,8 @@ auto NumericalCoder::countWords(
                        return CountEntry{entry.first, entry.second};
                    });
     std::sort(ret.begin(), ret.end(),
-              [](const auto& c0, const auto& c1){
-                  return c0.count > c1.count;
+              [](const auto& entry0, const auto& entry1){
+                  return entry0.count > entry1.count;
               });
     return ret;
 }

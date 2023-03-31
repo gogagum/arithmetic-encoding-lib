@@ -10,11 +10,11 @@ namespace ael::dict {
 ///
 template <class CountT>
 struct WordProbabilityStats {
-    CountT low;
-    CountT high;
-    CountT total;
+  CountT low;
+  CountT high;
+  CountT total;
 };
 
 }  // namespace ael::dict
 
-#endif // WORD_PROBABILITY_STATS_HPP
+#endif  // WORD_PROBABILITY_STATS_HPP

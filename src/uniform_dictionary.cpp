@@ -9,7 +9,7 @@ auto UniformDictionary::getWordOrd(Count cumulativeNumFound) const -> Ord {
 
 ////////////////////////////////////////////////////////////////////////////////
 auto UniformDictionary::getProbabilityStats(Ord ord) -> ProbabilityStats {
-  return {ord, ord + 1, _maxOrd};
+  return {ord, ord + 1, maxOrd_};
 }
 
 }  // namespace ael::dict

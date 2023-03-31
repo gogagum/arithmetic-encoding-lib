@@ -53,6 +53,18 @@ CheckOptions:
       value: camelCase
     }
   - {
+      key: readability-identifier-naming.ClassConstantCase,
+      value: camelCase
+    }
+  - {
+      key: readability-identifier-naming.StaticConstantCase,
+      value: camelCase
+    }
+  - {
+      key: readability-identifier-naming.ConstexprVariableCase,
+      value: camelCase
+    }
+  - {
       key: readability-identifier-naming.PrivateMemberCase,
       value: camelCase
     }
@@ -85,30 +97,6 @@ CheckOptions:
       value: CamelCase
     }
   - {
-      key: readability-identifier-naming.EnumConstantPrefix,
-      value: k
-    }
-  - {
       key: readability-identifier-naming.ConstexprVariableCase,
       value: camelCase
-    }
-  - {
-      key: readability-identifier-naming.ConstexprVariablePrefix,
-      value: k
-    }
-  - {
-      key: readability-identifier-naming.MemberConstantCase,
-      value: CamelCase
-    }
-  - {
-      key: readability-identifier-naming.MemberConstantPrefix,
-      value: k
-    }
-  - {
-      key: readability-identifier-naming.StaticConstantCase,
-      value: CamelCase
-    }
-  - {
-      key: readability-identifier-naming.StaticConstantPrefix,
-      value: k
     }

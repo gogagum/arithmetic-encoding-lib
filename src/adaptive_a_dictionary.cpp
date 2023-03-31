@@ -11,7 +11,7 @@ AdaptiveADictionary::AdaptiveADictionary(Ord maxOrd)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto AdaptiveADictionary::getWordOrd(Count cumulativeNumFound) const -> Ord {
+auto AdaptiveADictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
   using UIntIt = ael::impl::IntegerRandomAccessIterator<std::uint64_t>;
   const auto idxs =
       boost::iterator_range<UIntIt>(UIntIt{0}, UIntIt{this->_maxOrd});
@@ -20,7 +20,7 @@ auto AdaptiveADictionary::getWordOrd(Count cumulativeNumFound) const -> Ord {
   const auto getLowerCumulNumFound_ = [this](std::uint64_t ord) {
     return this->getLowerCumulativeCnt_(ord + 1);
   };
-  const auto iter = std::ranges::upper_bound(idxs, cumulativeNumFound, {},
+  const auto iter = std::ranges::upper_bound(idxs, cumulativeCnt, {},
                                              getLowerCumulNumFound_);
   return iter - idxs.begin();
 }

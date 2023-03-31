@@ -49,19 +49,19 @@ public:
             auto contentTick);
 private:
 
-    static std::vector<std::uint64_t> _decodeCounts(
+    static std::vector<std::uint64_t> decodeCounts_(
         auto& source,
         const LayoutInfo& layoutInfo,
         auto&& tick);
 
-    static std::vector<std::uint64_t> _decodeOrds(
+    static std::vector<std::uint64_t> decodeOrds_(
         auto& source,
         std::uint64_t maxOrd,
         const LayoutInfo& layoutInfo,
         auto&& tick);
 
     template <std::output_iterator<std::uint64_t> OutIter>
-    static void _decodeContent(
+    static void decodeContent_(
         auto& source,
         OutIter outIter,
         std::uint64_t maxOrd,
@@ -92,17 +92,17 @@ void NumericalDecoder::decode(
         auto wordCountTick,
         auto contentTick) {
     // Decode dictionary words
-    auto ords = _decodeOrds(source, maxOrd, layoutInfo, wordTick);
+    auto ords = decodeOrds_(source, maxOrd, layoutInfo, wordTick);
     
     // Decode counts
-    auto counts = _decodeCounts(source, layoutInfo, wordCountTick);
+    auto counts = decodeCounts_(source, layoutInfo, wordCountTick);
 
     // Decode content
-    _decodeContent(source, outIter, maxOrd, layoutInfo, ords, counts, contentTick);
+    decodeContent_(source, outIter, maxOrd, layoutInfo, ords, counts, contentTick);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-std::vector<std::uint64_t> NumericalDecoder::_decodeOrds(
+std::vector<std::uint64_t> NumericalDecoder::decodeOrds_(
         auto& source,
         std::uint64_t maxOrd,
         const LayoutInfo& layoutInfo,
@@ -118,7 +118,7 @@ std::vector<std::uint64_t> NumericalDecoder::_decodeOrds(
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-std::vector<std::uint64_t> NumericalDecoder::_decodeCounts(
+std::vector<std::uint64_t> NumericalDecoder::decodeCounts_(
         auto& source,
         const LayoutInfo& layoutInfo,
         auto&& tick) {
@@ -135,7 +135,7 @@ std::vector<std::uint64_t> NumericalDecoder::_decodeCounts(
 
 ////////////////////////////////////////////////////////////////////////////////
 template <std::output_iterator<std::uint64_t> OutIter>
-void NumericalDecoder::_decodeContent(
+void NumericalDecoder::decodeContent_(
         auto& source,
         OutIter outIter,
         std::uint64_t maxOrd,
@@ -159,6 +159,6 @@ void NumericalDecoder::_decodeContent(
         tick);
 }
 
-}  // ael
+}  // namespace ael
 
 #endif  // NUMERICAL_DECODER_HPP
