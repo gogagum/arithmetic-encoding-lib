@@ -21,6 +21,10 @@ class IntegerRandomAccessIterator
   }
   //--------------------------------------------------------------------------//
   IntegerRandomAccessIterator(const type& other) = default;
+  IntegerRandomAccessIterator(type&& other) noexcept = default;
+
+  IntegerRandomAccessIterator& operator=(const type& other) = default;
+  IntegerRandomAccessIterator& operator=(type&& other) noexcept = default;
 
  protected:
   //--------------------------------------------------------------------------//
@@ -53,6 +57,8 @@ class IntegerRandomAccessIterator
   T operator[](std::ptrdiff_t n) const {
     return val_ + n;
   }
+  //--------------------------------------------------------------------------//
+  ~IntegerRandomAccessIterator() = default;
 
  private:
   T val_;
@@ -63,12 +69,16 @@ class IntegerRandomAccessIterator
 
 }  // namespace ael::impl
 
+namespace std {
+
 template <std::integral T>
-struct std::iterator_traits<ael::impl::IntegerRandomAccessIterator<T>> {
+struct iterator_traits<ael::impl::IntegerRandomAccessIterator<T>> {//NOLINT
   using iterator_category = std::random_access_iterator_tag;
   using difference_type = std::ptrdiff_t;
   using value_type = T;
   using reference = T;
 };
+
+}  // namespace std
 
 #endif  // INTEGER_RANDOM_ACCESS_ITERATOR_HPP

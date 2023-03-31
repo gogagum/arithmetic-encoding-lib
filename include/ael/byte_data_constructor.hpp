@@ -193,8 +193,9 @@ class ByteDataConstructor::BytesAfterBits : std::logic_error {
 
 ////////////////////////////////////////////////////////////////////////////////
 void ByteDataConstructor::putT(auto element) {
-  auto& bytes = reinterpret_cast<TBytes<decltype(element)>&>(element);
-  std::copy(bytes.begin(), bytes.end(), getByteBackInserter());
+  auto* elPtr = static_cast<void*>(&element);
+  auto* bytes = static_cast<TBytes<decltype(element)>*>(elPtr);
+  std::copy(bytes->begin(), bytes->end(), getByteBackInserter());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -202,8 +203,9 @@ void ByteDataConstructor::putTToPosition(auto element, std::size_t position) {
   if (position + sizeof(element) >= data_.size()) {
     throw std::out_of_range("Can not write to position this count of bytes.");
   }
-  auto& bytes = reinterpret_cast<TBytes<decltype(element)>&>(element);
-  std::copy(bytes.begin(), bytes.end(),
+  auto* elPtr = static_cast<void*>(&element);
+  auto* bytes = static_cast<TBytes<decltype(element)>*>(elPtr);
+  std::copy(bytes->begin(), bytes->end(),
             data_.begin() + static_cast<std::ptrdiff_t>(position));
 }
 

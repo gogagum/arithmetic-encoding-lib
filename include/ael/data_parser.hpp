@@ -72,6 +72,7 @@ class DataParser {
    * @brief DataParser move constructor.
    */
   DataParser(DataParser&&) = default;
+  DataParser(const DataParser&) = delete;
 
   /**
    * @brief ArithmeticDecoderDecoded
@@ -111,7 +112,8 @@ class DataParser {
    * @return number of bits.
    */
   [[nodiscard]] std::size_t getNumBits() const {
-    return data_.size() * 8;
+    constexpr const auto bitsInBytes = 8;
+    return data_.size() * bitsInBytes;
   }
 
   /**
@@ -134,14 +136,21 @@ class DataParser {
    * @return bitsEndIterator
    */
   auto getEndBitsIter() {
-    return BitsIterator(*this, data_.size() * 8);
+    constexpr const auto bitsInBytes = 8;
+    return BitsIterator(*this, data_.size() * bitsInBytes);
   }
+
+  DataParser& operator=(DataParser&& other) = delete;
+  DataParser& operator=(const DataParser& other) = delete;
+
+  ~DataParser() = default;
 
  private:
   void moveInByteOffset_();
 
   [[nodiscard]] std::byte getByteFlag_() const {
-    return std::byte{0b10000000} >> inByteOffset_;
+    constexpr const auto startByte = std::byte{0b10000000};
+    return startByte >> inByteOffset_;
   }
 
  private:
@@ -162,8 +171,9 @@ T DataParser::takeT() {
   using TBytes = std::array<std::byte, sizeof(T)>;
 
   auto ret = T();
-  auto& bytes = reinterpret_cast<TBytes&>(ret);
-  for (auto& byte : bytes) {
+  auto* retPtr = static_cast<void*>(&ret);
+  auto* retBytes = static_cast<TBytes*>(retPtr);
+  for (auto& byte : *retBytes) {
     byte = takeByte();
   }
   return ret;

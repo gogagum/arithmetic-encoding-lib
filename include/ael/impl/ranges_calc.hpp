@@ -1,6 +1,7 @@
 #ifndef RANGES_CALC_HPP
 #define RANGES_CALC_HPP
 
+#include <ael/dictionary/impl/word_probability_stats.hpp>
 #include <cstdint>
 #include <iostream>
 
@@ -16,6 +17,7 @@ class RangesCalc {
  public:
   using Count = CountT;
   struct Range;
+  using ProbabilityStats = dict::WordProbabilityStats<Count>;
 
   constexpr static const Count total = Count{1} << numBits;
   constexpr static const Count half = Count{1} << (numBits - 1);
@@ -24,8 +26,7 @@ class RangesCalc {
 
   static Range recalcRange(Range rng);
 
-  static Range rangeFromStatsAndPrev(Range rng, Count low, Count high,
-                                     Count totalCnt);
+  static Range rangeFromStatsAndPrev(Range rng, ProbabilityStats probStats);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -54,14 +55,14 @@ auto RangesCalc<CountT, numBits>::recalcRange(Range rng) -> Range {
 
 ////////////////////////////////////////////////////////////////////////////////
 template <class CountT, std::uint16_t numBits>
-auto RangesCalc<CountT, numBits>::rangeFromStatsAndPrev(Range rng, Count low,
-                                                        Count high,
-                                                        Count totalCnt)
-    -> Range {
+auto RangesCalc<CountT, numBits>::rangeFromStatsAndPrev(
+    Range rng, ProbabilityStats probStats) -> Range {
   const auto range = rng.high - rng.low;
 
-  const auto lowScaled = multiply_and_divide(range, low, totalCnt);
-  const auto highScaled = multiply_and_divide(range, high, totalCnt);
+  const auto lowScaled =
+      multiply_and_divide(range, probStats.low, probStats.total);
+  const auto highScaled =
+      multiply_and_divide(range, probStats.high, probStats.total);
 
   return {rng.low + lowScaled, rng.low + highScaled};
 }

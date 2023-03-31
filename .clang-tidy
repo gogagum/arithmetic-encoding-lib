@@ -18,8 +18,10 @@ Checks: >
   -readability-else-after-return,
   -readability-uppercase-literal-suffix,
   -readability-convert-member-functions-to-static,
+  -readability-identifier-length,
   -modernize-use-trailing-return-type,
-  -cppcoreguidelines-pro-bounds-array-to-pointer-decay
+  -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  -cert-dcl21-cpp
 
 HeaderFilterRegex: '\.hpp$'
 

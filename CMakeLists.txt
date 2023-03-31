@@ -17,6 +17,8 @@ add_subdirectory(thirdparty)
 
 target_sources(${PROJECT_NAME}
     PRIVATE
+        src/arithmetic_coder.cpp
+        src/arithmetic_decoder.cpp
         src/a_d_dictionary_base.cpp
         src/adaptive_a_dictionary.cpp
         src/adaptive_d_dictionary.cpp
@@ -33,6 +35,7 @@ target_sources(${PROJECT_NAME}
         src/static_dictionary.cpp
         src/uniform_dictionary.cpp
         src/adaptive_dictionary_base.cpp
+        src/ranges_calc.cpp
 )
 
 target_include_directories(${PROJECT_NAME}
