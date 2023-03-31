@@ -12,35 +12,37 @@ namespace ael::dict::impl {
 /// \brief The BaseADDictionary class
 ///
 class ADDictionaryBase {
-protected:
+ protected:
+  using Ord = std::uint64_t;
+  using Count = std::uint64_t;
 
-    using Ord = std::uint64_t;
-    using Count = std::uint64_t;
+ protected:
+  explicit ADDictionaryBase(Ord maxOrd);
 
-protected:
+  Count _getRealTotalWordsCnt() const;
 
-    explicit ADDictionaryBase(Ord maxOrd);
+  Count _getRealLowerCumulativeWordCnt(Ord ord) const;
 
-    Count _getRealTotalWordsCnt() const;
+  Count _getRealWordCnt(Ord ord) const;
 
-    Count _getRealLowerCumulativeWordCnt(Ord ord) const;
+  Count _getTotalWordsUniqueCnt() const;
 
-    Count _getRealWordCnt(Ord ord) const;
+  Count _getLowerCumulativeUniqueNumFound(Ord ord) const;
 
-    Count _getTotalWordsUniqueCnt() const;
+  Count _getWordUniqueCnt(Ord ord) const;
 
-    Count _getLowerCumulativeUniqueNumFound(Ord ord) const;
+  void _updateWordCnt(Ord ord, Count cnt);
 
-    Count _getWordUniqueCnt(Ord ord) const;
+  [[nodiscard]] Ord getMaxOrd_() const {
+    return maxOrd_;
+  }
 
-    void _updateWordCnt(Ord ord, Count cnt);
-
-protected:
-    impl::CumulativeCount _cumulativeCnt;
-    impl::CumulativeUniqueCount _cumulativeUniqueCnt;
-    const std::uint64_t _maxOrd;
+ private:
+  impl::CumulativeCount cumulativeCnt_;
+  impl::CumulativeUniqueCount cumulativeUniqueCnt_;
+  const std::uint64_t maxOrd_;
 };
 
 }  // namespace ael::dict::impl
 
-#endif // A_D_DICTIONARY_BASE_HPP
+#endif  // A_D_DICTIONARY_BASE_HPP

@@ -1,6 +1,8 @@
 #ifndef PPMD_DICTIONARY_HPP
 #define PPMD_DICTIONARY_HPP
 
+#include <ael/dictionary/impl/cumulative_count.hpp>
+#include <ael/dictionary/impl/cumulative_unique_count.hpp>
 #include <boost/container/static_vector.hpp>
 #include <boost/container_hash/hash.hpp>
 #include <boost/multiprecision/cpp_int.hpp>
@@ -9,8 +11,6 @@
 #include <deque>
 #include <unordered_map>
 
-#include "ael/dictionary/impl/cumulative_count.hpp"
-#include "ael/dictionary/impl/cumulative_unique_count.hpp"
 #include "impl/word_probability_stats.hpp"
 
 namespace ael::dict {
@@ -34,6 +34,7 @@ class PPMDDictionary {
   };
 
  private:
+  constexpr const static std::uint16_t _maxCtxLength = 16;
   constexpr const static std::uint16_t _maxSeqLenLog2 = 40;
 
  public:
@@ -64,7 +65,7 @@ class PPMDDictionary {
   [[nodiscard]] Count getTotalWordsCnt() const;
 
  private:
-  using SearchCtx_ = boost::container::static_vector<Ord, 16>;
+  using SearchCtx_ = boost::container::static_vector<Ord, _maxCtxLength>;
   using SearchCtxHash_ = boost::hash<SearchCtx_>;
   struct CtxCell_ {
     impl::CumulativeCount cnt;

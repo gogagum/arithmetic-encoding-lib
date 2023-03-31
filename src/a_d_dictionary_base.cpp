@@ -4,44 +4,44 @@ namespace ael::dict::impl {
 
 ////////////////////////////////////////////////////////////////////////////////
 ADDictionaryBase::ADDictionaryBase(Ord maxOrd)
-    : _cumulativeCnt(maxOrd), _cumulativeUniqueCnt(maxOrd), _maxOrd(maxOrd) {
+    : cumulativeCnt_(maxOrd), cumulativeUniqueCnt_(maxOrd), maxOrd_(maxOrd) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 auto ADDictionaryBase::_getRealTotalWordsCnt() const -> Count {
-  return _cumulativeCnt.getTotalWordsCnt();
+  return cumulativeCnt_.getTotalWordsCnt();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 auto ADDictionaryBase::_getRealLowerCumulativeWordCnt(Ord ord) const -> Count {
-  return _cumulativeCnt.getLowerCumulativeCount(ord);
+  return cumulativeCnt_.getLowerCumulativeCount(ord);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 auto ADDictionaryBase::_getTotalWordsUniqueCnt() const -> Count {
-  return _cumulativeUniqueCnt.getTotalWordsCnt();
+  return cumulativeUniqueCnt_.getTotalWordsCnt();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 auto ADDictionaryBase::_getLowerCumulativeUniqueNumFound(Ord ord) const
     -> Count {
-  return _cumulativeUniqueCnt.getLowerCumulativeCount(ord);
+  return cumulativeUniqueCnt_.getLowerCumulativeCount(ord);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 auto ADDictionaryBase::_getRealWordCnt(Ord ord) const -> Count {
-  return _cumulativeCnt.getCount(ord);
+  return cumulativeCnt_.getCount(ord);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 auto ADDictionaryBase::_getWordUniqueCnt(Ord ord) const -> Count {
-  return _cumulativeUniqueCnt.getCount(ord);
+  return cumulativeUniqueCnt_.getCount(ord);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void ADDictionaryBase::_updateWordCnt(Ord ord, Count cnt) {
-  _cumulativeCnt.increaseOrdCount(ord, static_cast<std::int64_t>(cnt));
-  _cumulativeUniqueCnt.update(ord);
+  cumulativeCnt_.increaseOrdCount(ord, static_cast<std::int64_t>(cnt));
+  cumulativeUniqueCnt_.update(ord);
 }
 
 }  // namespace ael::dict::impl

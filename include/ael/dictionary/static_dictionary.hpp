@@ -57,7 +57,7 @@ class StaticDictionary {
   }
 
  private:
-  std::vector<Count> cumulativeNumFound_;
+  std::vector<Count> cumulativeNumFound_{};
 };
 
 ////////////////////////////////////////////////////////////////////////////////

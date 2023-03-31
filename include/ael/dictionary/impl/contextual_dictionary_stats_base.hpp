@@ -16,6 +16,9 @@ namespace bm = boost::multiprecision;
 ///
 template <class InternalDict>
 class ContextualDictionaryStatsBase : protected InternalDict {
+ private:
+  constexpr static const std::uint16_t maxCtxBits_ = 56;
+
  protected:
   using Ord = std::uint64_t;
   using Count = std::uint64_t;
@@ -69,7 +72,15 @@ class ContextualDictionaryStatsBase : protected InternalDict {
   WordProbabilityStats<Count> _getContextualProbStats(
       const SearchCtx_& searchCtx, Ord ord);
 
- protected:
+  [[nodiscard]] std::uint16_t getCurrCtxLength_() const {
+    return currCtxLength_;
+  }
+
+  [[nodiscard]] bool ctxExists_(const SearchCtx_& searchCtx) const {
+    return contextProbs_.contains(searchCtx);
+  }
+
+ private:
   std::unordered_map<SearchCtx_, Dict_, SearchCtxHash_> contextProbs_;
   const std::uint16_t ctxCellBitsLength_;
   const std::uint16_t ctxLength_;
@@ -86,7 +97,7 @@ ContextualDictionaryStatsBase<InternalDictT>::ContextualDictionaryStatsBase(
       ctxLength_(constructInfo.ctxLength),
       numBits_(constructInfo.wordNumBits),
       InternalDictT(1ull << constructInfo.wordNumBits) {
-  if (ctxCellBitsLength_ * ctxLength_ > 56) {
+  if (ctxCellBitsLength_ * ctxLength_ > maxCtxBits_) {
     throw std::invalid_argument("Too big context length.");
   }
 }
@@ -140,7 +151,7 @@ template <class InternalDictT>
 void ContextualDictionaryStatsBase<InternalDictT>::_updateContextualDictionary(
     const SearchCtx_& searchCtx, Ord ord) {
   if (!this->contextProbs_.contains(searchCtx)) {
-    this->contextProbs_.emplace(searchCtx, this->_maxOrd);
+    this->contextProbs_.emplace(searchCtx, this->getMaxOrd_());
   }
   this->contextProbs_.at(searchCtx)._updateWordCnt(ord, 1);
 }
