@@ -48,11 +48,11 @@ class AdaptiveADictionary : protected impl::ADDictionaryBase {
   [[nodiscard]] Count getTotalWordsCnt() const;
 
  protected:
-  Count getLowerCumulativeCnt_(Ord ord) const;
+  [[nodiscard]] Count getLowerCumulativeCnt_(Ord ord) const;
 
-  Count getWordCnt_(Ord ord) const;
+  [[nodiscard]] Count getWordCnt_(Ord ord) const;
 
-  ProbabilityStats getProbabilityStats_(Ord ord) const;
+  [[nodiscard]] ProbabilityStats getProbabilityStats_(Ord ord) const;
 
  private:
   friend class impl::ContextualDictionaryStatsBase<AdaptiveADictionary>;

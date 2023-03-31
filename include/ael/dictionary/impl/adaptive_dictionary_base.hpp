@@ -21,8 +21,33 @@ protected:
 protected:
 
     AdaptiveDictionaryBase(Ord maxOrd, Count initialTotalWordsCount)
-        : _cumulativeWordCounts(Ord{0}, maxOrd, 0),
-          _totalWordsCnt(initialTotalWordsCount) {}
+        : cumulativeWordCounts_(Ord{0}, maxOrd, 0),
+          totalWordsCnt_(initialTotalWordsCount),
+          maxOrd_{maxOrd} {}
+
+    [[nodiscard]] Count getRealWordCnt_(Ord ord) const {
+      return wordCnts_.contains(ord) ? wordCnts_.at(ord) : 0;
+    }
+
+    void changeRealCumulativeWordCnt_(Ord ord, std::int64_t cntChange) {
+      cumulativeWordCounts_.update(ord, maxOrd_, cntChange);
+    }
+
+    void changeRealWordCnt_(Ord ord, std::int64_t cntChange) {
+      wordCnts_[ord] += cntChange;
+    }
+
+    void changeRealTotalWordsCnt_(std::int64_t cntChange) {
+      totalWordsCnt_ += cntChange;
+    }
+
+    [[nodiscard]] Count getRealTotalWordsCnt_() const {
+      return totalWordsCnt_;
+    }
+
+    [[nodiscard]] Count getRealCumulativeCnt_(Ord ord) const {
+      return cumulativeWordCounts_.get(ord);
+    }
 
 protected:
     using DST_ =
@@ -30,10 +55,11 @@ protected:
             Ord, Count, void, dst::NoRangeGetOp, dst::NoRangeGetOp,
             std::plus<void>, std::int64_t>;
 
-protected:
-    DST_ _cumulativeWordCounts;
-    std::unordered_map<Ord, Count> _wordCnts{};
-    Count _totalWordsCnt;
+private:
+    DST_ cumulativeWordCounts_;
+    std::unordered_map<Ord, Count> wordCnts_{};
+    Count totalWordsCnt_;
+    Ord maxOrd_;
 };
 
 }  // namespace ael::dict::impl

@@ -14,8 +14,8 @@ DecreasingOnUpdateDictionary::DecreasingOnUpdateDictionary(Ord maxOrd,
     : impl::AdaptiveDictionaryBase<Count>(maxOrd, maxOrd * count),
       maxOrd_(maxOrd) {
   for (auto ord : boost::irange<Ord>(0, maxOrd_)) {
-    this->_wordCnts[ord] = count;
-    this->_cumulativeWordCounts.update(ord, maxOrd_, count);
+    this->changeRealWordCnt_(ord, static_cast<std::int64_t>(count));
+    this->changeRealCumulativeWordCnt_(ord, static_cast<std::int64_t>(count));
   }
 }
 
@@ -45,26 +45,23 @@ auto DecreasingOnUpdateDictionary::getProbabilityStats(Ord ord)
 ////////////////////////////////////////////////////////////////////////////////
 auto DecreasingOnUpdateDictionary::_getLowerCumulativeCnt(Ord ord) const
     -> Count {
-  if (ord == 0) {
-    return Count{0};
-  }
-  return this->_cumulativeWordCounts.get(ord - 1);
+  return getRealCumulativeCnt_(ord - 1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void DecreasingOnUpdateDictionary::_updateWordCnt(Ord ord, Count cnt) {
-  this->_totalWordsCnt -= 1;
-  this->_cumulativeWordCounts.update(ord, maxOrd_,
-                                     -static_cast<std::int64_t>(cnt));
-  --this->_wordCnts[ord];
+  this->changeRealTotalWordsCnt_(-1);
+  this->changeRealCumulativeWordCnt_(ord, -static_cast<std::int64_t>(cnt));
+  this->changeRealWordCnt_(ord, -1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 auto DecreasingOnUpdateDictionary::_getProbabilityStats(Ord ord) const
     -> ProbabilityStats {
-  assert(this->_wordCnts.contains(ord));
+  assert(this->getRealWordCnt_(ord) != Count{0} &&
+         "Get probability stats for a word woth zero real count.");
   const auto low = _getLowerCumulativeCnt(ord);
-  const auto high = low + this->_wordCnts.at(ord);
+  const auto high = low + getRealWordCnt_(ord);
   const auto total = getTotalWordsCnt();
   return {low, high, total};
 }

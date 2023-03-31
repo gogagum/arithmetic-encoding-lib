@@ -88,6 +88,7 @@
         "stack": "cpp",
         "ranges": "cpp",
         "span": "cpp",
-        "__std_stream": "cpp"
+        "__std_stream": "cpp",
+        "valarray": "cpp"
     }
 }

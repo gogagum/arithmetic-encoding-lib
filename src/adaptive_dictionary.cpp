@@ -30,7 +30,7 @@ auto AdaptiveDictionary::getWordOrd(Count cumulativeNumFound) const -> Ord {
 ////////////////////////////////////////////////////////////////////////////////
 auto AdaptiveDictionary::getProbabilityStats(Ord ord) -> ProbabilityStats {
   const auto low = getLowerCumulativeCnt_(ord);
-  const auto high = low + this->_wordCnts[ord] * ratio_ + 1;
+  const auto high = low + this->getRealWordCnt_(ord) * ratio_ + 1;
   const auto total = getTotalWordsCnt();
   updateWordCnt_(ord);
   return {low, high, total};
@@ -38,14 +38,14 @@ auto AdaptiveDictionary::getProbabilityStats(Ord ord) -> ProbabilityStats {
 
 ////////////////////////////////////////////////////////////////////////////////
 void AdaptiveDictionary::updateWordCnt_(Ord ord) {
-  this->_cumulativeWordCounts.update(ord, maxOrder_, 1);
-  ++this->_wordCnts[ord];
-  this->_totalWordsCnt += ratio_;
+  this->changeRealCumulativeWordCnt_(ord, 1);
+  this->changeRealWordCnt_(ord, 1);
+  this->changeRealTotalWordsCnt_(1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 auto AdaptiveDictionary::getLowerCumulativeCnt_(Ord ord) const -> Count {
-  return ord + this->_cumulativeWordCounts.get(ord - 1) * ratio_;
+  return ord + this->getRealCumulativeCnt_(ord - 1) * ratio_;
 }
 
 }  // namespace ael::dict

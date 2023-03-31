@@ -53,7 +53,7 @@ class AdaptiveDictionary : public impl::AdaptiveDictionaryBase<std::uint64_t> {
    * @return
    */
   [[nodiscard]] Count getTotalWordsCnt() const {
-    return this->_totalWordsCnt;
+    return maxOrder_ + ratio_ * this->getRealTotalWordsCnt_();
   }
 
  private:

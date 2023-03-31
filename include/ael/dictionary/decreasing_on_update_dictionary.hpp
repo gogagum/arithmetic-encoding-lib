@@ -53,7 +53,7 @@ class DecreasingOnUpdateDictionary
    * @return total words count in a dictionary.
    */
   [[nodiscard]] Count getTotalWordsCnt() const {
-    return this->_totalWordsCnt;
+    return this->getRealTotalWordsCnt_();
   }
 
  protected:
@@ -73,9 +73,9 @@ DecreasingOnUpdateDictionary::DecreasingOnUpdateDictionary(
     Ord maxOrd, const RangeT& countRng)
     : impl::AdaptiveDictionaryBase<Count>(maxOrd, 0), maxOrd_(maxOrd) {
   for (const auto& [ord, count] : countRng) {
-    this->_wordCnts[ord] = count;
-    this->_cumulativeWordCounts.update(ord, maxOrd_, count);
-    this->_totalWordsCnt += count;
+    this->changeRealWordCnt_(ord, count);
+    this->changeRealCumulativeWordCnt_(ord, count);
+    this->changeRealTotalWordsCnt_(count);
   }
 }
 
