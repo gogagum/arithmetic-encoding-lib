@@ -27,6 +27,7 @@ class IntegerRandomAccessIterator
   IntegerRandomAccessIterator& operator=(type&& other) noexcept = default;
 
  protected:
+  // NOLINTBEGIN(readability-identifier-naming)
   //--------------------------------------------------------------------------//
   [[nodiscard]] std::ptrdiff_t distance_to(const type& rhs) const {
     return rhs.val_ - val_;
@@ -51,6 +52,7 @@ class IntegerRandomAccessIterator
   void decrement() {
     --val_;
   }
+  //NOLINTEND(readability-identifier-naming)
 
  public:
   //--------------------------------------------------------------------------//

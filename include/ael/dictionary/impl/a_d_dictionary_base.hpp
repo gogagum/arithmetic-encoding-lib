@@ -1,10 +1,9 @@
 #ifndef A_D_DICTIONARY_BASE_HPP
 #define A_D_DICTIONARY_BASE_HPP
 
+#include <ael/dictionary/impl/cumulative_count.hpp>
+#include <ael/dictionary/impl/cumulative_unique_count.hpp>
 #include <cstdint>
-
-#include "cumulative_count.hpp"
-#include "cumulative_unique_count.hpp"
 
 namespace ael::dict::impl {
 
@@ -19,19 +18,19 @@ class ADDictionaryBase {
  protected:
   explicit ADDictionaryBase(Ord maxOrd);
 
-  [[nodiscard]] Count _getRealTotalWordsCnt() const;
+  [[nodiscard]] Count getRealTotalWordsCnt_() const;
 
-  [[nodiscard]] Count _getRealLowerCumulativeWordCnt(Ord ord) const;
+  [[nodiscard]] Count getRealLowerCumulativeWordCnt_(Ord ord) const;
 
-  [[nodiscard]] Count _getRealWordCnt(Ord ord) const;
+  [[nodiscard]] Count getRealWordCnt_(Ord ord) const;
 
-  [[nodiscard]] Count _getTotalWordsUniqueCnt() const;
+  [[nodiscard]] Count getTotalWordsUniqueCnt_() const;
 
-  [[nodiscard]] Count _getLowerCumulativeUniqueNumFound(Ord ord) const;
+  [[nodiscard]] Count getLowerCumulativeUniqueNumFound_(Ord ord) const;
 
-  [[nodiscard]] Count _getWordUniqueCnt(Ord ord) const;
+  [[nodiscard]] Count getWordUniqueCnt_(Ord ord) const;
 
-  void _updateWordCnt(Ord ord, Count cnt);
+  void updateWordCnt_(Ord ord, Count cnt);
 
   [[nodiscard]] Ord getMaxOrd_() const {
     return maxOrd_;

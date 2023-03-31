@@ -8,38 +8,38 @@ ADDictionaryBase::ADDictionaryBase(Ord maxOrd)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto ADDictionaryBase::_getRealTotalWordsCnt() const -> Count {
+auto ADDictionaryBase::getRealTotalWordsCnt_() const -> Count {
   return cumulativeCnt_.getTotalWordsCnt();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto ADDictionaryBase::_getRealLowerCumulativeWordCnt(Ord ord) const -> Count {
+auto ADDictionaryBase::getRealLowerCumulativeWordCnt_(Ord ord) const -> Count {
   return cumulativeCnt_.getLowerCumulativeCount(ord);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto ADDictionaryBase::_getTotalWordsUniqueCnt() const -> Count {
+auto ADDictionaryBase::getTotalWordsUniqueCnt_() const -> Count {
   return cumulativeUniqueCnt_.getTotalWordsCnt();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto ADDictionaryBase::_getLowerCumulativeUniqueNumFound(Ord ord) const
+auto ADDictionaryBase::getLowerCumulativeUniqueNumFound_(Ord ord) const
     -> Count {
   return cumulativeUniqueCnt_.getLowerCumulativeCount(ord);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto ADDictionaryBase::_getRealWordCnt(Ord ord) const -> Count {
+auto ADDictionaryBase::getRealWordCnt_(Ord ord) const -> Count {
   return cumulativeCnt_.getCount(ord);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto ADDictionaryBase::_getWordUniqueCnt(Ord ord) const -> Count {
+auto ADDictionaryBase::getWordUniqueCnt_(Ord ord) const -> Count {
   return cumulativeUniqueCnt_.getCount(ord);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void ADDictionaryBase::_updateWordCnt(Ord ord, Count cnt) {
+void ADDictionaryBase::updateWordCnt_(Ord ord, Count cnt) {
   cumulativeCnt_.increaseOrdCount(ord, static_cast<std::int64_t>(cnt));
   cumulativeUniqueCnt_.update(ord);
 }

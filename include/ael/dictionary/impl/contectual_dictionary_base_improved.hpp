@@ -52,9 +52,9 @@ auto ContextualDictionaryBaseImproved<InternalDictT>::getWordOrd(
     Count cumulativeNumFound) const -> Ord {
   for (auto ctxLength = this->getCurrCtxLength_(); ctxLength != 0;
        --ctxLength) {
-    const auto searchCtx = this->_getSearchCtx(ctxLength);
-    if (this->_getContextualTotalWordCnt(searchCtx) >= ctxLength) {
-      return this->_getContextualWordOrd(searchCtx, cumulativeNumFound);
+    const auto searchCtx = this->getSearchCtx_(ctxLength);
+    if (this->getContextualTotalWordCnt_(searchCtx) >= ctxLength) {
+      return this->getContextualWordOrd_(searchCtx, cumulativeNumFound);
     }
   }
   return InternalDictT::getWordOrd(cumulativeNumFound);
@@ -67,15 +67,15 @@ auto ContextualDictionaryBaseImproved<InternalDictT>::getProbabilityStats(
   std::optional<ProbabilityStats> ret{};
   for (auto ctxLength = this->getCurrCtxLength_(); ctxLength != 0;
        --ctxLength) {
-    const auto searchCtx = this->_getSearchCtx(ctxLength);
-    if (this->_getContextualTotalWordCnt(searchCtx) >= ctxLength) {
-      ret = ret.value_or(this->_getContextualProbStats(searchCtx, ord));
+    const auto searchCtx = this->getSearchCtx_(ctxLength);
+    if (this->getContextualTotalWordCnt_(searchCtx) >= ctxLength) {
+      ret = ret.value_or(this->getContextualProbStats_(searchCtx, ord));
     }
-    this->_updateContextualDictionary(searchCtx, ord);
+    this->updateContextualDictionary_(searchCtx, ord);
   }
   ret = ret.value_or(InternalDictT::getProbabilityStats_(ord));
-  this->_updateWordCnt(ord, 1);
-  this->_updateCtx(ord);
+  this->updateWordCnt_(ord, 1);
+  this->updateCtx_(ord);
   return ret.value();
 }
 
@@ -85,9 +85,9 @@ auto ContextualDictionaryBaseImproved<InternalDictT>::getTotalWordsCnt() const
     -> Count {
   for (auto ctxLength = this->getCurrCtxLength_(); ctxLength != 0;
        --ctxLength) {
-    const auto searchCtx = this->_getSearchCtx(ctxLength);
-    if (this->_getContextualTotalWordCnt(searchCtx) >= ctxLength) {
-      return this->_getContextualTotalWordCnt(searchCtx);
+    const auto searchCtx = this->getSearchCtx_(ctxLength);
+    if (this->getContextualTotalWordCnt_(searchCtx) >= ctxLength) {
+      return this->getContextualTotalWordCnt_(searchCtx);
     }
   }
   return InternalDictT::getTotalWordsCnt();

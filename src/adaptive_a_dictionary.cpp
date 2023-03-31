@@ -29,14 +29,14 @@ auto AdaptiveADictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
 auto AdaptiveADictionary::getProbabilityStats(Ord ord) -> ProbabilityStats {
   assert(ord < getMaxOrd_() && "ord is out of range");
   const auto ret = getProbabilityStats_(ord);
-  this->_updateWordCnt(ord, 1);
+  this->updateWordCnt_(ord, 1);
   return ret;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 auto AdaptiveADictionary::getTotalWordsCnt() const -> Count {
-  const auto uniqueWordsCnt = this->_getTotalWordsUniqueCnt();
-  const auto wordsCnt = this->_getRealTotalWordsCnt();
+  const auto uniqueWordsCnt = this->getTotalWordsUniqueCnt_();
+  const auto wordsCnt = this->getRealTotalWordsCnt_();
   if (this->getMaxOrd_() == uniqueWordsCnt) {
     return wordsCnt;
   }
@@ -45,25 +45,25 @@ auto AdaptiveADictionary::getTotalWordsCnt() const -> Count {
 
 ////////////////////////////////////////////////////////////////////////////////
 auto AdaptiveADictionary::getLowerCumulativeCnt_(Ord ord) const -> Count {
-  const auto cumulativeNumFound = this->_getRealLowerCumulativeWordCnt(ord);
-  if (this->getMaxOrd_() == this->_getTotalWordsUniqueCnt()) {
+  const auto cumulativeNumFound = this->getRealLowerCumulativeWordCnt_(ord);
+  if (this->getMaxOrd_() == this->getTotalWordsUniqueCnt_()) {
     return cumulativeNumFound;
   }
-  const auto numUniqueWordsTotal = this->_getTotalWordsUniqueCnt();
+  const auto numUniqueWordsTotal = this->getTotalWordsUniqueCnt_();
   const auto cumulativeUniqueWordsNumFound =
-      this->_getLowerCumulativeUniqueNumFound(ord);
+      this->getLowerCumulativeUniqueNumFound_(ord);
   return (this->getMaxOrd_() - numUniqueWordsTotal) * cumulativeNumFound +
          (ord - cumulativeUniqueWordsNumFound);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 auto AdaptiveADictionary::getWordCnt_(Ord ord) const -> Count {
-  const auto totalUniqueWordsCnt = this->_getTotalWordsUniqueCnt();
+  const auto totalUniqueWordsCnt = this->getTotalWordsUniqueCnt_();
   if (this->getMaxOrd_() == totalUniqueWordsCnt) {
-    return this->_getRealWordCnt(ord);
+    return this->getRealWordCnt_(ord);
   }
-  return this->_getWordUniqueCnt(ord) == 1
-             ? this->_getRealWordCnt(ord) *
+  return this->getWordUniqueCnt_(ord) == 1
+             ? this->getRealWordCnt_(ord) *
                    (this->getMaxOrd_() - totalUniqueWordsCnt)
              : 1;
 }

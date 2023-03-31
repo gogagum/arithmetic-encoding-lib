@@ -56,20 +56,20 @@ class ContextualDictionaryStatsBase : protected InternalDict {
   explicit ContextualDictionaryStatsBase(ConstructInfo constructInfo);
 
  protected:
-  [[nodiscard]] Ord _getCtx(std::uint16_t length) const;
+  [[nodiscard]] Ord getCtx_(std::uint16_t length) const;
 
-  SearchCtx_ _getSearchCtx(std::uint16_t length) const;
+  SearchCtx_ getSearchCtx_(std::uint16_t length) const;
 
-  void _updateCtx(Ord ord);
+  void updateCtx_(Ord ord);
 
-  Count _getContextualTotalWordCnt(const SearchCtx_& searchCtx) const;
+  Count getContextualTotalWordCnt_(const SearchCtx_& searchCtx) const;
 
-  Ord _getContextualWordOrd(const SearchCtx_& searchCtx,
+  Ord getContextualWordOrd_(const SearchCtx_& searchCtx,
                             Count cumulativeCnt) const;
 
-  void _updateContextualDictionary(const SearchCtx_& searchCtx, Ord ord);
+  void updateContextualDictionary_(const SearchCtx_& searchCtx, Ord ord);
 
-  WordProbabilityStats<Count> _getContextualProbStats(
+  WordProbabilityStats<Count> getContextualProbStats_(
       const SearchCtx_& searchCtx, Ord ord);
 
   [[nodiscard]] std::uint16_t getCurrCtxLength_() const {
@@ -104,21 +104,21 @@ ContextualDictionaryStatsBase<InternalDictT>::ContextualDictionaryStatsBase(
 
 ////////////////////////////////////////////////////////////////////////////////
 template <class InternalDictT>
-auto ContextualDictionaryStatsBase<InternalDictT>::_getCtx(
+auto ContextualDictionaryStatsBase<InternalDictT>::getCtx_(
     std::uint16_t len) const -> Ord {
   return ctx_ % (1ull << (ctxCellBitsLength_ * len));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 template <class InternalDictT>
-auto ContextualDictionaryStatsBase<InternalDictT>::_getSearchCtx(
+auto ContextualDictionaryStatsBase<InternalDictT>::getSearchCtx_(
     std::uint16_t len) const -> SearchCtx_ {
-  return {len, _getCtx(len)};
+  return {len, getCtx_(len)};
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 template <class InternalDictT>
-void ContextualDictionaryStatsBase<InternalDictT>::_updateCtx(Ord ord) {
+void ContextualDictionaryStatsBase<InternalDictT>::updateCtx_(Ord ord) {
   if (currCtxLength_ < ctxLength_) {
     ++currCtxLength_;
   }
@@ -131,7 +131,7 @@ void ContextualDictionaryStatsBase<InternalDictT>::_updateCtx(Ord ord) {
 
 ////////////////////////////////////////////////////////////////////////////////
 template <class InternalDictT>
-auto ContextualDictionaryStatsBase<InternalDictT>::_getContextualTotalWordCnt(
+auto ContextualDictionaryStatsBase<InternalDictT>::getContextualTotalWordCnt_(
     const SearchCtx_& searchCtx) const -> Count {
   if (!this->contextProbs_.contains(searchCtx)) {
     return 0;
@@ -141,24 +141,24 @@ auto ContextualDictionaryStatsBase<InternalDictT>::_getContextualTotalWordCnt(
 
 ////////////////////////////////////////////////////////////////////////////////
 template <class InternalDictT>
-auto ContextualDictionaryStatsBase<InternalDictT>::_getContextualWordOrd(
+auto ContextualDictionaryStatsBase<InternalDictT>::getContextualWordOrd_(
     const SearchCtx_& searchCtx, Count cumulativeCnt) const -> Ord {
   return this->contextProbs_.at(searchCtx).getWordOrd(cumulativeCnt);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 template <class InternalDictT>
-void ContextualDictionaryStatsBase<InternalDictT>::_updateContextualDictionary(
+void ContextualDictionaryStatsBase<InternalDictT>::updateContextualDictionary_(
     const SearchCtx_& searchCtx, Ord ord) {
   if (!this->contextProbs_.contains(searchCtx)) {
     this->contextProbs_.emplace(searchCtx, this->getMaxOrd_());
   }
-  this->contextProbs_.at(searchCtx)._updateWordCnt(ord, 1);
+  this->contextProbs_.at(searchCtx).updateWordCnt_(ord, 1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 template <class InternalDictT>
-auto ContextualDictionaryStatsBase<InternalDictT>::_getContextualProbStats(
+auto ContextualDictionaryStatsBase<InternalDictT>::getContextualProbStats_(
     const SearchCtx_& searchCtx, Ord ord) -> WordProbabilityStats<Count> {
   return this->contextProbs_.at(searchCtx).getProbabilityStats(ord);
 }

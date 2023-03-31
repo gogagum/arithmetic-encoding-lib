@@ -91,6 +91,10 @@ CheckOptions:
       value: '_'
     }
   - {
+      key: readability-identifier-naming.ProtectedMethodSuffix,
+      value: '_'
+    }
+  - {
       key: readability-identifier-naming.MacroDefinitionCase,
       value: UPPER_CASE
     }

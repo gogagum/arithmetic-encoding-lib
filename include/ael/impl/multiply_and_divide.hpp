@@ -67,7 +67,7 @@ template <std::size_t numBits>
 WideNum<numBits> multiply_decrease_and_divide(const WideNum<numBits>& left,
                                               const WideNum<numBits>& right,
                                               const WideNum<numBits>& divider) {
-  assert(divider != 0);
+  assert(divider != 0 && "Division by zero.");
   return ((WideNum<numBits * 2>{left} * WideNum<numBits * 2>{right} - 1) /
           WideNum<numBits * 2>{divider})
       .template convert_to<WideNum<numBits>>();
