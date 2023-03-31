@@ -17,7 +17,9 @@ Checks: >
   -readability-redundant-access-specifiers,
   -readability-else-after-return,
   -readability-uppercase-literal-suffix,
-  -modernize-use-trailing-return-type
+  -readability-convert-member-functions-to-static,
+  -modernize-use-trailing-return-type,
+  -cppcoreguidelines-pro-bounds-array-to-pointer-decay
 
 HeaderFilterRegex: '\.hpp$'
 
