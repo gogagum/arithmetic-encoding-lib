@@ -25,8 +25,8 @@ class ContextualDictionaryStatsBase : protected InternalDict {
   using Dict_ = InternalDict;
 
   struct SearchCtx_ {
-    std::uint16_t length;
-    Ord ctx;
+    std::uint16_t length{};
+    Ord ctx{};
     friend bool operator==(SearchCtx_, SearchCtx_) = default;
   };
 
@@ -81,7 +81,7 @@ class ContextualDictionaryStatsBase : protected InternalDict {
   }
 
  private:
-  std::unordered_map<SearchCtx_, Dict_, SearchCtxHash_> contextProbs_;
+  std::unordered_map<SearchCtx_, Dict_, SearchCtxHash_> contextProbs_{};
   const std::uint16_t ctxCellBitsLength_;
   const std::uint16_t ctxLength_;
   const std::uint16_t numBits_;
@@ -122,7 +122,7 @@ void ContextualDictionaryStatsBase<InternalDictT>::_updateCtx(Ord ord) {
   if (currCtxLength_ < ctxLength_) {
     ++currCtxLength_;
   }
-  bm::uint128_t newCtx128 = (ctx_ != 0) ? ctx_ - 1 : 0;
+  auto newCtx128 = bm::uint128_t{(ctx_ != 0) ? ctx_ - 1 : 0};
   newCtx128 *= (1ull << numBits_);
   newCtx128 += ord;
   newCtx128 %= (1ull << (ctxCellBitsLength_ * ctxLength_));

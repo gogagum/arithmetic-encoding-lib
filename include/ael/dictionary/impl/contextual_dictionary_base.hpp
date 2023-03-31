@@ -64,7 +64,7 @@ auto ContextualDictionaryBase<InternalDictT>::getWordOrd(
 template <class InternalDictT>
 auto ContextualDictionaryBase<InternalDictT>::getProbabilityStats(Ord ord)
     -> ProbabilityStats {
-  std::optional<ProbabilityStats> ret;
+  std::optional<ProbabilityStats> ret{};
   for (auto ctxLength = this->getCurrCtxLength_(); ctxLength != 0;
        --ctxLength) {
     const auto searchCtx = this->_getSearchCtx(ctxLength);

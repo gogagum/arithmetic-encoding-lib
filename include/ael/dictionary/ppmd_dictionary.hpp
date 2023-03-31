@@ -29,8 +29,8 @@ class PPMDDictionary {
   /// \brief The PPMDDictionary::ConstructInfo class.
   ///
   struct ConstructInfo {
-    Ord maxOrd;
-    std::size_t ctxLength;
+    Ord maxOrd{};
+    std::size_t ctxLength{};
   };
 
  private:
@@ -75,13 +75,13 @@ class PPMDDictionary {
       std::unordered_map<SearchCtx_, CtxCell_, SearchCtxHash_>;
 
  private:
-  Count getLowerCumulativeCnt_(Ord ord) const;
+  [[nodiscard]] Count getLowerCumulativeCnt_(Ord ord) const;
 
-  ProbabilityStats getProbabilityStats_(Ord ord) const;
+  [[nodiscard]] ProbabilityStats getProbabilityStats_(Ord ord) const;
 
   void updateWordCnt_(Ord ord, impl::CumulativeCount::Count cnt);
 
-  SearchCtx_ getSearchCtxEmptySkipped_() const;
+  [[nodiscard]] SearchCtx_ getSearchCtxEmptySkipped_() const;
 
  private:
   std::size_t maxOrd_;

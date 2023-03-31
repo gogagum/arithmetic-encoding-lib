@@ -33,11 +33,11 @@ void ByteDataConstructor::putBitsRepeatWithReset(bool bit, std::size_t& num) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void ByteDataConstructor::putByte(std::byte b) {
-  if (currBitFlag_ == std::byte{0b10000000}) {
-    data_.push_back(b);
+void ByteDataConstructor::putByte(std::byte byteToPut) {
+  if (currBitFlag_ == startMask_) {
+    data_.push_back(byteToPut);
   } else {
-    std::copy_n(impl::BitsIterator(b, 0), 8, getBitBackInserter());
+    std::copy_n(impl::BitsIterator(byteToPut, 0), 8, getBitBackInserter());
   }
 }
 

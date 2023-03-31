@@ -19,17 +19,17 @@ class ADDictionaryBase {
  protected:
   explicit ADDictionaryBase(Ord maxOrd);
 
-  Count _getRealTotalWordsCnt() const;
+  [[nodiscard]] Count _getRealTotalWordsCnt() const;
 
-  Count _getRealLowerCumulativeWordCnt(Ord ord) const;
+  [[nodiscard]] Count _getRealLowerCumulativeWordCnt(Ord ord) const;
 
-  Count _getRealWordCnt(Ord ord) const;
+  [[nodiscard]] Count _getRealWordCnt(Ord ord) const;
 
-  Count _getTotalWordsUniqueCnt() const;
+  [[nodiscard]] Count _getTotalWordsUniqueCnt() const;
 
-  Count _getLowerCumulativeUniqueNumFound(Ord ord) const;
+  [[nodiscard]] Count _getLowerCumulativeUniqueNumFound(Ord ord) const;
 
-  Count _getWordUniqueCnt(Ord ord) const;
+  [[nodiscard]] Count _getWordUniqueCnt(Ord ord) const;
 
   void _updateWordCnt(Ord ord, Count cnt);
 

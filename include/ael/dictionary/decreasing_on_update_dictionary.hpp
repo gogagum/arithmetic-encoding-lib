@@ -57,11 +57,11 @@ class DecreasingOnUpdateDictionary
   }
 
  protected:
-  Count _getLowerCumulativeCnt(Ord ord) const;
+  [[nodiscard]] Count _getLowerCumulativeCnt(Ord ord) const;
 
   void _updateWordCnt(Ord ord, Count cnt);
 
-  ProbabilityStats _getProbabilityStats(Ord ord) const;
+  [[nodiscard]] ProbabilityStats _getProbabilityStats(Ord ord) const;
 
  private:
   const Ord maxOrd_;

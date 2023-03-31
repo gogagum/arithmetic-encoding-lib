@@ -31,6 +31,9 @@ class ByteDataConstructor {
   ///
   class BytesAfterBits;
 
+ private:
+  constexpr static const std::byte startMask_{0b10000000};
+
  public:
   /**
    * @brief ArithmeticCoderEncoded - enpty encoded constructor
@@ -59,9 +62,9 @@ class ByteDataConstructor {
 
   /**
    * @brief putByte - add byte in the end
-   * @param b - byte
+   * @param byteToPut - byte
    */
-  void putByte(std::byte b);
+  void putByte(std::byte byteToPut);
 
   /**
    * @brief putT - put object as a byte sequence
@@ -87,7 +90,7 @@ class ByteDataConstructor {
    * @brief size - number of bytes in a file.
    * @return file size.
    */
-  std::size_t size() const;
+  [[nodiscard]] std::size_t size() const;
 
   /**
    * @brief getBitBackInserter returns bit insert iterator to add bits at
@@ -207,13 +210,13 @@ void ByteDataConstructor::putTToPosition(auto element, std::size_t position) {
 ////////////////////////////////////////////////////////////////////////////////
 template <class T>
 const T* ByteDataConstructor::data() const {
-  return reinterpret_cast<const T*>(data_.data());
+  return data_.data();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 template <class T>
 std::size_t ByteDataConstructor::saveSpaceForT() {
-  if (currBitFlag_ != std::byte{0b10000000}) {
+  if (currBitFlag_ != startMask_) {
     throw BytesAfterBits("Tried saving bytes with bit flag != 0b10000000.");
   }
   auto ret = data_.size();

@@ -32,7 +32,7 @@ protected:
 
 protected:
     DST_ _cumulativeWordCounts;
-    std::unordered_map<Ord, Count> _wordCnts;
+    std::unordered_map<Ord, Count> _wordCnts{};
     Count _totalWordsCnt;
 };
 
