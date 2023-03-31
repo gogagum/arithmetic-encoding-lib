@@ -27,7 +27,7 @@ auto DecreasingOnUpdateDictionary::getWordOrd(Count cumulativeNumFound) const
   // TODO(gogagum): replace
   // auto idxs = std::ranges::iota_view(std::uint64_t{0}, WordT::wordsCount);
   const auto getLowerCumulNumFound_ = [this](Ord ord) {
-    return this->_getLowerCumulativeCnt(ord + 1);
+    return this->getLowerCumulativeCnt_(ord + 1);
   };
   const auto iter = std::ranges::upper_bound(idxs, cumulativeNumFound, {},
                                              getLowerCumulNumFound_);
@@ -37,30 +37,30 @@ auto DecreasingOnUpdateDictionary::getWordOrd(Count cumulativeNumFound) const
 ////////////////////////////////////////////////////////////////////////////////
 auto DecreasingOnUpdateDictionary::getProbabilityStats(Ord ord)
     -> ProbabilityStats {
-  auto ret = _getProbabilityStats(ord);
-  _updateWordCnt(ord, 1);
+  auto ret = getProbabilityStats_(ord);
+  updateWordCnt_(ord, 1);
   return ret;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto DecreasingOnUpdateDictionary::_getLowerCumulativeCnt(Ord ord) const
+auto DecreasingOnUpdateDictionary::getLowerCumulativeCnt_(Ord ord) const
     -> Count {
   return getRealCumulativeCnt_(ord - 1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void DecreasingOnUpdateDictionary::_updateWordCnt(Ord ord, Count cnt) {
+void DecreasingOnUpdateDictionary::updateWordCnt_(Ord ord, Count cnt) {
   this->changeRealTotalWordsCnt_(-1);
   this->changeRealCumulativeWordCnt_(ord, -static_cast<std::int64_t>(cnt));
   this->changeRealWordCnt_(ord, -1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto DecreasingOnUpdateDictionary::_getProbabilityStats(Ord ord) const
+auto DecreasingOnUpdateDictionary::getProbabilityStats_(Ord ord) const
     -> ProbabilityStats {
   assert(this->getRealWordCnt_(ord) != Count{0} &&
          "Get probability stats for a word woth zero real count.");
-  const auto low = _getLowerCumulativeCnt(ord);
+  const auto low = getLowerCumulativeCnt_(ord);
   const auto high = low + getRealWordCnt_(ord);
   const auto total = getTotalWordsCnt();
   return {low, high, total};

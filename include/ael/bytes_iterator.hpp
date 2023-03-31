@@ -40,6 +40,7 @@ class BytesIterator : public boost::iterators::iterator_facade<
   }
 
  protected:
+  //NOLINTBEGIN(readability-identifier-naming)
   //////////////////////////////////////////////////////////////////////////////
   [[nodiscard]] std::ptrdiff_t distance_to(const type& rhs) const {
     return rhs.offset_ - offset_;
@@ -66,7 +67,7 @@ class BytesIterator : public boost::iterators::iterator_facade<
   void decrement() {
     --offset_;
   }
-
+  // NOLINTEND(readability-identifier-naming)
  public:
   //////////////////////////////////////////////////////////////////////////////
   ~BytesIterator() = default;
