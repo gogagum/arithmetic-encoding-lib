@@ -11,6 +11,22 @@ class TwoPartsSource {
  public:
   using Ord = OrdT;
 
+ private:
+  class Iterator_{
+    explicit Iterator_(TwoPartsSource* ownerPtr) : ownerPtr_{ownerPtr} {};
+    
+    OrdT operator*() {
+      ownerPtr_->get_();
+    }
+
+    Iterator_& operator++() {}
+
+    Iterator_& operator++(int) {}
+
+   private:
+    TwoPartsSource* ownerPtr_;
+  };
+
  public:
   explicit TwoPartsSource(Ord m, double H) : m_(m), p_(calcP_(H)) {
     if (m_ == 0 || m_ >= maxOrd) {
