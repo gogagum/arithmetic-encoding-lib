@@ -5,12 +5,8 @@
 namespace ael {
 
 ////////////////////////////////////////////////////////////////////////////////
-ByteDataConstructor::ByteDataConstructor() : currBitFlag_{0b10000000} {
-}
-
-////////////////////////////////////////////////////////////////////////////////
 void ByteDataConstructor::putBit(bool bit) {
-  if (std::byte{0b10000000} == currBitFlag_) {
+  if (startMask_ == currBitFlag_) {
     data_.push_back(std::byte{0b00000000});
   }
   if (bit) {
@@ -37,7 +33,9 @@ void ByteDataConstructor::putByte(std::byte byteToPut) {
   if (currBitFlag_ == startMask_) {
     data_.push_back(byteToPut);
   } else {
-    std::copy_n(impl::BitsIterator(byteToPut, 0), 8, getBitBackInserter());
+    constexpr std::size_t bitsInByte = 8;
+    std::copy_n(impl::BitsIterator(byteToPut, 0), bitsInByte,
+                getBitBackInserter());
   }
 }
 
@@ -60,7 +58,7 @@ auto ByteDataConstructor::getByteBackInserter() -> ByteBackInserter {
 void ByteDataConstructor::moveBitFlag_() {
   currBitFlag_ >>= 1;
   if (std::byte{0b00000000} == currBitFlag_) {
-    currBitFlag_ = std::byte{0b10000000};
+    currBitFlag_ = startMask_;
   }
 }
 

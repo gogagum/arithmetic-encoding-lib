@@ -15,6 +15,9 @@ namespace ael {
 /// \brief The ArithmeticCoderEncoded class
 ///
 class ByteDataConstructor {
+ private:
+  constexpr static auto startMask_ = std::byte{0b10000000};
+
  public:
   ////////////////////////////////////////////////////////////////////////////
   /// \brief The ByteBackInserter class
@@ -31,14 +34,11 @@ class ByteDataConstructor {
   ///
   class BytesAfterBits;
 
- private:
-  constexpr static const std::byte startMask_{0b10000000};
-
  public:
   /**
    * @brief ArithmeticCoderEncoded - enpty encoded constructor
    */
-  ByteDataConstructor();
+  ByteDataConstructor() = default;
 
   /**
    * @brief putBit - add single bit in the end.
@@ -121,9 +121,9 @@ class ByteDataConstructor {
   void moveBitFlag_();
 
  private:
-  std::vector<std::byte> data_;
-  std::byte currBitFlag_;
-  std::uint8_t currBitOffset_;
+  std::vector<std::byte> data_{};
+  std::byte currBitFlag_{startMask_};
+  std::uint8_t currBitOffset_{0};
 };
 
 ////////////////////////////////////////////////////////////////////////////////

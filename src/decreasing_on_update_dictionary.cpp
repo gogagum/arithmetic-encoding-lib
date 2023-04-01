@@ -25,7 +25,8 @@ auto DecreasingOnUpdateDictionary::getWordOrd(Count cumulativeNumFound) const
   using UIntIt = ael::impl::IntegerRandomAccessIterator<std::uint64_t>;
   const auto idxs = boost::iterator_range<UIntIt>(UIntIt{0}, UIntIt{maxOrd_});
   // TODO(gogagum): replace
-  // auto idxs = std::ranges::iota_view(std::uint64_t{0}, WordT::wordsCount);
+  // const auto idxs = std::ranges::iota_view(std::uint64_t{0},
+  // WordT::wordsCount);
   const auto getLowerCumulNumFound_ = [this](Ord ord) {
     return this->getLowerCumulativeCnt_(ord + 1);
   };

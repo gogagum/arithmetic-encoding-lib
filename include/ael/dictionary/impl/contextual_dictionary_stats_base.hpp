@@ -72,13 +72,9 @@ class ContextualDictionaryStatsBase : protected InternalDict {
   WordProbabilityStats<Count> getContextualProbStats_(
       const SearchCtx_& searchCtx, Ord ord);
 
-  [[nodiscard]] std::uint16_t getCurrCtxLength_() const {
-    return currCtxLength_;
-  }
+  [[nodiscard]] std::uint16_t getCurrCtxLength_() const;
 
-  [[nodiscard]] bool ctxExists_(const SearchCtx_& searchCtx) const {
-    return contextProbs_.contains(searchCtx);
-  }
+  [[nodiscard]] bool ctxExists_(const SearchCtx_& searchCtx) const;
 
  private:
   std::unordered_map<SearchCtx_, Dict_, SearchCtxHash_> contextProbs_{};
@@ -161,6 +157,20 @@ template <class InternalDictT>
 auto ContextualDictionaryStatsBase<InternalDictT>::getContextualProbStats_(
     const SearchCtx_& searchCtx, Ord ord) -> WordProbabilityStats<Count> {
   return this->contextProbs_.at(searchCtx).getProbabilityStats(ord);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+template <class InternalDictT>
+std::uint16_t ContextualDictionaryStatsBase<InternalDictT>::getCurrCtxLength_()
+    const {
+  return currCtxLength_;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+template <class InternalDictT>
+bool ContextualDictionaryStatsBase<InternalDictT>::ctxExists_(
+    const SearchCtx_& searchCtx) const {
+  return contextProbs_.contains(searchCtx);
 }
 
 }  // namespace ael::dict::impl
