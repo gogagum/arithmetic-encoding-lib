@@ -90,5 +90,6 @@
         "span": "cpp",
         "__std_stream": "cpp",
         "valarray": "cpp"
-    }
+    },
+    "cmake.configureArgs": ["-DAEL_TESTS:BOOL=1", "-DAEL_BENCHMARK:BOOL=1"]
 }

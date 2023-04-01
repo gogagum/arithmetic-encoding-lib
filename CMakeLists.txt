@@ -97,6 +97,10 @@ target_link_libraries(arithmetic-encoding-lib
     Boost::range
     dynamic-segment-tree)
 
-if (BUILD_TEST)
+if (AEL_TESTS)
     add_subdirectory(test)
-endif (BUILD_TEST)
+endif ()
+
+if (AEL_BENCHMARK)
+    add_subdirectory(benchmark)
+endif()
