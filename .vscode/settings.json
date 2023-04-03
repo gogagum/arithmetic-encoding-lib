@@ -89,7 +89,12 @@
         "ranges": "cpp",
         "span": "cpp",
         "__std_stream": "cpp",
-        "valarray": "cpp"
+        "valarray": "cpp",
+        "complex": "cpp"
     },
-    "cmake.configureArgs": ["-DAEL_TESTS:BOOL=1", "-DAEL_BENCHMARK:BOOL=1"]
+    "cmake.configureArgs": [
+        "-DAEL_TESTS:BOOL=1",
+        "-DAEL_BENCHMARK:BOOL=1"
+    ],
+    "C_Cpp.errorSquiggles": "disabled"
 }
