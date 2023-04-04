@@ -21,7 +21,8 @@ Checks: >
   -readability-identifier-length,
   -modernize-use-trailing-return-type,
   -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
-  -cert-dcl21-cpp
+  -cert-dcl21-cpp,
+  -cert-dcl58-cpp
 
 HeaderFilterRegex: '\.hpp$'
 

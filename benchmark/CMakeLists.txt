@@ -8,9 +8,29 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(googlebenchmark)
 
-add_library(benchmark_lib STATIC lib/include/two_parts_source.hpp)
+FetchContent_Declare(
+    fmt
+    URL https://github.com/fmtlib/fmt/releases/download/9.1.0/fmt-9.1.0.zip
+)
+
+FetchContent_MakeAvailable(fmt)
+
+add_library(benchmark_lib STATIC)
+
+set(benchmark_lib_public_headers lib/include/two_parts_source.hpp)
+
+target_sources(benchmark_lib
+    PRIVATE
+        lib/src/two_parts_source.cpp
+)
+
+set_target_properties(benchmark_lib PROPERTIES PUBLIC_HEADER "${benchmark_lib_public_headers}")
+
+target_include_directories(benchmark_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lib/include)
+
 
 set_target_properties(benchmark_lib PROPERTIES LINKER_LANGUAGE CXX)
+target_link_libraries(benchmark_lib LINK_PUBLIC fmt::fmt)
 
 add_subdirectory(test)
 

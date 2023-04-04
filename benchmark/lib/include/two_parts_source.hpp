@@ -1,7 +1,6 @@
 #ifndef TWO_PARTS_SOURCE_HPP
 #define TWO_PARTS_SOURCE_HPP
 
-#include <bits/ranges_base.h>
 #include <fmt/format.h>
 
 #include <cstdint>
@@ -12,37 +11,115 @@
 
 class TwoPartsSource {
  public:
+  //////////////////////////////////////////////////////////////////////////////
+  /// \brief The GenerationInstance class.
+  ///
   class GenerationInstance {
    private:
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief The GenerationInstance::Iterator_ class.
+    ///
     class Iterator_ : std::input_iterator_tag {
      public:
+      /**
+       * @brief Construct a new Iterator_ object
+       */
+      Iterator_() = default;
+
+      /**
+       * @brief Construct a new Iterator_ object from copy.
+       * 
+       * @param other iterator to copy from.
+       */
+      Iterator_(const Iterator_& other) = default;
+
+      /**
+       * @brief Construct a new Iterator_ object moving.
+       * 
+       * @param other iterator to move from.
+       */
+      Iterator_(Iterator_&& other) = default;
+
+      /**
+       * @brief Construct a new Iterator_ object
+       *
+       * @param ownerPtr pointer to instance.
+       * @param offset offset of the iterator.
+       */
       Iterator_(GenerationInstance* ownerPtr, std::size_t offset);
+
+      /**
+       * @brief Copy assign operator.
+       * 
+       * @param other iterator to copy from.
+       * @return Iterator_& reference to itself.
+       */
+      Iterator_& operator=(const Iterator_& other) = default;
+
+      /**
+       * @brief Move assign operator.
+       * 
+       * @param other iterator to move from.
+       * @return Iterator_& reference to itself.
+       */
+      Iterator_& operator=(Iterator_&& other) noexcept = default;
 
       /**
        * @brief get generated element of a sequence.
        *
        * @return OrdT element of a sequence.
        */
-      std::uint64_t operator*();
+      std::uint64_t operator*() const;
 
       /**
-       * @brief increment of an iterator.
+       * @brief prefix increment of an iterator.
        *
        * @return Iterator_& referense to self.
        */
       Iterator_& operator++();
 
-      bool operator!=(const Iterator_& other) const {
-        return offset_ < other.offset_ || ownerPtr_ != other.ownerPtr_;
-      }
+      /**
+       * @brief postfix increment of an iterator.
+       *
+       * @return Iterator_ copy of self before incrementing.
+       */
+      Iterator_ operator++(int);
 
-      bool operator==(const Iterator_& other) const {
-        return offset_ < other.offset_ && ownerPtr_ == other.ownerPtr_;
-      }
+      /**
+       * @brief Non-equality with other iterator.
+       *
+       * @param other iterator
+       * @return true if iterators are not equal.
+       * @return false if iterators are equal.
+       */
+      bool operator!=(const Iterator_& other) const;
+
+      /**
+       * @brief Equality with other iterator.
+       *
+       * @param other iterator.
+       * @return true if iterators are equal.
+       * @return false if iterators are not equal.
+       */
+      bool operator==(const Iterator_& other) const;
+
+      /**
+       * @brief Destroy the Iterator_ object
+       */
+      ~Iterator_() = default;
 
      private:
-      std::size_t offset_;
-      GenerationInstance* ownerPtr_;
+      std::size_t offset_{0};
+      GenerationInstance* ownerPtr_{nullptr};
+    };
+
+   public:
+    struct ConstructInfo {
+      std::uint64_t m{0};
+      std::uint64_t maxOrd{2};
+      double h{1};
+      std::size_t length{0};
+      std::uint64_t seed{0};
     };
 
    public:
@@ -51,8 +128,7 @@ class TwoPartsSource {
      *
      * @param count number of elements in the sequence.
      */
-    GenerationInstance(std::uint64_t m, std::uint64_t maxOrd, double h,
-                       std::size_t length, std::uint64_t seed);
+    explicit GenerationInstance(ConstructInfo constructInfo);
 
     /**
      * @brief Generation beginning.
@@ -69,9 +145,7 @@ class TwoPartsSource {
     Iterator_ end();
 
    private:
-    std::uint64_t get_() {
-      return 0;  // TODO
-    }
+    std::uint64_t get_();
 
     double calcP_(double h);
 
@@ -86,14 +160,26 @@ class TwoPartsSource {
   };
 
  public:
-  static GenerationInstance getGeneration(std::size_t maxOrd, std::size_t m,
-                                          double h, std::size_t length,
-                                          std::uint64_t seed = 0);
+  struct GenerationConfig {
+    std::size_t maxOrd{2};
+    std::size_t m{1};
+    double h{1};
+    std::size_t length{0};
+    std::uint64_t seed{0};
+  };
+
+  static GenerationInstance getGeneration(GenerationConfig generationConfig);
 };
 
+////////////////////////////////////////////////////////////////////////////////
+/// \brief The
+/// std::iterator_traits<TwoPartsSource::GenerationInstance::Iterator_>
 template <>
 struct std::iterator_traits<TwoPartsSource::GenerationInstance::Iterator_> {
   using iterator_category = std::input_iterator_tag;
+  using value_type = std::uint64_t;
+  using reference = std::uint64_t;
+  using difference_type = std::ptrdiff_t;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -102,9 +188,21 @@ TwoPartsSource::GenerationInstance::Iterator_::Iterator_(
     : offset_{offset}, ownerPtr_{ownerPtr} {};
 
 ////////////////////////////////////////////////////////////////////////////////
-auto TwoPartsSource::GenerationInstance::Iterator_::operator*()
+auto TwoPartsSource::GenerationInstance::Iterator_::operator*() const
     -> std::uint64_t {
   return ownerPtr_->get_();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+bool TwoPartsSource::GenerationInstance::Iterator_::operator!=(
+    const Iterator_& other) const {
+  return offset_ != other.offset_ || ownerPtr_ != other.ownerPtr_;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+bool TwoPartsSource::GenerationInstance::Iterator_::operator==(
+    const Iterator_& other) const {
+  return offset_ == other.offset_ && ownerPtr_ == other.ownerPtr_;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -114,12 +212,21 @@ auto TwoPartsSource::GenerationInstance::Iterator_::operator++() -> Iterator_& {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-TwoPartsSource::GenerationInstance::GenerationInstance(std::uint64_t m,
-                                                       std::uint64_t maxOrd,
-                                                       double h,
-                                                       std::size_t length,
-                                                       std::uint64_t seed)
-    : m_(m), maxOrd_(maxOrd), length_(length), p_(calcP_(h)), generator_(seed) {
+auto TwoPartsSource::GenerationInstance::Iterator_::operator++(int)
+    -> Iterator_ {
+  const auto ret = Iterator_(ownerPtr_, offset_);
+  ++offset_;
+  return ret;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+TwoPartsSource::GenerationInstance::GenerationInstance(
+    ConstructInfo constructInfo)
+    : m_(constructInfo.m),
+      maxOrd_(constructInfo.maxOrd),
+      length_(constructInfo.length),
+      p_(calcP_(constructInfo.h)),
+      generator_(constructInfo.seed) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -133,13 +240,26 @@ auto TwoPartsSource::GenerationInstance::end() -> Iterator_ {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto TwoPartsSource::getGeneration(std::uint64_t maxOrd, std::uint64_t m,
-                                   double h, std::size_t length,
-                                   std::uint64_t seed) -> GenerationInstance {
-  if (m == 0 || m >= maxOrd) {
-    throw std::invalid_argument(fmt::format("m = {} has no logic.", m));
+std::uint64_t TwoPartsSource::GenerationInstance::get_() {
+  constexpr auto ticks = std::uint64_t{1 << 16};
+  const auto part = std::uint64_t{generator_() % ticks};
+  if (static_cast<double>(part) / static_cast<double>(ticks) < p_) {
+    return generator_() % m_;
   }
-  return {m, maxOrd, h, length, seed};
+  return m_ + generator_() % (maxOrd_ - m_);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+auto TwoPartsSource::getGeneration(GenerationConfig generationConfig)
+    -> GenerationInstance {
+  if (generationConfig.m == 0 ||
+      generationConfig.m >= generationConfig.maxOrd) {
+    throw std::invalid_argument(
+        fmt::format("m = {} has no logic.", generationConfig.m));
+  }
+  return GenerationInstance({generationConfig.m, generationConfig.maxOrd,
+                             generationConfig.h, generationConfig.length,
+                             generationConfig.seed});
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -152,7 +272,7 @@ double TwoPartsSource::GenerationInstance::calcP_(double h) {
         enthropy_(static_cast<double>(m_) / static_cast<double>(maxOrd_))));
   }
   double pL = 0;
-  double pR = static_cast<double>(m_) / static_cast<double>(maxOrd_);
+  auto pR = static_cast<double>(m_) / static_cast<double>(maxOrd_);
   while (pR - pL > std::numeric_limits<double>::epsilon()) {
     if (const double pM = (pL + pR) / 2; enthropy_(pM) > h) {
       pR = pM;
