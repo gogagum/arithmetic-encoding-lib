@@ -38,7 +38,7 @@ jobs:
             - run: /bin/bash .ci/build-project-valgrind.sh build-valgrind
             - run: valgrind ./build-valgrind/test/ael-tests
 
-    linux-clang-16-libc++:
+    linux-clang-16-libcpp:
         name: Linux Clang
         runs-on: ubuntu-22.04
         env:
