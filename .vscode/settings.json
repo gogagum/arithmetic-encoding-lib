@@ -90,7 +90,9 @@
         "span": "cpp",
         "__std_stream": "cpp",
         "valarray": "cpp",
-        "complex": "cpp"
+        "complex": "cpp",
+        "charconv": "cpp",
+        "format": "cpp"
     },
     "cmake.configureArgs": [
         "-DAEL_TESTS:BOOL=1",

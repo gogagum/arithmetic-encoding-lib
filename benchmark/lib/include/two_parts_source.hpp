@@ -28,14 +28,14 @@ class TwoPartsSource {
 
       /**
        * @brief Construct a new Iterator_ object from copy.
-       * 
+       *
        * @param other iterator to copy from.
        */
       Iterator_(const Iterator_& other) = default;
 
       /**
        * @brief Construct a new Iterator_ object moving.
-       * 
+       *
        * @param other iterator to move from.
        */
       Iterator_(Iterator_&& other) = default;
@@ -50,7 +50,7 @@ class TwoPartsSource {
 
       /**
        * @brief Copy assign operator.
-       * 
+       *
        * @param other iterator to copy from.
        * @return Iterator_& reference to itself.
        */
@@ -58,7 +58,7 @@ class TwoPartsSource {
 
       /**
        * @brief Move assign operator.
-       * 
+       *
        * @param other iterator to move from.
        * @return Iterator_& reference to itself.
        */
@@ -115,8 +115,8 @@ class TwoPartsSource {
 
    public:
     struct ConstructInfo {
-      std::uint64_t m{0};
       std::uint64_t maxOrd{2};
+      std::uint64_t m{1};
       double h{1};
       std::size_t length{0};
       std::uint64_t seed{0};
@@ -144,6 +144,13 @@ class TwoPartsSource {
      */
     Iterator_ end();
 
+    /**
+     * @brief Size of a range.
+     *
+     * @return std::size_t range size.
+     */
+    [[nodiscard]] std::size_t size() const;
+
    private:
     std::uint64_t get_();
 
@@ -152,11 +159,13 @@ class TwoPartsSource {
     [[nodiscard]] double enthropy_(double p) const;
 
    private:
-    std::uint64_t maxOrd_;
-    std::uint64_t m_;
-    std::size_t length_;
-    double p_;
-    std::mt19937 generator_;
+    constexpr static auto half_ = double{0.5};
+
+    std::uint64_t maxOrd_{2};
+    std::uint64_t m_{1};
+    std::size_t length_{0};
+    double p_{half_};
+    std::mt19937 generator_{0};  // NOLINT
   };
 
  public:
@@ -240,6 +249,11 @@ auto TwoPartsSource::GenerationInstance::end() -> Iterator_ {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+std::size_t TwoPartsSource::GenerationInstance::size() const {
+  return length_;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 std::uint64_t TwoPartsSource::GenerationInstance::get_() {
   constexpr auto ticks = std::uint64_t{1 << 16};
   const auto part = std::uint64_t{generator_() % ticks};
@@ -257,23 +271,29 @@ auto TwoPartsSource::getGeneration(GenerationConfig generationConfig)
     throw std::invalid_argument(
         fmt::format("m = {} has no logic.", generationConfig.m));
   }
-  return GenerationInstance({generationConfig.m, generationConfig.maxOrd,
+  return GenerationInstance({generationConfig.maxOrd, generationConfig.m,
                              generationConfig.h, generationConfig.length,
                              generationConfig.seed});
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 double TwoPartsSource::GenerationInstance::calcP_(double h) {
+  const auto pMax = static_cast<double>(m_) / static_cast<double>(maxOrd_);
   if (h < std::log2(m_) || h > std::log2(maxOrd_)) {
     throw std::invalid_argument(fmt::format(
         "H = {} is not reachable with m = {}, M = {}. "
         "Minimal H is {}, maximal H is {}",
         h, m_, maxOrd_, enthropy_(0),
-        enthropy_(static_cast<double>(m_) / static_cast<double>(maxOrd_))));
+        enthropy_(pMax)));
   }
   double pL = 0;
-  auto pR = static_cast<double>(m_) / static_cast<double>(maxOrd_);
-  while (pR - pL > std::numeric_limits<double>::epsilon()) {
+  auto pR = pMax;
+  constexpr auto half = double{0.5};
+  if (pMax < half) {
+    pL = 1;
+    pR = pMax;
+  }
+  while (std::abs(pR - pL) > std::numeric_limits<double>::epsilon()) {
     if (const double pM = (pL + pR) / 2; enthropy_(pM) > h) {
       pR = pM;
     } else {
@@ -286,16 +306,15 @@ double TwoPartsSource::GenerationInstance::calcP_(double h) {
 ////////////////////////////////////////////////////////////////////////////////
 double TwoPartsSource::GenerationInstance::enthropy_(double p) const {
   const auto mDouble = static_cast<double>(m_);
+  const auto maxOrdDouble = static_cast<double>(maxOrd_);
   if (std::abs(p - 1) < std::numeric_limits<double>::epsilon()) {
     return -p * std::log2(p / mDouble);
   }
   if (p < std::numeric_limits<double>::epsilon()) {
-    return -(1 - p) *
-           std::log2((1 - p) / (static_cast<double>(maxOrd_) - mDouble));
+    return -(1 - p) * std::log2((1 - p) / (maxOrdDouble - mDouble));
   }
-  return -p * std::log2(p / static_cast<double>(m_)) -
-         (1 - p) *
-             std::log2((1 - p) / (static_cast<double>(maxOrd_) - mDouble));
+  return -p * std::log2(p / mDouble) -
+         (1 - p) * std::log2((1 - p) / (maxOrdDouble - mDouble));
 }
 
 #endif  // TWO_PARTS_SOURCE_HPP

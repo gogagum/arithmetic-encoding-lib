@@ -11,6 +11,7 @@
 #include <span>
 #include <stdexcept>
 #include <vector>
+#include <cstdint>
 
 namespace ael {
 

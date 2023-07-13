@@ -5,6 +5,7 @@
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/range/iterator_range.hpp>
 #include <cstddef>
+#include <cstdint>
 
 namespace ael::impl {
 
