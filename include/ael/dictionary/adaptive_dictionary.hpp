@@ -57,7 +57,7 @@ class AdaptiveDictionary : public impl::AdaptiveDictionaryBase<std::uint64_t> {
   }
 
  private:
-  Count getLowerCumulativeCnt_(Ord ord) const;
+  [[nodiscard]] Count getLowerCumulativeCnt_(Ord ord) const;
 
   void updateWordCnt_(Ord ord);
 

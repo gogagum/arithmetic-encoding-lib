@@ -23,7 +23,7 @@ auto AdaptiveDictionary::getWordOrd(Count cumulativeNumFound) const -> Ord {
     return getLowerCumulativeCnt_(ord + 1);
   };
   const auto iter = std::ranges::upper_bound(idxs, cumulativeNumFound, {},
-                                     getLowerCumulNumFound_);
+                                             getLowerCumulNumFound_);
   return iter - idxs.begin();
 }
 
@@ -45,7 +45,8 @@ void AdaptiveDictionary::updateWordCnt_(Ord ord) {
 
 ////////////////////////////////////////////////////////////////////////////////
 auto AdaptiveDictionary::getLowerCumulativeCnt_(Ord ord) const -> Count {
-  return ord + this->getRealCumulativeCnt_(ord - 1) * ratio_;
+  return (ord > Ord{0}) ? ord + this->getRealCumulativeCnt_(ord - 1) * ratio_
+                        : Count{0};
 }
 
 }  // namespace ael::dict
