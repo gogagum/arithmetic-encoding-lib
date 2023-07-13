@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <boost/range/adaptor/transformed.hpp>
+#include <ranges>
 #include <two_parts_source.hpp>
 
 // NOLINTBEGIN(cppcoreguidelines-owning-memory,
@@ -57,13 +57,13 @@ TEST(TwoPartsSource, ResultingEnthropy) {
   }
 
   const auto pLogPs =
-      boost::adaptors::transform(counts, [totalCount](const auto& entry) {
+      counts | std::views::transform([totalCount](const auto& entry) {
         auto [ord, count] = entry;
         const double countDouble = static_cast<double>(count);
         const double p = countDouble / totalCount;
         return -p * std::log2(p);
       });
-
+  
   double enthropeEstimation = std::accumulate(pLogPs.begin(), pLogPs.end(), 0.);
 
   EXPECT_TRUE((enthropeEstimation - 7.1) / 7.1 < 0.1);

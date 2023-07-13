@@ -28,7 +28,6 @@ target_sources(${PROJECT_NAME}
         src/cumulative_unique_count.cpp
         src/data_parser.cpp
         src/decreasing_on_update_dictionary.cpp
-        src/integer_random_access_iterator.hpp
         src/multiply_and_divide.cpp
         src/ppma_dictionary.cpp
         src/ppmd_dictionary.cpp

@@ -2,9 +2,7 @@
 
 #include <ael/data_parser.hpp>
 #include <array>
-#include <boost/range/algorithm.hpp>
 #include <boost/range/combine.hpp>
-#include <boost/range/irange.hpp>
 #include <cstddef>
 #include <vector>
 
@@ -87,7 +85,7 @@ TEST(DataParser, ByteAfterBit1) {
       std::array{std::byte{0b00000010}, std::byte{0b00100110}};
   auto decoded = DataParser(testData);
 
-  for ([[maybe_unused]] auto _ : boost::irange(0, 8)) {
+  for ([[maybe_unused]] auto _ : std::ranges::iota_view(0, 8)) {
     decoded.takeBit();
   }
 

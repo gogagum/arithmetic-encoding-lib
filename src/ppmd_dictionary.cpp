@@ -1,12 +1,10 @@
 #include <ael/dictionary/ppmd_dictionary.hpp>
 #include <algorithm>
-#include <boost/range/iterator_range.hpp>
 #include <ranges>
 #include <stdexcept>
 
 #include "ael/dictionary/impl/cumulative_count.hpp"
 #include "ael/dictionary/impl/cumulative_unique_count.hpp"
-#include "integer_random_access_iterator.hpp"
 
 namespace ael::dict {
 
@@ -28,13 +26,9 @@ PPMDDictionary::PPMDDictionary(ConstructInfo constructInfo)
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMDDictionary::getWordOrd(const Count& cumulativeNumFound) const -> Ord {
-  using UIntIt = ael::impl::IntegerRandomAccessIterator<std::uint64_t>;
-  const auto idxs =
-      boost::iterator_range<UIntIt>(UIntIt{0}, UIntIt{this->maxOrd_});
-  // TODO(gogagum): replace
-  // auto idxs = std::ranges::iota_view(std::uint64_t{0}, WordT::wordsCount);
+  const auto idxs = std::ranges::iota_view(Ord{0}, this->maxOrd_);
   assert(cumulativeNumFound <= this->getTotalWordsCnt());
-  const auto getLowerCumulNumFound_ = [this](std::uint64_t ord) {
+  const auto getLowerCumulNumFound_ = [this](Ord ord) {
     assert(ord < maxOrd_);
     return this->getLowerCumulativeCnt_(ord + 1);
   };

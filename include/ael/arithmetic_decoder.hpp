@@ -5,13 +5,13 @@
 
 #include <ael/impl/multiply_and_divide.hpp>
 #include <ael/impl/ranges_calc.hpp>
-#include <boost/range/irange.hpp>
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
 #include <iterator>
 #include <limits>
 #include <optional>
+#include <ranges>
 
 namespace ael {
 
@@ -74,11 +74,12 @@ void ArithmeticDecoder::decode(auto& source, Dict& dict, OutIter outIter,
   typename RC::Range currRange;
   typename RC::Count value = 0;
 
-  for (auto _ : boost::irange<std::size_t>(0, Dict::countNumBits)) {
+  for (auto _ : std::ranges::iota_view(std::size_t{0}, Dict::countNumBits)) {
     value = (value << 1) + takeBitLimited();
   }
 
-  for (auto i : boost::irange<std::size_t>(0, decodeLimits.wordsLimit)) {
+  for (auto i :
+       std::ranges::iota_view(std::size_t{0}, decodeLimits.wordsLimit)) {
     const auto range = typename Dict::Count{currRange.high - currRange.low};
     const auto dictTotalWords = dict.getTotalWordsCnt();
     const auto offset = value - currRange.low + 1;

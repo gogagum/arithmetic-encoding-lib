@@ -1,6 +1,6 @@
 #include <ael/bits_iterator.hpp>
 #include <ael/byte_data_constructor.hpp>
-#include <boost/range/irange.hpp>
+#include <algorithm>
 
 namespace ael {
 

@@ -4,14 +4,13 @@
 #define ARITHMETIC_DECODER_DECODED_HPP
 
 #include <array>
-#include <boost/range/adaptor/reversed.hpp>
-#include <boost/range/iterator_range.hpp>
 #include <cstddef>
 #include <ranges>
 #include <span>
 #include <stdexcept>
 #include <vector>
 #include <cstdint>
+#include <boost/iterator/iterator_facade.hpp>
 
 namespace ael {
 
@@ -159,7 +158,7 @@ class DataParser {
  private:
   const std::span<const std::byte> data_;
   std::span<const std::byte>::iterator dataIter_;
-  std::uint8_t inByteOffset_;
+  std::uint8_t inByteOffset_{};
 
  private:
   friend bool operator==(const DataParser& dp1, const DataParser& dp2);

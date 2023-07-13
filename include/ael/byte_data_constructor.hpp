@@ -2,8 +2,6 @@
 #define ARITHMETIC_CODER_ENCODED_HPP
 
 #include <array>
-#include <boost/range/combine.hpp>
-#include <boost/range/irange.hpp>
 #include <cstddef>
 #include <cstdint>
 #include <ranges>

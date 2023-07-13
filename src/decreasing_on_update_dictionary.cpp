@@ -1,10 +1,6 @@
 #include <ael/dictionary/decreasing_on_update_dictionary.hpp>
 #include <algorithm>
-#include <boost/range/irange.hpp>
-#include <boost/range/iterator_range.hpp>
 #include <ranges>
-
-#include "integer_random_access_iterator.hpp"
 
 namespace ael::dict {
 
@@ -13,7 +9,7 @@ DecreasingOnUpdateDictionary::DecreasingOnUpdateDictionary(Ord maxOrd,
                                                            Count count)
     : impl::AdaptiveDictionaryBase<Count>(maxOrd, maxOrd * count),
       maxOrd_(maxOrd) {
-  for (auto ord : boost::irange<Ord>(0, maxOrd_)) {
+  for (const auto ord : std::ranges::iota_view(Ord{0}, maxOrd_)) {
     this->changeRealWordCnt_(ord, static_cast<std::int64_t>(count));
     this->changeRealCumulativeWordCnt_(ord, static_cast<std::int64_t>(count));
   }
@@ -22,11 +18,7 @@ DecreasingOnUpdateDictionary::DecreasingOnUpdateDictionary(Ord maxOrd,
 ////////////////////////////////////////////////////////////////////////////////
 auto DecreasingOnUpdateDictionary::getWordOrd(Count cumulativeNumFound) const
     -> Ord {
-  using UIntIt = ael::impl::IntegerRandomAccessIterator<std::uint64_t>;
-  const auto idxs = boost::iterator_range<UIntIt>(UIntIt{0}, UIntIt{maxOrd_});
-  // TODO(gogagum): replace
-  // const auto idxs = std::ranges::iota_view(std::uint64_t{0},
-  // WordT::wordsCount);
+  const auto idxs = std::ranges::iota_view(Ord{0}, maxOrd_);
   const auto getLowerCumulNumFound_ = [this](Ord ord) {
     return this->getLowerCumulativeCnt_(ord + 1);
   };

@@ -1,12 +1,13 @@
 #include <ael/data_parser.hpp>
-#include <boost/range/irange.hpp>
 #include <cstddef>
+#include <climits>
+#include <ranges>
 
 namespace ael {
 
 ////////////////////////////////////////////////////////////////////////////////
 DataParser::DataParser(std::span<const std::byte> data)
-    : data_(data), dataIter_{data_.begin()}, inByteOffset_(0) {
+    : data_(data), dataIter_{data_.begin()} {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -17,8 +18,7 @@ std::byte DataParser::takeByte() {
     return ret;
   }
   auto ret = std::byte{0};
-  for ([[maybe_unused]] const std::size_t _ :
-       boost::irange<std::size_t>(0, 8)) {
+  for ([[maybe_unused]] const auto _ : std::ranges::iota_view(0, 8)) {
     ret <<= 1;
     ret |= takeBit() ? std::byte{0b00000001} : std::byte{0b00000000};
   }
@@ -38,7 +38,7 @@ bool DataParser::takeBit() {
 ////////////////////////////////////////////////////////////////////////////////
 void DataParser::moveInByteOffset_() {
   ++inByteOffset_;
-  if (inByteOffset_ == 8) {
+  if (inByteOffset_ == CHAR_BIT) {
     inByteOffset_ = 0;
     ++dataIter_;
   }
@@ -46,8 +46,8 @@ void DataParser::moveInByteOffset_() {
 
 ////////////////////////////////////////////////////////////////////////////////
 DataParser& DataParser::seek(std::size_t bitsOffset) {
-  dataIter_ = data_.begin() + static_cast<ptrdiff_t>(bitsOffset / 8);
-  inByteOffset_ = bitsOffset % 8;
+  dataIter_ = data_.begin() + static_cast<ptrdiff_t>(bitsOffset / CHAR_BIT);
+  inByteOffset_ = bitsOffset % CHAR_BIT;
   return *this;
 }
 

@@ -1,7 +1,5 @@
 #include <ael/dictionary/adaptive_dictionary.hpp>
-#include <boost/range/iterator_range.hpp>
-
-#include "integer_random_access_iterator.hpp"
+#include <ranges>
 
 namespace ael::dict {
 
@@ -15,10 +13,7 @@ AdaptiveDictionary::AdaptiveDictionary(ConstructInfo constructInfo)
 
 ////////////////////////////////////////////////////////////////////////////////
 auto AdaptiveDictionary::getWordOrd(Count cumulativeNumFound) const -> Ord {
-  using UIntIt = ael::impl::IntegerRandomAccessIterator<std::uint64_t>;
-  const auto idxs = boost::iterator_range<UIntIt>(UIntIt{0}, UIntIt{maxOrder_});
-  // TODO(gogagum): replace
-  // auto idxs = std::ranges::iota_view(std::uint64_t{0}, WordT::wordsCount);
+  const auto idxs = std::ranges::iota_view(Ord{0}, maxOrder_);
   const auto getLowerCumulNumFound_ = [this](Ord ord) {
     return getLowerCumulativeCnt_(ord + 1);
   };

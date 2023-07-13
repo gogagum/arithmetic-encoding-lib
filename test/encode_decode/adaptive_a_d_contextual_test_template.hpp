@@ -12,6 +12,7 @@
 #include <ael/arithmetic_decoder.hpp>
 #include <ael/byte_data_constructor.hpp>
 #include <ael/data_parser.hpp>
+#include <boost/range/combine.hpp>
 #include <random>
 
 // NOLINTBEGIN(cppcoreguidelines-*, cert-*, readability-magic-numbers,
@@ -129,13 +130,13 @@ TEST(TEST_SUIT_NAME, EncodeDecodeSmallSequenceBitsLimit) {
 TEST(TEST_SUIT_NAME, EncodeDecodeFuzz) {
   auto gen = std::mt19937(42);
 
-  for (auto iteration : boost::irange(0, 15)) {
+  for (auto iteration : std::ranges::iota_view(0, 15)) {
     const std::size_t length = gen() % 250;
     const std::uint32_t rng = gen() % 256;
 
     auto encoded = std::vector<std::uint32_t>{};
 
-    for (const auto _ : boost::irange(std::size_t{0}, length)) {
+    for (const auto _ : std::ranges::iota_view(std::size_t{0}, length)) {
       encoded.push_back(gen() % rng);
     }
 
@@ -171,13 +172,13 @@ TEST(TEST_SUIT_NAME, EncodeDecodeFuzz) {
 TEST(TEST_SUIT_NAME, EncodeDecodeFuzzBitsLimit) {
   auto gen = std::mt19937(42);
 
-  for (auto iteration : boost::irange(0, 50)) {
+  for (auto iteration : std::ranges::iota_view(0, 50)) {
     const std::size_t length = gen() % 250;
     const std::uint32_t rng = gen() % 256;
 
     auto encoded = std::vector<std::uint32_t>{};
 
-    for (const auto _ : boost::irange(std::size_t{0}, length)) {
+    for (const auto _ : std::ranges::iota_view(std::size_t{0}, length)) {
       encoded.push_back(gen() % rng);
     }
 
