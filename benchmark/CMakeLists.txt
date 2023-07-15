@@ -3,14 +3,14 @@ cmake_minimum_required(VERSION 3.15)
 include(FetchContent)
 FetchContent_Declare(
     googlebenchmark
-    URL https://github.com/google/benchmark/archive/refs/tags/v1.7.1.zip
+    URL https://github.com/google/benchmark/archive/refs/tags/v1.8.2.zip
 )
 
 FetchContent_MakeAvailable(googlebenchmark)
 
 FetchContent_Declare(
     fmt
-    URL https://github.com/fmtlib/fmt/releases/download/9.1.0/fmt-9.1.0.zip
+    URL https://github.com/fmtlib/fmt/releases/download/10.0.0/fmt-10.0.0.zip
 )
 
 FetchContent_MakeAvailable(fmt)
