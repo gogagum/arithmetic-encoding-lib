@@ -42,9 +42,9 @@ class ContextualDictionaryStatsBase : protected InternalDict {
   /// class
   ///
   struct ConstructInfo {
-    std::uint16_t wordNumBits;
-    std::uint16_t ctxLength;
-    std::uint16_t ctxCellBitsLength;
+    std::uint16_t wordNumBits{1 << CHAR_BIT};
+    std::uint16_t ctxLength{0};
+    std::uint16_t ctxCellBitsLength{0};
   };
 
  public:
@@ -78,9 +78,9 @@ class ContextualDictionaryStatsBase : protected InternalDict {
 
  private:
   std::unordered_map<SearchCtx_, Dict_, SearchCtxHash_> contextProbs_{};
-  const std::uint16_t ctxCellBitsLength_;
-  const std::uint16_t ctxLength_;
-  const std::uint16_t numBits_;
+  const std::uint16_t ctxCellBitsLength_{0};
+  const std::uint16_t ctxLength_{0};
+  const std::uint16_t numBits_{1 << CHAR_BIT};
   Ord ctx_{0};
   std::uint16_t currCtxLength_{0};
 };

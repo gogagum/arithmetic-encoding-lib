@@ -219,7 +219,7 @@ std::size_t ByteDataConstructor::saveSpaceForT() {
   if (currBitFlag_ != startMask_) {
     throw BytesAfterBits("Tried saving bytes with bit flag != 0b10000000.");
   }
-  auto ret = data_.size();
+  const auto ret = data_.size();
   data_.resize(data_.size() + sizeof(T));
   return ret;
 }

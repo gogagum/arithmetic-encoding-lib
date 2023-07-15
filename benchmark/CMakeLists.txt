@@ -34,8 +34,5 @@ target_link_libraries(benchmark_lib LINK_PUBLIC fmt::fmt)
 
 add_subdirectory(test)
 
-add_executable(benchmark_adaptive_coder adaptive_coder.cpp)
-target_link_libraries(benchmark_adaptive_coder LINK_PUBLIC benchmark::benchmark benchmark_lib arithmetic-encoding-lib)
-
-add_executable(benchmark_adaptive_a_coder adaptive_a_coder.cpp)
-target_link_libraries(benchmark_adaptive_a_coder LINK_PUBLIC benchmark::benchmark benchmark_lib arithmetic-encoding-lib)
+add_executable(benchmark_adaptive_coders adaptive_coders.cpp)
+target_link_libraries(benchmark_adaptive_coders LINK_PUBLIC benchmark::benchmark benchmark_lib arithmetic-encoding-lib)

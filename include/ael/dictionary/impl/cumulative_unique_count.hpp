@@ -34,7 +34,7 @@ class CumulativeUniqueCount {
    * @param ord - order index of a checked word.
    * @return cumulative count.
    */
-  Count getLowerCumulativeCount(Ord ord) const;
+  [[nodiscard]] Count getLowerCumulativeCount(Ord ord) const;
 
   /**
    * @brief getCumulativeCount - get cumulative count from zero
@@ -42,20 +42,20 @@ class CumulativeUniqueCount {
    * @param ord - order index of a checked word.
    * @return cumulative count.
    */
-  Count getCumulativeCount(Ord ord) const;
+  [[nodiscard]] Count getCumulativeCount(Ord ord) const;
 
   /**
    * @brief get count of a word.
    * @param ord - order index of a word.
    * @return word count.
    */
-  Count getCount(Ord ord) const;
+  [[nodiscard]] Count getCount(Ord ord) const;
 
   /**
    * @brief get total words count.
    * @return total words count.
    */
-  Count getTotalWordsCnt() const;
+  [[nodiscard]] Count getTotalWordsCnt() const;
 
  private:
   using DST_ =

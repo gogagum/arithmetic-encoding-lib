@@ -122,6 +122,11 @@ class TwoPartsSource {
       std::uint64_t seed{0};
     };
 
+    struct HRange {
+      double min;
+      double max;
+    };
+
    public:
     /**
      * @brief Construct a new Generation Instance object
@@ -154,10 +159,6 @@ class TwoPartsSource {
    private:
     std::uint64_t get_();
 
-    double calcP_(double h);
-
-    [[nodiscard]] double enthropy_(double p) const;
-
    private:
     constexpr static auto half_ = double{0.5};
 
@@ -177,7 +178,21 @@ class TwoPartsSource {
     std::uint64_t seed{0};
   };
 
+ public:
+  static double getMinH(std::uint64_t maxOrd, std::uint64_t m);
+
+  static double getMaxH(std::uint64_t maxOrd, std::uint64_t m);
+
+  static GenerationInstance::HRange getMinMaxH(std::uint64_t maxOrd,
+                                               std::uint64_t m);
+
   static GenerationInstance getGeneration(GenerationConfig generationConfig);
+
+ private:
+  static double calcP_(double h, std::uint64_t maxOrd, std::uint64_t m);
+
+  [[nodiscard]] static double enthropy_(double p, std::uint64_t maxOrd,
+                                        std::uint64_t m);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -190,131 +205,5 @@ struct std::iterator_traits<TwoPartsSource::GenerationInstance::Iterator_> {
   using reference = std::uint64_t;
   using difference_type = std::ptrdiff_t;
 };
-
-////////////////////////////////////////////////////////////////////////////////
-TwoPartsSource::GenerationInstance::Iterator_::Iterator_(
-    GenerationInstance* ownerPtr, std::size_t offset)
-    : offset_{offset}, ownerPtr_{ownerPtr} {};
-
-////////////////////////////////////////////////////////////////////////////////
-auto TwoPartsSource::GenerationInstance::Iterator_::operator*() const
-    -> std::uint64_t {
-  return ownerPtr_->get_();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-bool TwoPartsSource::GenerationInstance::Iterator_::operator!=(
-    const Iterator_& other) const {
-  return offset_ != other.offset_ || ownerPtr_ != other.ownerPtr_;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-bool TwoPartsSource::GenerationInstance::Iterator_::operator==(
-    const Iterator_& other) const {
-  return offset_ == other.offset_ && ownerPtr_ == other.ownerPtr_;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-auto TwoPartsSource::GenerationInstance::Iterator_::operator++() -> Iterator_& {
-  ++offset_;
-  return *this;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-auto TwoPartsSource::GenerationInstance::Iterator_::operator++(int)
-    -> Iterator_ {
-  const auto ret = Iterator_(ownerPtr_, offset_);
-  ++offset_;
-  return ret;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-TwoPartsSource::GenerationInstance::GenerationInstance(
-    ConstructInfo constructInfo)
-    : m_(constructInfo.m),
-      maxOrd_(constructInfo.maxOrd),
-      length_(constructInfo.length),
-      p_(calcP_(constructInfo.h)),
-      generator_(constructInfo.seed) {
-}
-
-////////////////////////////////////////////////////////////////////////////////
-auto TwoPartsSource::GenerationInstance::begin() -> Iterator_ {
-  return {this, 0};
-}
-
-////////////////////////////////////////////////////////////////////////////////
-auto TwoPartsSource::GenerationInstance::end() -> Iterator_ {
-  return {this, length_};
-}
-
-////////////////////////////////////////////////////////////////////////////////
-std::size_t TwoPartsSource::GenerationInstance::size() const {
-  return length_;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-std::uint64_t TwoPartsSource::GenerationInstance::get_() {
-  constexpr auto ticks = std::uint64_t{1 << 16};
-  const auto part = std::uint64_t{generator_() % ticks};
-  if (static_cast<double>(part) / static_cast<double>(ticks) < p_) {
-    return generator_() % m_;
-  }
-  return m_ + generator_() % (maxOrd_ - m_);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-auto TwoPartsSource::getGeneration(GenerationConfig generationConfig)
-    -> GenerationInstance {
-  if (generationConfig.m == 0 ||
-      generationConfig.m >= generationConfig.maxOrd) {
-    throw std::invalid_argument(
-        fmt::format("m = {} has no logic.", generationConfig.m));
-  }
-  return GenerationInstance({generationConfig.maxOrd, generationConfig.m,
-                             generationConfig.h, generationConfig.length,
-                             generationConfig.seed});
-}
-
-////////////////////////////////////////////////////////////////////////////////
-double TwoPartsSource::GenerationInstance::calcP_(double h) {
-  const auto pMax = static_cast<double>(m_) / static_cast<double>(maxOrd_);
-  if (h < std::log2(m_) || h > std::log2(maxOrd_)) {
-    throw std::invalid_argument(fmt::format(
-        "H = {} is not reachable with m = {}, M = {}. "
-        "Minimal H is {}, maximal H is {}",
-        h, m_, maxOrd_, enthropy_(0),
-        enthropy_(pMax)));
-  }
-  double pL = 0;
-  auto pR = pMax;
-  constexpr auto half = double{0.5};
-  if (pMax < half) {
-    pL = 1;
-    pR = pMax;
-  }
-  while (std::abs(pR - pL) > std::numeric_limits<double>::epsilon()) {
-    if (const double pM = (pL + pR) / 2; enthropy_(pM) > h) {
-      pR = pM;
-    } else {
-      pL = pM;
-    }
-  }
-  return pL;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-double TwoPartsSource::GenerationInstance::enthropy_(double p) const {
-  const auto mDouble = static_cast<double>(m_);
-  const auto maxOrdDouble = static_cast<double>(maxOrd_);
-  if (std::abs(p - 1) < std::numeric_limits<double>::epsilon()) {
-    return -p * std::log2(p / mDouble);
-  }
-  if (p < std::numeric_limits<double>::epsilon()) {
-    return -(1 - p) * std::log2((1 - p) / (maxOrdDouble - mDouble));
-  }
-  return -p * std::log2(p / mDouble) -
-         (1 - p) * std::log2((1 - p) / (maxOrdDouble - mDouble));
-}
 
 #endif  // TWO_PARTS_SOURCE_HPP

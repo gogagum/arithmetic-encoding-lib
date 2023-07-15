@@ -8,7 +8,6 @@ FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 add_executable(benchmark-lib-tests two_parts_source.cpp)
-target_include_directories(benchmark-lib-tests PRIVATE "../lib/include")
 target_link_libraries(benchmark-lib-tests LINK_PUBLIC gtest_main benchmark_lib)
 
 include(GoogleTest)
