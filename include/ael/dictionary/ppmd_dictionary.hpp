@@ -29,8 +29,8 @@ class PPMDDictionary {
   /// \brief The PPMDDictionary::ConstructInfo class.
   ///
   struct ConstructInfo {
-    Ord maxOrd{};
-    std::size_t ctxLength{};
+    Ord maxOrd{2};
+    std::size_t ctxLength{0};
   };
 
  private:

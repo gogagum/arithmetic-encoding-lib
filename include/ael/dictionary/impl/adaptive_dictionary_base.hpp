@@ -48,8 +48,8 @@ class AdaptiveDictionaryBase {
 template <typename CountT>
 AdaptiveDictionaryBase<CountT>::AdaptiveDictionaryBase(
     Ord maxOrd, Count initialTotalWordsCount)
-    : cumulativeWordCounts_(Ord{0}, maxOrd, 0),
-      totalWordsCnt_(initialTotalWordsCount),
+    : cumulativeWordCounts_{Ord{0}, maxOrd, 0},
+      totalWordsCnt_{initialTotalWordsCount},
       maxOrd_{maxOrd} {
 }
 

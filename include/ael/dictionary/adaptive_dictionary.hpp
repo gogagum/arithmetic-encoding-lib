@@ -22,8 +22,8 @@ class AdaptiveDictionary : public impl::AdaptiveDictionaryBase<std::uint64_t> {
   /// \brief The AdaptiveDictionary::ConstructInfo class
   ///
   struct ConstructInfo {
-    Ord maxOrd;
-    std::uint64_t ratio;
+    Ord maxOrd{2};
+    std::uint64_t ratio{4};
   };
 
  public:
