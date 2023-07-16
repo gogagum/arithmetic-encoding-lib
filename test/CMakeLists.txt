@@ -37,6 +37,7 @@ add_executable(ael-tests
     encode_decode/adaptive_d_contextual.cpp
     encode_decode/adaptive_a_contextual_improved.cpp
     encode_decode/adaptive_d_contextual_improved.cpp
+    esc/adaptive_a_dictionary.cpp
 )
 
 if (CMAKE_CROSSCOMPILING)
