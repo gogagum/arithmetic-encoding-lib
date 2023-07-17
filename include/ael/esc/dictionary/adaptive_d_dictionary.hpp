@@ -1,5 +1,5 @@
-#ifndef ESC_ADAPTIVE_A_DICTIONARY_HPP
-#define ESC_ADAPTIVE_A_DICTIONARY_HPP
+#ifndef ESC_ADAPTIVE_D_DICTIONARY_HPP
+#define ESC_ADAPTIVE_D_DICTIONARY_HPP
 
 #include <boost/container/static_vector.hpp>
 #include <cstdint>
@@ -10,9 +10,9 @@
 namespace ael::esc::dict {
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \brief The AdaptiveADictionary class
+/// \brief The AdaptiveDDictionary class
 ///
-class AdaptiveADictionary : protected ael::dict::impl::ADDictionaryBase {
+class AdaptiveDDictionary : protected ael::dict::impl::ADDictionaryBase {
  public:
   using Ord = std::uint64_t;
   using Count = std::uint64_t;
@@ -22,33 +22,37 @@ class AdaptiveADictionary : protected ael::dict::impl::ADDictionaryBase {
 
  public:
   /**
-   * Adaptive <<A>> dictionary constructor.
+   * Adaptive <<D>> dictionary constructor.
    * @param maxOrd - maximal order.
    */
-  explicit AdaptiveADictionary(Ord maxOrd);
+  explicit AdaptiveDDictionary(Ord maxOrd);
 
   /**
-   * @brief getWordOrd - get word order index by cumulative count.
-   * @param cumulativeNumFound search key.
+   * @brief getWord - get word by cumulative num found.
+   * @param cumulativeNumFound - search key.
    * @return word with exact cumulative number found.
    */
   [[nodiscard]] Ord getWordOrd(Count cumulativeCnt) const;
 
   /**
-   * @brief getWordProbabilityStats - get probability stats and update.
-   * @param word - order of a word.
-   * @return [low, high, total]
+   * @brief getWordProbabilityStats
+   * @param word
+   * @return
    */
   [[nodiscard]] StatsSeq getProbabilityStats(Ord ord);
 
   /**
-   * @brief totalWordsCount - get total words count estimation.
-   * @return total words count estimation
+   * @brief totalWordsCount
+   * @return
    */
   [[nodiscard]] Count getTotalWordsCnt() const;
 
  protected:
   [[nodiscard]] Ord getWordOrdAfterEsc_(Count cumulativeCnt) const;
+
+  [[nodiscard]] Count getLowerCumulativeCnt_(Ord ord) const;
+
+  [[nodiscard]] Count getWordCnt_(Ord ord) const;
 
   [[nodiscard]] StatsSeq getProbabilityStats_(Ord ord) const;
 
@@ -60,4 +64,4 @@ class AdaptiveADictionary : protected ael::dict::impl::ADDictionaryBase {
 
 }  // namespace ael::esc::dict
 
-#endif  // ESC_ADAPTIVE_A_DICTIONARY_HPP
+#endif  // ESC_ADAPTIVE_D_DICTIONARY_HPP

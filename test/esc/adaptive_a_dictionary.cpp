@@ -5,12 +5,14 @@
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers,
 // cert-err58-cpp)
 
+using ael::esc::dict::AdaptiveADictionary;
+
 TEST(EscAdaptiveADictionary, Construct) {
-  auto dict = ael::esc::dict::AdaptiveADictionary(42);
+  auto dict = AdaptiveADictionary(42);
 }
 
 TEST(EscAdaptiveADictionary, FirstGet) {
-  auto dict = ael::esc::dict::AdaptiveADictionary(42);
+  auto dict = AdaptiveADictionary(42);
 
   const auto stats = dict.getProbabilityStats(3);
 
@@ -26,7 +28,7 @@ TEST(EscAdaptiveADictionary, FirstGet) {
 }
 
 TEST(EscAdaptiveADictionary, RepeatedGetOnInitial) {
-  auto dict = ael::esc::dict::AdaptiveADictionary(42);
+  auto dict = AdaptiveADictionary(42);
 
   const auto stats = dict.getProbabilityStats(3);
   const auto stats2 = dict.getProbabilityStats(3);
@@ -39,7 +41,7 @@ TEST(EscAdaptiveADictionary, RepeatedGetOnInitial) {
 }
 
 TEST(EscAdaptiveADDictionary, TwoInitialStatsGet) {
-  auto dict = ael::esc::dict::AdaptiveADictionary(42);
+  auto dict = AdaptiveADictionary(42);
 
   [[maybe_unused]] const auto stats0 = dict.getProbabilityStats(3);
   const auto stats1 = dict.getProbabilityStats(37);
@@ -56,7 +58,7 @@ TEST(EscAdaptiveADDictionary, TwoInitialStatsGet) {
 }
 
 TEST(EscAdaptiveADDictionary, GetWordOrdOnInit) {
-  auto dict = ael::esc::dict::AdaptiveADictionary(42);
+  auto dict = AdaptiveADictionary(42);
 
   auto ord = dict.getWordOrd(0);
 
@@ -64,15 +66,125 @@ TEST(EscAdaptiveADDictionary, GetWordOrdOnInit) {
 }
 
 TEST(EscAdaptiveADDictionary, getTotalWordCntOnInit) {
-  auto dict = ael::esc::dict::AdaptiveADictionary(42);
+  auto dict = AdaptiveADictionary(42);
 
   auto totalCnt = dict.getTotalWordsCnt();
 
   EXPECT_EQ(totalCnt, 1);
 }
 
+TEST(EscAdapriveADictionary, GetStatsOnStartCenter) {
+  auto dict = AdaptiveADictionary(8);
+  const auto stats = dict.getProbabilityStats(6);
+  EXPECT_EQ(stats.size(), 2);
+
+  EXPECT_EQ(stats[0].low, 0);
+  EXPECT_EQ(stats[0].high, 1);
+  EXPECT_EQ(stats[0].total, 1);
+
+  EXPECT_EQ(stats[1].low, 6);
+  EXPECT_EQ(stats[1].high, 7);
+  EXPECT_EQ(stats[1].total, 8);
+  // Unuform probability. Each letter 1/8.
+}
+
+TEST(EscAdaptiveADictionary, GetStatsOnStartEnd) {
+  auto dict = AdaptiveADictionary(8);
+  const auto stats = dict.getProbabilityStats(7);
+  EXPECT_EQ(stats.size(), 2);
+
+  EXPECT_EQ(stats[0].low, 0);
+  EXPECT_EQ(stats[0].high, 1);
+  EXPECT_EQ(stats[0].total, 1);
+
+  EXPECT_EQ(stats[1].low, 7);
+  EXPECT_EQ(stats[1].high, 8);
+  EXPECT_EQ(stats[1].total, 8);
+  // Unuform probability. Each letter 1/8.
+}
+
+TEST(EscAdaptiveADictionary, GetStatsOnStartBegin) {
+  auto dict = AdaptiveADictionary(8);
+  const auto stats = dict.getProbabilityStats(0);
+  EXPECT_EQ(stats.size(), 2);
+
+  EXPECT_EQ(stats[0].low, 0);
+  EXPECT_EQ(stats[0].high, 1);
+  EXPECT_EQ(stats[0].total, 1);
+
+  EXPECT_EQ(stats[1].low, 0);
+  EXPECT_EQ(stats[1].high, 1);
+  EXPECT_EQ(stats[1].total, 8);
+  // Unuform probability. Each letter 1/8.
+}
+
+TEST(EscAdaptiveADictionary, GetStatsAfterUpdate) {
+  auto dict = AdaptiveADictionary(8);
+  [[maybe_unused]] auto stats0 = dict.getProbabilityStats(0);
+  auto stats1 = dict.getProbabilityStats(0);
+  EXPECT_EQ(stats1.size(), 1);
+  EXPECT_EQ(stats1[0].low, 0);
+  EXPECT_EQ(stats1[0].high, 1);
+  EXPECT_EQ(stats1[0].total, 2);
+  // Unuform probability. Each letter 1/8.
+}
+
+TEST(EscAdaptiveADictionary, GetStatsAfterIncreaseOneUpdateOtherCenterCenter) {
+  auto dict = AdaptiveADictionary(8);
+  [[maybe_unused]] auto stats0 = dict.getProbabilityStats(2);
+  const auto stats1 = dict.getProbabilityStats(5);
+  EXPECT_EQ(stats1.size(), 2);
+
+  EXPECT_EQ(stats1[0].low, 1);
+  EXPECT_EQ(stats1[0].high, 2);
+  EXPECT_EQ(stats1[0].total, 2);
+  EXPECT_EQ(stats1[1].low, 4);
+  EXPECT_EQ(stats1[1].high, 5);
+  EXPECT_EQ(stats1[1].total, 7);
+}
+
+TEST(EscAdaptiveADictionary, GetStatsAfterIncreaseOneUpdateOtherCenterBegin) {
+  auto dict = AdaptiveADictionary(8);
+  [[maybe_unused]] auto stats0 = dict.getProbabilityStats(2);
+  const auto stats1 = dict.getProbabilityStats(0);
+  EXPECT_EQ(stats1.size(), 2);
+
+  EXPECT_EQ(stats1[0].low, 1);
+  EXPECT_EQ(stats1[0].high, 2);
+  EXPECT_EQ(stats1[0].total, 2);
+  EXPECT_EQ(stats1[1].low, 0);
+  EXPECT_EQ(stats1[1].high, 1);
+  EXPECT_EQ(stats1[1].total, 7);
+}
+
+TEST(EscAdaptiveADictionary, GetStatsAfterIncreaseOneUpdateOtherCenterEnd) {
+  auto dict = AdaptiveADictionary(8);
+  [[maybe_unused]] auto _stats0 = dict.getProbabilityStats(2);
+  const auto stats1 = dict.getProbabilityStats(7);
+  EXPECT_EQ(stats1.size(), 2);
+  EXPECT_EQ(stats1[0].low, 1);
+  EXPECT_EQ(stats1[0].high, 2);
+  EXPECT_EQ(stats1[0].total, 2);
+  EXPECT_EQ(stats1[1].low, 6);
+  EXPECT_EQ(stats1[1].high, 7);
+  EXPECT_EQ(stats1[1].total, 7);
+}
+
+TEST(EscAdaptiveADictionary, GetStatsAfterIncreaseOneUpdateOtherBeginCenter) {
+  auto dict = AdaptiveADictionary(8);
+  [[maybe_unused]] const auto _stats0 = dict.getProbabilityStats(0);
+  const auto stats1 = dict.getProbabilityStats(5);
+  EXPECT_EQ(stats1.size(), 2);
+  EXPECT_EQ(stats1[0].low, 1);
+  EXPECT_EQ(stats1[0].high, 2);
+  EXPECT_EQ(stats1[0].total, 2);
+  EXPECT_EQ(stats1[1].low, 4);
+  EXPECT_EQ(stats1[1].high, 5);
+  EXPECT_EQ(stats1[1].total, 7);
+}
+
 TEST(EscAdaptiveADictionary, Example) {
-  auto dict = ael::esc::dict::AdaptiveADictionary(256);
+  auto dict = AdaptiveADictionary(256);
   const auto stats0 = dict.getProbabilityStats('I');
   EXPECT_EQ(stats0.size(), 2);
   EXPECT_EQ(stats0[0].high - stats0[0].low, 1);

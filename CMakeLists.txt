@@ -36,6 +36,7 @@ target_sources(${PROJECT_NAME}
         src/adaptive_dictionary_base.cpp
         src/ranges_calc.cpp
         src/esc/adaptive_a_dictionary.cpp
+        src/esc/adaptive_d_dictionary.cpp
 )
 
 target_include_directories(${PROJECT_NAME}
@@ -82,6 +83,8 @@ set(public_headers
     include/ael/word/uint_word.hpp
     include/ael/esc/arithmetic_coder.hpp
     include/ael/esc/arithmetic_decoder.hpp
+    include/ael/esc/dictionary/adaptive_a_dictionary.hpp
+    include/ael/esc/dictionary/adaptive_d_dictionary.hpp
 )
 
 # note that ${public_headers} has to be in quotes
