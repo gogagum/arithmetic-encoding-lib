@@ -13,7 +13,11 @@ auto AdaptiveDDictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
   if (escJustDecoded_) {
     return getWordOrdAfterEsc_(cumulativeCnt);
   }
-  assert(cumulativeCnt < this->getRealTotalWordsCnt_() * 2);
+  if (0 == this->getRealTotalWordsCnt_()) {
+    return getMaxOrd_();
+  }
+  assert(cumulativeCnt < this->getRealTotalWordsCnt_() * 2 &&
+         "Invalid cumulative count.");
   if (cumulativeCnt >=
       this->getRealTotalWordsCnt_() * 2 - this->getTotalWordsUniqueCnt_()) {
     escJustDecoded_ = true;
@@ -40,6 +44,9 @@ auto AdaptiveDDictionary::getProbabilityStats(Ord ord) -> StatsSeq {
 auto AdaptiveDDictionary::getTotalWordsCnt() const -> Count {
   if (escJustDecoded_) {
     return getMaxOrd_() - getTotalWordsUniqueCnt_();
+  }
+  if (getRealTotalWordsCnt_() == 0) {
+    return 1;
   }
   return getRealTotalWordsCnt_() * 2;
 }
