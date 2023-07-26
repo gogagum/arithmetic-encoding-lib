@@ -67,7 +67,7 @@ auto ArithmeticCoder::encode(auto ordFlow, ByteDataConstructor& dataConstructor,
   for (auto ord : ordFlow) {
     const auto statsSeq = dict.getProbabilityStats(ord);
     for (const auto stats : statsSeq) {
-      const auto [low, high, total] = dict.getProbabilityStats(ord);
+      const auto [low, high, total] = stats;
       currRange = RC::rangeFromStatsAndPrev(currRange, {low, high, total});
 
       while (true) {
@@ -87,8 +87,8 @@ auto ArithmeticCoder::encode(auto ordFlow, ByteDataConstructor& dataConstructor,
         }
         currRange = RC::recalcRange(currRange);
       }
+      ++ret.wordsCount;
     }
-    ++ret.wordsCount;
     tick();
   }
 

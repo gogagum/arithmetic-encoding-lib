@@ -20,7 +20,7 @@ auto AdaptiveADictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
   }
   const auto idxs = std::ranges::iota_view(Ord{0}, this->getMaxOrd_());
   const auto getLowerCumulativeNumFound_ = [this](Ord ord) {
-    return this->getRealLowerCumulativeWordCnt_(ord);
+    return this->getRealLowerCumulativeWordCnt_(ord + 1);
   };
   const auto iter = std::ranges::upper_bound(idxs, cumulativeCnt, {},
                                              getLowerCumulativeNumFound_);
@@ -35,11 +35,26 @@ auto AdaptiveADictionary::getProbabilityStats(Ord ord) -> StatsSeq {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+auto AdaptiveADictionary::getDecodeProbabilityStats(Ord ord)
+    -> ProbabilityStats {
+  auto ret = getDecodeProbabilityStats_(ord);
+  if (!isEsc(ord)) {
+    this->updateWordCnt_(ord, 1);
+  }
+  return ret;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 auto AdaptiveADictionary::getTotalWordsCnt() const -> Count {
   if (escJustDecoded_) {
     return getMaxOrd_() - getTotalWordsUniqueCnt_();
   }
   return getRealTotalWordsCnt_() + 1;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+bool AdaptiveADictionary::isEsc(Ord ord) const {
+  return ord == this->getMaxOrd_();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -51,7 +66,6 @@ auto AdaptiveADictionary::getWordOrdAfterEsc_(Count cumulativeCnt) const
   };
   const auto iter =
       std::ranges::upper_bound(idxs, cumulativeCnt, {}, getLowerCumulNumFound_);
-  escJustDecoded_ = false;
   return iter - idxs.begin();
 }
 
@@ -82,6 +96,30 @@ auto AdaptiveADictionary::getProbabilityStatsForNewWord_(Ord ord) const
   const auto symStats = ProbabilityStats{symLow, symHigh, symTotal};
 
   return {escStats, symStats};
+}
+
+////////////////////////////////////////////////////////////////////////////////
+auto AdaptiveADictionary::getDecodeProbabilityStats_(Ord ord) const
+    -> ProbabilityStats {
+  if (isEsc(ord)) {
+    escJustDecoded_ = true;
+    const auto escLow = this->getRealTotalWordsCnt_();
+    const auto escHigh = escLow + 1;
+    const auto escTotal = this->getRealTotalWordsCnt_() + 1;
+    return {escLow, escHigh, escTotal};
+  }
+  if (escJustDecoded_) {
+    escJustDecoded_ = false;
+    const auto symLow =
+        Count{ord} - this->getLowerCumulativeUniqueNumFound_(ord);
+    const auto symHigh = symLow + 1;
+    const auto symTotal = getMaxOrd_() - this->getTotalWordsUniqueCnt_();
+    return {symLow, symHigh, symTotal};
+  }
+  const auto symLow = this->getRealLowerCumulativeWordCnt_(ord);
+  const auto symHigh = symLow + this->getRealWordCnt_(ord);
+  const auto symTotal = this->getRealTotalWordsCnt_() + 1;
+  return {symLow, symHigh, symTotal};
 }
 
 }  // namespace ael::esc::dict

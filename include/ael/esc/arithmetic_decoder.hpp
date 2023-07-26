@@ -87,12 +87,13 @@ void ArithmeticDecoder::decode(auto& source, Dict& dict, OutIter outIter,
     const auto aux =
         impl::multiply_decrease_and_divide(offset, dictTotalWords, range);
     const auto ord = dict.getWordOrd(aux);
+
     if (!dict.isEsc(ord)) {
       *outIter = ord;
       ++outIter;
     }
 
-    auto [low, high, total] = dict.getProbabilityStats(ord);
+    auto [low, high, total] = dict.getDecodeProbabilityStats(ord);
     currRange = RC::rangeFromStatsAndPrev(currRange, {low, high, total});
 
     while (true) {

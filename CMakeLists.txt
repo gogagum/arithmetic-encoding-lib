@@ -35,8 +35,8 @@ target_sources(${PROJECT_NAME}
         src/uniform_dictionary.cpp
         src/adaptive_dictionary_base.cpp
         src/ranges_calc.cpp
-        src/esc/adaptive_a_dictionary.cpp
-        src/esc/adaptive_d_dictionary.cpp
+        src/esc_adaptive_a_dictionary.cpp
+        src/esc_adaptive_d_dictionary.cpp
 )
 
 target_include_directories(${PROJECT_NAME}
