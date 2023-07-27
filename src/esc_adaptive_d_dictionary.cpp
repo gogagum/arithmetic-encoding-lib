@@ -3,6 +3,8 @@
 
 namespace ael::esc::dict {
 
+namespace rng = std::ranges;
+
 ////////////////////////////////////////////////////////////////////////////////
 AdaptiveDDictionary::AdaptiveDDictionary(Ord maxOrd)
     : ael::dict::impl::ADDictionaryBase(maxOrd) {
@@ -23,13 +25,13 @@ auto AdaptiveDDictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
     escJustDecoded_ = true;
     return getMaxOrd_();
   }
-  const auto idxs = std::ranges::iota_view(Ord{0}, this->getMaxOrd_());
+  const auto idxs = rng::iota_view(Ord{0}, this->getMaxOrd_());
   const auto getLowerCumulativeNumFound_ = [this](Ord ord) {
     return this->getRealLowerCumulativeWordCnt_(ord + 1) * 2 -
            this->getLowerCumulativeUniqueNumFound_(ord + 1);
   };
-  const auto iter = std::ranges::upper_bound(idxs, cumulativeCnt, {},
-                                             getLowerCumulativeNumFound_);
+  const auto iter =
+      rng::upper_bound(idxs, cumulativeCnt, {}, getLowerCumulativeNumFound_);
   return iter - idxs.begin();
 }
 
@@ -69,12 +71,12 @@ bool AdaptiveDDictionary::isEsc(Ord ord) const {
 ////////////////////////////////////////////////////////////////////////////////
 auto AdaptiveDDictionary::getWordOrdAfterEsc_(Count cumulativeCnt) const
     -> Ord {
-  const auto idxs = std::ranges::iota_view(Ord{0}, this->getMaxOrd_());
+  const auto idxs = rng::iota_view(Ord{0}, this->getMaxOrd_());
   const auto getLowerCumulNumFound_ = [this](std::uint64_t ord) {
     return ord + 1 - this->getLowerCumulativeUniqueNumFound_(ord + 1);
   };
   const auto iter =
-      std::ranges::upper_bound(idxs, cumulativeCnt, {}, getLowerCumulNumFound_);
+      rng::upper_bound(idxs, cumulativeCnt, {}, getLowerCumulNumFound_);
   return iter - idxs.begin();
 }
 
