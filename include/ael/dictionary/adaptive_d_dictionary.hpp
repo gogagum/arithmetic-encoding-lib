@@ -1,23 +1,22 @@
 #ifndef ADAPTIVE_D_DICTIONARY_HPP
 #define ADAPTIVE_D_DICTIONARY_HPP
 
+#include <ael/impl/dictionary/a_d_dictionary_base.hpp>
+#include <ael/impl/dictionary/contectual_dictionary_base_improved.hpp>
+#include <ael/impl/dictionary/contextual_dictionary_base.hpp>
+#include <ael/impl/dictionary/word_probability_stats.hpp>
 #include <cstdint>
-
-#include "impl/a_d_dictionary_base.hpp"
-#include "impl/contectual_dictionary_base_improved.hpp"
-#include "impl/contextual_dictionary_base.hpp"
-#include "impl/word_probability_stats.hpp"
 
 namespace ael::dict {
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief The AdaptiveDDictionary class
 ///
-class AdaptiveDDictionary : protected impl::ADDictionaryBase {
+class AdaptiveDDictionary : protected ael::impl::dict::ADDictionaryBase {
  public:
   using Ord = std::uint64_t;
   using Count = std::uint64_t;
-  using ProbabilityStats = WordProbabilityStats<Count>;
+  using ProbabilityStats = ael::impl::dict::WordProbabilityStats<Count>;
   constexpr const static std::uint16_t countNumBits = 62;
 
  public:
@@ -55,9 +54,11 @@ class AdaptiveDDictionary : protected impl::ADDictionaryBase {
   [[nodiscard]] ProbabilityStats getProbabilityStats_(Ord ord) const;
 
  private:
-  friend class impl::ContextualDictionaryStatsBase<AdaptiveDDictionary>;
-  friend class impl::ContextualDictionaryBase<AdaptiveDDictionary>;
-  friend class impl::ContextualDictionaryBaseImproved<AdaptiveDDictionary>;
+  friend class ael::impl::dict::ContextualDictionaryStatsBase<
+      AdaptiveDDictionary>;
+  friend class ael::impl::dict::ContextualDictionaryBase<AdaptiveDDictionary>;
+  friend class ael::impl::dict::ContextualDictionaryBaseImproved<
+      AdaptiveDDictionary>;
 };
 
 }  // namespace ael::dict

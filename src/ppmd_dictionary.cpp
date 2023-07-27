@@ -1,18 +1,18 @@
 #include <ael/dictionary/ppmd_dictionary.hpp>
+#include <ael/impl/dictionary/cumulative_count.hpp>
+#include <ael/impl/dictionary/cumulative_unique_count.hpp>
 #include <algorithm>
 #include <ranges>
 #include <stdexcept>
-
-#include "ael/dictionary/impl/cumulative_count.hpp"
-#include "ael/dictionary/impl/cumulative_unique_count.hpp"
 
 namespace ael::dict {
 
 ////////////////////////////////////////////////////////////////////////////////
 PPMDDictionary::PPMDDictionary(ConstructInfo constructInfo)
     : maxOrd_(constructInfo.maxOrd),
-      zeroCtxCell_{impl::CumulativeCount(constructInfo.maxOrd),
-                   impl::CumulativeUniqueCount(constructInfo.maxOrd)},
+      zeroCtxCell_{
+          ael::impl::dict::CumulativeCount(constructInfo.maxOrd),
+          ael::impl::dict::CumulativeUniqueCount(constructInfo.maxOrd)},
       ctxLength_(constructInfo.ctxLength) {
   /**
    * \tau_{ctx}_{i} < sequenceLength
@@ -146,12 +146,14 @@ auto PPMDDictionary::getProbabilityStats_(Ord ord) const -> ProbabilityStats {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void PPMDDictionary::updateWordCnt_(Ord ord, impl::CumulativeCount::Count cnt) {
+void PPMDDictionary::updateWordCnt_(
+    Ord ord, ael::impl::dict::CumulativeCount::Count cnt) {
   for (auto ctx = SearchCtx_(ctx_.rbegin(), ctx_.rend()); !ctx.empty();
        ctx.pop_back()) {
     if (!ctxInfo_.contains(ctx)) {
-      ctxInfo_.emplace(ctx, CtxCell_{impl::CumulativeCount(maxOrd_),
-                                     impl::CumulativeUniqueCount(maxOrd_)});
+      ctxInfo_.emplace(
+          ctx, CtxCell_{ael::impl::dict::CumulativeCount(maxOrd_),
+                        ael::impl::dict::CumulativeUniqueCount(maxOrd_)});
     }
     ctxInfo_.at(ctx).cnt.increaseOrdCount(ord, static_cast<std::int64_t>(cnt));
     ctxInfo_.at(ctx).uniqueCnt.update(ord);

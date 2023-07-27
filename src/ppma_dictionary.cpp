@@ -1,9 +1,8 @@
 #include <ael/dictionary/ppma_dictionary.hpp>
+#include <ael/impl/dictionary/cumulative_count.hpp>
 #include <algorithm>
 #include <ranges>
 #include <stdexcept>
-
-#include "ael/dictionary/impl/cumulative_count.hpp"
 
 namespace ael::dict {
 
@@ -111,7 +110,8 @@ auto PPMADictionary::getProbabilityStats_(Ord ord) const -> ProbabilityStats {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void PPMADictionary::updateWordCnt_(Ord ord, impl::CumulativeCount::Count cnt) {
+void PPMADictionary::updateWordCnt_(
+    Ord ord, ael::impl::dict::CumulativeCount::Count cnt) {
   for (auto ctx = SearchCtx_(ctx_.rbegin(), ctx_.rend()); !ctx.empty();
        ctx.pop_back()) {
     if (!ctxInfo_.contains(ctx)) {

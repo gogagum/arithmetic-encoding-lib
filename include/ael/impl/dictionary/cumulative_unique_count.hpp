@@ -5,7 +5,7 @@
 #include <dst/dynamic_segment_tree.hpp>
 #include <unordered_set>
 
-namespace ael::dict::impl {
+namespace ael::impl::dict {
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief The CumulativeUniqueCount class.
@@ -68,6 +68,6 @@ class CumulativeUniqueCount {
   const Ord maxOrd_;
 };
 
-}  // namespace ael::dict::impl
+}  // namespace ael::impl::dict
 
 #endif  // CUMULATIVE_COUNT_HPP

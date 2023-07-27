@@ -5,8 +5,8 @@ namespace ael::dict {
 
 ////////////////////////////////////////////////////////////////////////////////
 AdaptiveDictionary::AdaptiveDictionary(ConstructInfo constructInfo)
-    : impl::AdaptiveDictionaryBase<Count>(constructInfo.maxOrd,
-                                          constructInfo.maxOrd),
+    : ael::impl::dict::AdaptiveDictionaryBase<Count>(constructInfo.maxOrd,
+                                                     constructInfo.maxOrd),
       ratio_(constructInfo.ratio),
       maxOrder_(constructInfo.maxOrd) {
 }

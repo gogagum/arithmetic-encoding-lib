@@ -7,7 +7,7 @@
 
 #include "word_probability_stats.hpp"
 
-namespace ael::dict::impl {
+namespace ael::impl::dict {
 
 namespace bm = boost::multiprecision;
 
@@ -173,6 +173,6 @@ bool ContextualDictionaryStatsBase<InternalDictT>::ctxExists_(
   return contextProbs_.contains(searchCtx);
 }
 
-}  // namespace ael::dict::impl
+}  // namespace ael::impl::dict
 
 #endif  // CONTEXTUAL_DICTIONARY_STATS_BASE_HPP

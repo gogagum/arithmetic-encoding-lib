@@ -5,7 +5,7 @@
 #include <dst/dynamic_segment_tree.hpp>
 #include <unordered_map>
 
-namespace ael::dict::impl {
+namespace ael::impl::dict {
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief The AdaptiveDictionaryBase class
@@ -93,6 +93,6 @@ auto AdaptiveDictionaryBase<CountT>::getRealCumulativeCnt_(Ord ord) const
   return cumulativeWordCounts_.get(ord);
 }
 
-}  // namespace ael::dict::impl
+}  // namespace ael::impl::dict
 
 #endif  // ADAPTIVE_DICTIONARY_BASE_HPP

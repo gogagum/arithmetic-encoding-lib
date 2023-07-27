@@ -1,5 +1,5 @@
-#ifndef CONTEXTUAL_DICTIONARY_BASE_HPP
-#define CONTEXTUAL_DICTIONARY_BASE_HPP
+#ifndef CONTEXTUAL_DICTIONARY_BASE_IMPROVED_HPP
+#define CONTEXTUAL_DICTIONARY_BASE_IMPROVED_HPP
 
 #include <cstdint>
 #include <optional>
@@ -7,18 +7,18 @@
 #include "contextual_dictionary_stats_base.hpp"
 #include "word_probability_stats.hpp"
 
-namespace ael::dict::impl {
+namespace ael::impl::dict {
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \brief The ContextualDictionaryBase<InternalDictT> class
+/// \brief The ContextualDictionaryBaseImproved<InternalDictT> class.
 ///
 template <class InternalDictT>
-class ContextualDictionaryBase
+class ContextualDictionaryBaseImproved
     : protected ContextualDictionaryStatsBase<InternalDictT> {
  public:
   using Ord = std::uint64_t;
   using Count = std::uint64_t;
-  using ProbabilityStats = WordProbabilityStats<Count>;
+  using ProbabilityStats = ael::impl::dict::WordProbabilityStats<Count>;
   constexpr const static std::uint16_t countNumBits = 62;
 
  public:
@@ -26,16 +26,16 @@ class ContextualDictionaryBase
       InternalDictT>::ContextualDictionaryStatsBase;
 
   /**
-   * @brief getWordOrd - ord getter.
-   * @param cumulativeNumFound - search count.
-   * @return - found word order.
+   * @brief getWord
+   * @param cumulativeNumFound
+   * @return
    */
   [[nodiscard]] Ord getWordOrd(Count cumulativeNumFound) const;
 
   /**
-   * @brief getWordProbabilityStats - probability stats getter with update.
-   * @param ord order index of a word.
-   * @return probability stats.
+   * @brief getWordProbabilityStats
+   * @param word
+   * @return
    */
   [[nodiscard]] ProbabilityStats getProbabilityStats(Ord ord);
 
@@ -48,12 +48,12 @@ class ContextualDictionaryBase
 
 ////////////////////////////////////////////////////////////////////////////////
 template <class InternalDictT>
-auto ContextualDictionaryBase<InternalDictT>::getWordOrd(
+auto ContextualDictionaryBaseImproved<InternalDictT>::getWordOrd(
     Count cumulativeNumFound) const -> Ord {
   for (auto ctxLength = this->getCurrCtxLength_(); ctxLength != 0;
        --ctxLength) {
     const auto searchCtx = this->getSearchCtx_(ctxLength);
-    if (this->ctxExists_(searchCtx)) {
+    if (this->getContextualTotalWordCnt_(searchCtx) >= ctxLength) {
       return this->getContextualWordOrd_(searchCtx, cumulativeNumFound);
     }
   }
@@ -62,13 +62,13 @@ auto ContextualDictionaryBase<InternalDictT>::getWordOrd(
 
 ////////////////////////////////////////////////////////////////////////////////
 template <class InternalDictT>
-auto ContextualDictionaryBase<InternalDictT>::getProbabilityStats(Ord ord)
-    -> ProbabilityStats {
+auto ContextualDictionaryBaseImproved<InternalDictT>::getProbabilityStats(
+    Ord ord) -> ProbabilityStats {
   std::optional<ProbabilityStats> ret{};
   for (auto ctxLength = this->getCurrCtxLength_(); ctxLength != 0;
        --ctxLength) {
     const auto searchCtx = this->getSearchCtx_(ctxLength);
-    if (this->ctxExists_(searchCtx)) {
+    if (this->getContextualTotalWordCnt_(searchCtx) >= ctxLength) {
       ret = ret.value_or(this->getContextualProbStats_(searchCtx, ord));
     }
     this->updateContextualDictionary_(searchCtx, ord);
@@ -81,18 +81,18 @@ auto ContextualDictionaryBase<InternalDictT>::getProbabilityStats(Ord ord)
 
 ////////////////////////////////////////////////////////////////////////////////
 template <class InternalDictT>
-auto ContextualDictionaryBase<InternalDictT>::getTotalWordsCnt() const
+auto ContextualDictionaryBaseImproved<InternalDictT>::getTotalWordsCnt() const
     -> Count {
   for (auto ctxLength = this->getCurrCtxLength_(); ctxLength != 0;
        --ctxLength) {
     const auto searchCtx = this->getSearchCtx_(ctxLength);
-    if (this->ctxExists_(searchCtx)) {
+    if (this->getContextualTotalWordCnt_(searchCtx) >= ctxLength) {
       return this->getContextualTotalWordCnt_(searchCtx);
     }
   }
   return InternalDictT::getTotalWordsCnt();
 }
 
-}  // namespace ael::dict::impl
+}  // namespace ael::impl::dict
 
-#endif  // CONTEXTUAL_DICTIONARY_BASE_HPP
+#endif  // CONTEXTUAL_DICTIONARY_BASE_IMPROVED_HPP

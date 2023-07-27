@@ -1,6 +1,6 @@
-#include <ael/dictionary/impl/cumulative_count.hpp>
+#include <ael/impl/dictionary/cumulative_count.hpp>
 
-namespace ael::dict::impl {
+namespace ael::impl::dict {
 
 ////////////////////////////////////////////////////////////////////////////////
 CumulativeCount::CumulativeCount(Ord maxOrd)
@@ -34,4 +34,4 @@ auto CumulativeCount::getTotalWordsCnt() const -> Count {
   return totalWordsCnt_;
 }
 
-}  // namespace ael::dict::impl
+}  // namespace ael::impl::dict

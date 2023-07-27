@@ -7,7 +7,7 @@ namespace ael::dict {
 ////////////////////////////////////////////////////////////////////////////////
 DecreasingOnUpdateDictionary::DecreasingOnUpdateDictionary(Ord maxOrd,
                                                            Count count)
-    : impl::AdaptiveDictionaryBase<Count>(maxOrd, maxOrd * count),
+    : ael::impl::dict::AdaptiveDictionaryBase<Count>(maxOrd, maxOrd * count),
       maxOrd_(maxOrd) {
   for (const auto ord : std::ranges::iota_view(Ord{0}, maxOrd_)) {
     this->changeRealWordCnt_(ord, static_cast<std::int64_t>(count));

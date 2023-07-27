@@ -1,11 +1,11 @@
 #ifndef A_D_DICTIONARY_BASE_HPP
 #define A_D_DICTIONARY_BASE_HPP
 
-#include <ael/dictionary/impl/cumulative_count.hpp>
-#include <ael/dictionary/impl/cumulative_unique_count.hpp>
+#include <ael/impl/dictionary/cumulative_count.hpp>
+#include <ael/impl/dictionary/cumulative_unique_count.hpp>
 #include <cstdint>
 
-namespace ael::dict::impl {
+namespace ael::impl::dict {
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief The BaseADDictionary class
@@ -37,11 +37,11 @@ class ADDictionaryBase {
   }
 
  private:
-  impl::CumulativeCount cumulativeCnt_;
-  impl::CumulativeUniqueCount cumulativeUniqueCnt_;
+  CumulativeCount cumulativeCnt_;
+  CumulativeUniqueCount cumulativeUniqueCnt_;
   const std::uint64_t maxOrd_;
 };
 
-}  // namespace ael::dict::impl
+}  // namespace ael::impl::dict
 
 #endif  // A_D_DICTIONARY_BASE_HPP

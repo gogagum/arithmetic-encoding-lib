@@ -5,7 +5,7 @@
 #include <dst/dynamic_segment_tree.hpp>
 #include <unordered_map>
 
-namespace ael::dict::impl {
+namespace ael::impl::dict {
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief The CumulativeCount class.
@@ -68,6 +68,6 @@ class CumulativeCount {
   const Ord maxOrd_;
 };
 
-}  // namespace ael::dict::impl
+}  // namespace ael::impl::dict
 
 #endif  // CUMULATIVE_COUNT_HPP

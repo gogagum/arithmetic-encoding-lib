@@ -4,19 +4,19 @@
 #include <boost/container/static_vector.hpp>
 #include <cstdint>
 
-#include <ael/dictionary/impl/a_d_dictionary_base.hpp>
-#include <ael/dictionary/impl/word_probability_stats.hpp>
+#include <ael/impl/dictionary/a_d_dictionary_base.hpp>
+#include <ael/impl/dictionary/word_probability_stats.hpp>
 
 namespace ael::esc::dict {
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief The AdaptiveADictionary class
 ///
-class AdaptiveADictionary : protected ael::dict::impl::ADDictionaryBase {
+class AdaptiveADictionary : protected ael::impl::dict::ADDictionaryBase {
  public:
   using Ord = std::uint64_t;
   using Count = std::uint64_t;
-  using ProbabilityStats = ael::dict::WordProbabilityStats<Count>;
+  using ProbabilityStats = ael::impl::dict::WordProbabilityStats<Count>;
   using StatsSeq = boost::container::static_vector<ProbabilityStats, 2>;
   constexpr const static std::uint16_t countNumBits = 62;
 

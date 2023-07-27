@@ -1,6 +1,6 @@
-#include <ael/dictionary/impl/cumulative_unique_count.hpp>
+#include <ael/impl/dictionary/cumulative_unique_count.hpp>
 
-namespace ael::dict::impl {
+namespace ael::impl::dict {
 
 ////////////////////////////////////////////////////////////////////////////////
 CumulativeUniqueCount::CumulativeUniqueCount(Ord maxOrd)
@@ -38,4 +38,4 @@ auto CumulativeUniqueCount::getTotalWordsCnt() const -> Count {
   return ords_.size();
 }
 
-}  // namespace ael::dict::impl
+}  // namespace ael::impl::dict

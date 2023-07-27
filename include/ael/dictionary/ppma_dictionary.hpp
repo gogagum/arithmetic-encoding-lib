@@ -1,16 +1,15 @@
 #ifndef PPMA_DICTIONARY_HPP
 #define PPMA_DICTIONARY_HPP
 
-#include <ael/dictionary/impl/cumulative_count.hpp>
-#include <ael/dictionary/impl/cumulative_unique_count.hpp>
+#include <ael/impl/dictionary/cumulative_count.hpp>
+#include <ael/impl/dictionary/cumulative_unique_count.hpp>
+#include <ael/impl/dictionary/word_probability_stats.hpp>
 #include <boost/container/static_vector.hpp>
 #include <boost/container_hash/hash.hpp>
 #include <boost/multiprecision/cpp_int.hpp>
 #include <cstdint>
 #include <deque>
 #include <unordered_map>
-
-#include "impl/word_probability_stats.hpp"
 
 namespace ael::dict {
 
@@ -23,7 +22,7 @@ class PPMADictionary {
  public:
   using Ord = std::uint64_t;
   using Count = bm::uint256_t;
-  using ProbabilityStats = WordProbabilityStats<Count>;
+  using ProbabilityStats = ael::impl::dict::WordProbabilityStats<Count>;
   constexpr const static std::uint16_t countNumBits = 240;
 
   ////////////////////////////////////////////////////////////////////////////
@@ -69,21 +68,22 @@ class PPMADictionary {
   using SearchCtx_ = boost::container::static_vector<Ord, _maxCtxLength>;
   using SearchCtxHash_ = boost::hash<SearchCtx_>;
   using CtxCountMapping_ =
-      std::unordered_map<SearchCtx_, impl::CumulativeCount, SearchCtxHash_>;
+      std::unordered_map<SearchCtx_, ael::impl::dict::CumulativeCount,
+                         SearchCtxHash_>;
 
  private:
   [[nodiscard]] Count getLowerCumulativeCnt_(Ord ord) const;
 
   [[nodiscard]] ProbabilityStats getProbabilityStats_(Ord ord) const;
 
-  void updateWordCnt_(Ord ord, impl::CumulativeCount::Count cnt);
+  void updateWordCnt_(Ord ord, ael::impl::dict::CumulativeCount::Count cnt);
 
   [[nodiscard]] SearchCtx_ getSearchCtxEmptySkipped_() const;
 
  private:
   std::size_t maxOrd_;
-  impl::CumulativeCount zeroCtxCnt_;
-  impl::CumulativeUniqueCount zeroCtxUniqueCnt_;
+  ael::impl::dict::CumulativeCount zeroCtxCnt_;
+  ael::impl::dict::CumulativeUniqueCount zeroCtxUniqueCnt_;
   std::deque<Ord> ctx_;
   CtxCountMapping_ ctxInfo_;
   const std::size_t ctxLength_;

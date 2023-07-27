@@ -1,6 +1,6 @@
-#include <ael/dictionary/impl/a_d_dictionary_base.hpp>
+#include <ael/impl/dictionary/a_d_dictionary_base.hpp>
 
-namespace ael::dict::impl {
+namespace ael::impl::dict {
 
 ////////////////////////////////////////////////////////////////////////////////
 ADDictionaryBase::ADDictionaryBase(Ord maxOrd)
@@ -44,4 +44,4 @@ void ADDictionaryBase::updateWordCnt_(Ord ord, Count cnt) {
   cumulativeUniqueCnt_.update(ord);
 }
 
-}  // namespace ael::dict::impl
+}  // namespace ael::impl::dict
