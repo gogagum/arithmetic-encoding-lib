@@ -25,8 +25,8 @@ auto AdaptiveDDictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
   }
   const auto idxs = std::ranges::iota_view(Ord{0}, this->getMaxOrd_());
   const auto getLowerCumulativeNumFound_ = [this](Ord ord) {
-    return this->getRealLowerCumulativeWordCnt_(ord) * 2 -
-           this->getLowerCumulativeUniqueNumFound_(ord);
+    return this->getRealLowerCumulativeWordCnt_(ord + 1) * 2 -
+           this->getLowerCumulativeUniqueNumFound_(ord + 1);
   };
   const auto iter = std::ranges::upper_bound(idxs, cumulativeCnt, {},
                                              getLowerCumulativeNumFound_);
@@ -37,6 +37,16 @@ auto AdaptiveDDictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
 auto AdaptiveDDictionary::getProbabilityStats(Ord ord) -> StatsSeq {
   auto ret = getProbabilityStats_(ord);
   this->updateWordCnt_(ord, 1);
+  return ret;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+auto AdaptiveDDictionary::getDecodeProbabilityStats(Ord ord)
+    -> ProbabilityStats {
+  auto ret = getDecodeProbabilityStats_(ord);
+  if (!isEsc(ord)) {
+    updateWordCnt_(ord, 1);
+  }
   return ret;
 }
 
@@ -52,6 +62,11 @@ auto AdaptiveDDictionary::getTotalWordsCnt() const -> Count {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+bool AdaptiveDDictionary::isEsc(Ord ord) const {
+  return ord == getMaxOrd_();
+}
+
+////////////////////////////////////////////////////////////////////////////////
 auto AdaptiveDDictionary::getWordOrdAfterEsc_(Count cumulativeCnt) const
     -> Ord {
   const auto idxs = std::ranges::iota_view(Ord{0}, this->getMaxOrd_());
@@ -60,7 +75,6 @@ auto AdaptiveDDictionary::getWordOrdAfterEsc_(Count cumulativeCnt) const
   };
   const auto iter =
       std::ranges::upper_bound(idxs, cumulativeCnt, {}, getLowerCumulNumFound_);
-  escJustDecoded_ = false;
   return iter - idxs.begin();
 }
 
@@ -75,6 +89,35 @@ auto AdaptiveDDictionary::getProbabilityStats_(Ord ord) const -> StatsSeq {
   const auto symTotal = this->getRealTotalWordsCnt_() * 2;
 
   return {{symLow, symHigh, symTotal}};
+}
+
+////////////////////////////////////////////////////////////////////////////////
+auto AdaptiveDDictionary::getDecodeProbabilityStats_(Ord ord) const
+    -> ProbabilityStats {
+  if (0 == this->getRealTotalWordsCnt_() && !escJustDecoded_) {
+    escJustDecoded_ = true;
+    return {0, 1, 1};
+  }
+  if (isEsc(ord)) {
+    escJustDecoded_ = true;
+    const auto escLow = 2 * getRealTotalWordsCnt_() - getTotalWordsUniqueCnt_();
+    const auto escHigh = 2 * getRealTotalWordsCnt_();
+    const auto escTotal = 2 * getRealTotalWordsCnt_();
+    return {escLow, escHigh, escTotal};
+  }
+  if (escJustDecoded_) {
+    escJustDecoded_ = false;
+    const auto symLow =
+        Count{ord} - this->getLowerCumulativeUniqueNumFound_(ord);
+    const auto symHigh = symLow + 1;
+    const auto symTotal = getMaxOrd_() - this->getTotalWordsUniqueCnt_();
+    return {symLow, symHigh, symTotal};
+  }
+  const auto symLow = 2 * getRealLowerCumulativeWordCnt_(ord) -
+                      getLowerCumulativeUniqueNumFound_(ord);
+  const auto symHigh = symLow + 2 * getRealWordCnt_(ord) - 1;
+  const auto symTotal = 2 * getRealTotalWordsCnt_();
+  return {symLow, symHigh, symTotal};
 }
 
 ////////////////////////////////////////////////////////////////////////////////

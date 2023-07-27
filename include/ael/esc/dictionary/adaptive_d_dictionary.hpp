@@ -35,17 +35,34 @@ class AdaptiveDDictionary : protected ael::dict::impl::ADDictionaryBase {
   [[nodiscard]] Ord getWordOrd(Count cumulativeCnt) const;
 
   /**
-   * @brief getWordProbabilityStats
-   * @param word
-   * @return
+   * @brief getWordOrd - get word order index by cumulative count.
+   * @param cumulativeNumFound search key.
+   * @return word with exact cumulative number found.
    */
   [[nodiscard]] StatsSeq getProbabilityStats(Ord ord);
+
+  /**
+   * @brief get probability stats for decoding.
+   * 
+   * @param ord - order of a word.
+   * @return [low, high, total]
+   */
+  [[nodiscard]] ProbabilityStats getDecodeProbabilityStats(Ord ord);
 
   /**
    * @brief totalWordsCount
    * @return
    */
   [[nodiscard]] Count getTotalWordsCnt() const;
+
+  /**
+   * @brief check if ord is esc-symbol.
+   * 
+   * @param ord to check.
+   * @return true if word is esc symbol.
+   * @return false if word is not an esc symbol.
+   */
+  [[nodiscard]] bool isEsc(Ord ord) const;
 
  protected:
   [[nodiscard]] Ord getWordOrdAfterEsc_(Count cumulativeCnt) const;
@@ -55,6 +72,8 @@ class AdaptiveDDictionary : protected ael::dict::impl::ADDictionaryBase {
   [[nodiscard]] Count getWordCnt_(Ord ord) const;
 
   [[nodiscard]] StatsSeq getProbabilityStats_(Ord ord) const;
+
+  [[nodiscard]] ProbabilityStats getDecodeProbabilityStats_(Ord ord) const;
 
   [[nodiscard]] StatsSeq getProbabilityStatsForNewWord_(Ord ord) const;
 

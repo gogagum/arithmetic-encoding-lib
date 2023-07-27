@@ -18,9 +18,9 @@
 // NOLINTBEGIN(cppcoreguidelines-*, cert-*, readability-magic-numbers,
 // cert-err58-cpp)
 
-#include <ael/esc/dictionary/adaptive_a_dictionary.hpp>
-#define TEST_SUIT_NAME EscAdaptiveAEncodeDecode            // TODO: join with EscAdaptiveDEncodeDecode
-#define TESTED_CLASS ael::esc::dict::AdaptiveADictionary   // TODO: join with EscAdaptiveDEncodeDecode
+#include <ael/esc/dictionary/adaptive_d_dictionary.hpp>
+#define TEST_SUIT_NAME EscAdaptiveDEncodeDecode            // TODO: join with EscAdaptiveDEncodeDecode
+#define TESTED_CLASS ael::esc::dict::AdaptiveDDictionary   // TODO: join with EscAdaptiveDEncodeDecode
 
 TEST(TEST_SUIT_NAME, EncodeEmpty) {
   const auto encoded = std::vector<std::uint64_t>();
