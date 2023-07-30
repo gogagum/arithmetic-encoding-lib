@@ -37,6 +37,7 @@ target_sources(${PROJECT_NAME}
         src/ranges_calc.cpp
         src/esc_adaptive_a_dictionary.cpp
         src/esc_adaptive_d_dictionary.cpp
+        src/esc_a_d_dictionary_base.cpp
 )
 
 target_include_directories(${PROJECT_NAME}

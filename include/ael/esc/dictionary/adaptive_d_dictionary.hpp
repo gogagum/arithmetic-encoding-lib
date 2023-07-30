@@ -4,7 +4,7 @@
 #include <boost/container/static_vector.hpp>
 #include <cstdint>
 
-#include <ael/impl/dictionary/a_d_dictionary_base.hpp>
+#include <ael/impl/esc/dictionary/a_d_dictionary_base.hpp>
 #include <ael/impl/dictionary/word_probability_stats.hpp>
 
 namespace ael::esc::dict {
@@ -12,7 +12,7 @@ namespace ael::esc::dict {
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief The AdaptiveDDictionary class
 ///
-class AdaptiveDDictionary : protected ael::impl::dict::ADDictionaryBase {
+class AdaptiveDDictionary : public ael::impl::esc::dict::ADDictionaryBase {
  public:
   using Ord = std::uint64_t;
   using Count = std::uint64_t;
@@ -62,7 +62,7 @@ class AdaptiveDDictionary : protected ael::impl::dict::ADDictionaryBase {
    * @return true if word is esc symbol.
    * @return false if word is not an esc symbol.
    */
-  [[nodiscard]] bool isEsc(Ord ord) const;
+  //[[nodiscard]] bool isEsc(Ord ord) const;
 
  protected:
   [[nodiscard]] Ord getWordOrdAfterEsc_(Count cumulativeCnt) const;

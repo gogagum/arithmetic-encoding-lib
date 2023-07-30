@@ -20,7 +20,9 @@ class CumulativeCount {
    * @brief CumulativeCount constructor.
    * @param maxOrd - maximalOrder;
    */
-  explicit CumulativeCount(Ord maxOrd);
+  explicit CumulativeCount(Ord maxOrd)
+      : cumulativeCnt_(0, maxOrd, 0), maxOrd_(maxOrd) {
+  }
 
   /**
    * @brief increaseOrdCount - increase one word count.
@@ -33,7 +35,9 @@ class CumulativeCount {
    * @param ord - order of a word.
    * @return lower cumulative count.
    */
-  [[nodiscard]] Count getLowerCumulativeCount(Ord ord) const;
+  [[nodiscard]] Count getLowerCumulativeCount(Ord ord) const {
+    return (ord > 0) ? getCumulativeCount(ord - 1) : 0;
+  }
 
   /**
    * @brief getCumulativeCount - get cumulative count from zero
@@ -41,20 +45,26 @@ class CumulativeCount {
    * @param ord - order index of a checked word.
    * @return cumulative count.
    */
-  [[nodiscard]] Count getCumulativeCount(Ord ord) const;
+  [[nodiscard]] Count getCumulativeCount(Ord ord) const {
+    return cumulativeCnt_.get(ord);
+  }
 
   /**
    * @brief get count of a word.
    * @param ord - order index of a word.
    * @return word count.
    */
-  [[nodiscard]] Count getCount(Ord ord) const;
+  [[nodiscard]] Count getCount(Ord ord) const {
+    return cnt_.contains(ord) ? cnt_.at(ord) : Count{0};
+  }
 
   /**
    * @brief get total words count.
    * @return total words count.
    */
-  [[nodiscard]] Count getTotalWordsCnt() const;
+  [[nodiscard]] Count getTotalWordsCnt() const {
+    return totalWordsCnt_;
+  }
 
  private:
   using DST_ =

@@ -85,8 +85,8 @@ auto NumericalCoder::encode_(auto& ordFlow,
     return {0, 0, 0, 0, 0};
   }
 
-  std::vector<std::uint64_t> counts{};
-  std::vector<std::uint64_t> dictWordsOrds{};
+  auto counts = std::vector<std::uint64_t>{};
+  auto dictWordsOrds = std::vector<std::uint64_t>{};
 
   for (auto [ord, count] : countsMapping) {
     counts.push_back(count);
@@ -125,7 +125,7 @@ auto NumericalCoder::countWords(const auto& ordFlow)
   for (auto ord : ordFlow) {
     ++countsMap[ord];
   }
-  std::vector<CountEntry> ret{};
+  auto ret = std::vector<CountEntry>{};
   std::transform(countsMap.begin(), countsMap.end(), std::back_inserter(ret),
                  [](auto entry) {
                    return CountEntry{entry.first, entry.second};

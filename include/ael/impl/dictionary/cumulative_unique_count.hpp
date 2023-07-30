@@ -20,7 +20,9 @@ class CumulativeUniqueCount {
    * @brief CumulativeCount constructor.
    * @param maxOrd - maximalOrder;
    */
-  explicit CumulativeUniqueCount(Ord maxOrd);
+  explicit CumulativeUniqueCount(Ord maxOrd)
+      : cumulativeUniqueCnt_(0, maxOrd, 0), maxOrd_(maxOrd) {
+  }
 
   /**
    * @brief update - update ord info.
@@ -34,7 +36,9 @@ class CumulativeUniqueCount {
    * @param ord - order index of a checked word.
    * @return cumulative count.
    */
-  [[nodiscard]] Count getLowerCumulativeCount(Ord ord) const;
+  [[nodiscard]] Count getLowerCumulativeCount(Ord ord) const {
+    return (ord == 0) ? 0 : getCumulativeCount(ord - 1);
+  }
 
   /**
    * @brief getCumulativeCount - get cumulative count from zero
@@ -42,20 +46,26 @@ class CumulativeUniqueCount {
    * @param ord - order index of a checked word.
    * @return cumulative count.
    */
-  [[nodiscard]] Count getCumulativeCount(Ord ord) const;
+  [[nodiscard]] Count getCumulativeCount(Ord ord) const {
+    return cumulativeUniqueCnt_.get(ord);
+  }
 
   /**
    * @brief get count of a word.
    * @param ord - order index of a word.
    * @return word count.
    */
-  [[nodiscard]] Count getCount(Ord ord) const;
+  [[nodiscard]] Count getCount(Ord ord) const {
+    return static_cast<Count>(ords_.contains(ord) ? 1 : 0);
+  }
 
   /**
    * @brief get total words count.
    * @return total words count.
    */
-  [[nodiscard]] Count getTotalWordsCnt() const;
+  [[nodiscard]] Count getTotalWordsCnt() const {
+    return ords_.size();
+  }
 
  private:
   using DST_ =

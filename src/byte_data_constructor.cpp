@@ -40,11 +40,6 @@ void ByteDataConstructor::putByte(std::byte byteToPut) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-std::size_t ByteDataConstructor::size() const {
-  return data_.size();
-}
-
-////////////////////////////////////////////////////////////////////////////////
 auto ByteDataConstructor::getBitBackInserter() -> BitBackInserter {
   return BitBackInserter(*this);
 }

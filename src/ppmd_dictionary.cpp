@@ -26,11 +26,11 @@ PPMDDictionary::PPMDDictionary(ConstructInfo constructInfo)
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMDDictionary::getWordOrd(const Count& cumulativeNumFound) const -> Ord {
-  const auto idxs = std::ranges::iota_view(Ord{0}, this->maxOrd_);
-  assert(cumulativeNumFound <= this->getTotalWordsCnt());
+  const auto idxs = std::ranges::iota_view(Ord{0}, maxOrd_);
+  assert(cumulativeNumFound <= getTotalWordsCnt());
   const auto getLowerCumulNumFound_ = [this](Ord ord) {
     assert(ord < maxOrd_);
-    return this->getLowerCumulativeCnt_(ord + 1);
+    return getLowerCumulativeCnt_(ord + 1);
   };
   const auto iter = std::ranges::upper_bound(idxs, cumulativeNumFound, {},
                                              getLowerCumulNumFound_);
@@ -57,15 +57,15 @@ auto PPMDDictionary::getTotalWordsCnt() const -> Count {
     total *= totalZeroCtxCnt * 2;
   }
   if (const auto zeroUniqueCnt = zeroCtxCell_.uniqueCnt.getTotalWordsCnt();
-      zeroUniqueCnt < this->maxOrd_) {
-    total *= this->maxOrd_ - zeroUniqueCnt;
+      zeroUniqueCnt < maxOrd_) {
+    total *= maxOrd_ - zeroUniqueCnt;
   }
   return total;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMDDictionary::getLowerCumulativeCnt_(Ord ord) const -> Count {
-  assert(ord <= this->maxOrd_);
+  assert(ord <= maxOrd_);
   Count lower = 0;
   Count uniqueCountsProd = 1;
   for (auto ctx = getSearchCtxEmptySkipped_(); !ctx.empty(); ctx.pop_back()) {
@@ -87,8 +87,8 @@ auto PPMDDictionary::getLowerCumulativeCnt_(Ord ord) const -> Count {
     lower += (cumulativeCnt * 2 - cumulativeUniqueCnt) * uniqueCountsProd;
     uniqueCountsProd *= zeroCtxTotalUniqueCnt;
   }
-  if (zeroCtxTotalUniqueCnt < this->maxOrd_) {
-    lower *= this->maxOrd_ - zeroCtxTotalUniqueCnt;
+  if (zeroCtxTotalUniqueCnt < maxOrd_) {
+    lower *= maxOrd_ - zeroCtxTotalUniqueCnt;
     lower += (ord - zeroCtxCell_.uniqueCnt.getLowerCumulativeCount(ord)) *
              uniqueCountsProd;
   }
@@ -132,12 +132,12 @@ auto PPMDDictionary::getProbabilityStats_(Ord ord) const -> ProbabilityStats {
     total *= zeroCtxTotal * 2;
     uniqueCountsProd *= zeroCtxUniqueTotal;
   }
-  if (zeroCtxUniqueTotal < this->maxOrd_) {
-    total *= this->maxOrd_ - zeroCtxUniqueTotal;
-    lower *= this->maxOrd_ - zeroCtxUniqueTotal;
+  if (zeroCtxUniqueTotal < maxOrd_) {
+    total *= maxOrd_ - zeroCtxUniqueTotal;
+    lower *= maxOrd_ - zeroCtxUniqueTotal;
     lower += (ord - zeroCtxCell_.uniqueCnt.getLowerCumulativeCount(ord)) *
              uniqueCountsProd;
-    count *= this->maxOrd_ - zeroCtxUniqueTotal;
+    count *= maxOrd_ - zeroCtxUniqueTotal;
     count += uniqueCountsProd * (1 - zeroCtxCell_.uniqueCnt.getCount(ord));
   }
   assert(count > 0);

@@ -129,34 +129,34 @@ void ContextualDictionaryStatsBase<InternalDictT>::updateCtx_(Ord ord) {
 template <class InternalDictT>
 auto ContextualDictionaryStatsBase<InternalDictT>::getContextualTotalWordCnt_(
     const SearchCtx_& searchCtx) const -> Count {
-  if (!this->contextProbs_.contains(searchCtx)) {
+  if (!contextProbs_.contains(searchCtx)) {
     return 0;
   }
-  return this->contextProbs_.at(searchCtx).getTotalWordsCnt();
+  return contextProbs_.at(searchCtx).getTotalWordsCnt();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 template <class InternalDictT>
 auto ContextualDictionaryStatsBase<InternalDictT>::getContextualWordOrd_(
     const SearchCtx_& searchCtx, Count cumulativeCnt) const -> Ord {
-  return this->contextProbs_.at(searchCtx).getWordOrd(cumulativeCnt);
+  return contextProbs_.at(searchCtx).getWordOrd(cumulativeCnt);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 template <class InternalDictT>
 void ContextualDictionaryStatsBase<InternalDictT>::updateContextualDictionary_(
     const SearchCtx_& searchCtx, Ord ord) {
-  if (!this->contextProbs_.contains(searchCtx)) {
-    this->contextProbs_.emplace(searchCtx, this->getMaxOrd_());
+  if (!contextProbs_.contains(searchCtx)) {
+    contextProbs_.emplace(searchCtx, this->getMaxOrd_());
   }
-  this->contextProbs_.at(searchCtx).updateWordCnt_(ord, 1);
+  contextProbs_.at(searchCtx).updateWordCnt_(ord, 1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 template <class InternalDictT>
 auto ContextualDictionaryStatsBase<InternalDictT>::getContextualProbStats_(
     const SearchCtx_& searchCtx, Ord ord) -> WordProbabilityStats<Count> {
-  return this->contextProbs_.at(searchCtx).getProbabilityStats(ord);
+  return contextProbs_.at(searchCtx).getProbabilityStats(ord);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

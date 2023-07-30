@@ -88,7 +88,9 @@ class ByteDataConstructor {
    * @brief size - number of bytes in a file.
    * @return file size.
    */
-  [[nodiscard]] std::size_t size() const;
+  [[nodiscard]] std::size_t size() const {
+    return data_.size();
+  }
 
   /**
    * @brief getBitBackInserter returns bit insert iterator to add bits at

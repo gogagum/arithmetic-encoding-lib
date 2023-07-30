@@ -52,11 +52,13 @@ class DecreasingOnUpdateDictionary
    * @return total words count in a dictionary.
    */
   [[nodiscard]] Count getTotalWordsCnt() const {
-    return this->getRealTotalWordsCnt_();
+    return getRealTotalWordsCnt_();
   }
 
  protected:
-  [[nodiscard]] Count getLowerCumulativeCnt_(Ord ord) const;
+  [[nodiscard]] Count getLowerCumulativeCnt_(Ord ord) const {
+    return getRealCumulativeCnt_(ord - 1);
+  }
 
   void updateWordCnt_(Ord ord, Count cnt);
 
@@ -73,9 +75,9 @@ DecreasingOnUpdateDictionary::DecreasingOnUpdateDictionary(
     : ael::impl::dict::AdaptiveDictionaryBase<Count>(maxOrd, 0),
       maxOrd_(maxOrd) {
   for (const auto& [ord, count] : countRng) {
-    this->changeRealWordCnt_(ord, count);
-    this->changeRealCumulativeWordCnt_(ord, count);
-    this->changeRealTotalWordsCnt_(count);
+    changeRealWordCnt_(ord, count);
+    changeRealCumulativeWordCnt_(ord, count);
+    changeRealTotalWordsCnt_(count);
   }
 }
 

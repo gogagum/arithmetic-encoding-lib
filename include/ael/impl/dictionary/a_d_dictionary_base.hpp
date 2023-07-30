@@ -8,7 +8,7 @@
 namespace ael::impl::dict {
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \brief The BaseADDictionary class
+/// \brief The base A/D dictionary base class.
 ///
 class ADDictionaryBase {
  protected:
@@ -18,20 +18,78 @@ class ADDictionaryBase {
  protected:
   explicit ADDictionaryBase(Ord maxOrd);
 
-  [[nodiscard]] Count getRealTotalWordsCnt_() const;
+  /**
+   * @brief get total words count without applying any model.
+   * 
+   * @return total processed words count.
+   */
+  [[nodiscard]] Count getRealTotalWordsCnt_() const {
+    return cumulativeCnt_.getTotalWordsCnt();
+  }
 
-  [[nodiscard]] Count getRealLowerCumulativeWordCnt_(Ord ord) const;
+  /**
+   * @brief get lower cumulative count without applying any model. 
+   * 
+   * @param ord index of a word((0, maxOrd]).
+   * @return real cumulative count of a word.
+   */
+  [[nodiscard]] Count getRealLowerCumulativeWordCnt_(Ord ord) const {
+    return cumulativeCnt_.getLowerCumulativeCount(ord);
+  }
 
-  [[nodiscard]] Count getRealWordCnt_(Ord ord) const;
+  /**
+   * @brief get real word count without aplying models.
+   * 
+   * @param ord index of a word.
+   * @return real count of a word.
+   */
+  [[nodiscard]] Count getRealWordCnt_(Ord ord) const {
+    return cumulativeCnt_.getCount(ord);
+  }
 
-  [[nodiscard]] Count getTotalWordsUniqueCnt_() const;
+  /**
+   * @brief get real total word count.
+   * 
+   * @return real total words counts.
+   */
+  [[nodiscard]] Count getTotalWordsUniqueCnt_() const {
+    return cumulativeUniqueCnt_.getTotalWordsCnt();
+  }
 
-  [[nodiscard]] Count getLowerCumulativeUniqueNumFound_(Ord ord) const;
+  /**
+   * @brief get lower cumulative unique count.
+   * 
+   * @param ord index of a word.
+   * @return lower cumulative unique count.
+   */
+  [[nodiscard]] Count getLowerCumulativeUniqueNumFound_(Ord ord) const {
+    return cumulativeUniqueCnt_.getLowerCumulativeCount(ord);
+  }
 
-  [[nodiscard]] Count getWordUniqueCnt_(Ord ord) const;
+  /**
+   * @brief get word unique count.
+   * 
+   * @param ord index of a word.
+   * @return unique count of a word (in fact, 0, if it was not found, 1, if
+   * was found).
+   */
+  [[nodiscard]] Count getWordUniqueCnt_(Ord ord) const {
+    return cumulativeUniqueCnt_.getCount(ord);
+  }
 
+  /**
+   * @brief update unique and real counts for a word.
+   * 
+   * @param ord index of a word.
+   * @param cnt count change.
+   */
   void updateWordCnt_(Ord ord, Count cnt);
 
+  /**
+   * @brief get maximum order (index of a word).
+   * 
+   * @return maximum order.
+   */
   [[nodiscard]] Ord getMaxOrd_() const {
     return maxOrd_;
   }

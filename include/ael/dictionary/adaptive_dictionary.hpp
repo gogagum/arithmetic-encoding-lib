@@ -53,7 +53,7 @@ class AdaptiveDictionary
    * @return
    */
   [[nodiscard]] Count getTotalWordsCnt() const {
-    return maxOrder_ + ratio_ * this->getRealTotalWordsCnt_();
+    return maxOrder_ + ratio_ * getRealTotalWordsCnt_();
   }
 
  private:
