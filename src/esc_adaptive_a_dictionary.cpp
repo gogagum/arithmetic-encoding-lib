@@ -24,9 +24,11 @@ auto AdaptiveADictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
   const auto getLowerCumulativeNumFound_ = [this](Ord ord) {
     return getRealLowerCumulativeWordCnt_(ord + 1);
   };
-  const auto iter =
-      rng::upper_bound(idxs, cumulativeCnt, {}, getLowerCumulativeNumFound_);
-  return iter - idxs.begin();
+  const Ord retOrd =
+      rng::upper_bound(idxs, cumulativeCnt, {}, getLowerCumulativeNumFound_) -
+      idxs.begin();
+  escJustDecoded_ = isEsc(retOrd);
+  return retOrd;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -100,7 +102,6 @@ auto AdaptiveADictionary::getProbabilityStatsForNewWord_(Ord ord) const
 auto AdaptiveADictionary::getDecodeProbabilityStats_(Ord ord) const
     -> ProbabilityStats {
   if (isEsc(ord)) {
-    escJustDecoded_ = true;
     const auto escLow = getRealTotalWordsCnt_();
     const auto escHigh = escLow + 1;
     const auto escTotal = getRealTotalWordsCnt_() + 1;

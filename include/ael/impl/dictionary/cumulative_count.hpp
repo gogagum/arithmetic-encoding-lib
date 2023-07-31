@@ -65,6 +65,10 @@ class CumulativeCount {
   [[nodiscard]] Count getTotalWordsCnt() const {
     return totalWordsCnt_;
   }
+ protected:
+  [[nodiscard]] Ord getMaxOrd_() const {
+    return maxOrd_;
+  }
 
  private:
   using DST_ =

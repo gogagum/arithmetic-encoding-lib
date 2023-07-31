@@ -67,6 +67,11 @@ class CumulativeUniqueCount {
     return ords_.size();
   }
 
+ protected:
+  [[nodiscard]] Ord getmaxOrd_() const {
+    return maxOrd_;
+  }
+
  private:
   using DST_ =
       dst::DynamicSegmentTree<Ord, Count, void, dst::NoRangeGetOp,

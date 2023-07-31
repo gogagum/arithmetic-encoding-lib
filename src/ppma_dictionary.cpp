@@ -26,12 +26,12 @@ PPMADictionary::PPMADictionary(ConstructInfo constructInfo)
 auto PPMADictionary::getWordOrd(const Count& cumulativeNumFound) const -> Ord {
   const auto idxs = std::ranges::iota_view(Ord{0}, maxOrd_);
   assert(cumulativeNumFound <= getTotalWordsCnt());
-  const auto getLowerCumulNumFound_ = [this](std::uint64_t ord) {
+  const auto getLowerCumulCnt = [this](std::uint64_t ord) {
     assert(ord < maxOrd_);
     return getLowerCumulativeCnt_(ord + 1);
   };
-  const auto iter = std::ranges::upper_bound(idxs, cumulativeNumFound, {},
-                                             getLowerCumulNumFound_);
+  const auto iter =
+      std::ranges::upper_bound(idxs, cumulativeNumFound, {}, getLowerCumulCnt);
   return iter - idxs.begin();
 }
 

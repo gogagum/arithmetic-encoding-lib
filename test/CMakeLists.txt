@@ -28,6 +28,7 @@ add_executable(ael-tests
     no_esc/decreasing_on_update_dictionary.cpp
     esc/adaptive_a_dictionary.cpp
     esc/adaptive_d_dictionary.cpp
+    esc/ppma_dictionary.cpp
     numerical_coder.cpp
     numerical_decoder.cpp
     encode_decode/no_esc/adaptive_a.cpp
@@ -41,6 +42,7 @@ add_executable(ael-tests
     encode_decode/no_esc/adaptive_d_contextual_improved.cpp
     encode_decode/esc/adaptive_a.cpp
     encode_decode/esc/adaptive_d.cpp
+    encode_decode/esc/ppma.cpp
 )
 
 if (CMAKE_CROSSCOMPILING)

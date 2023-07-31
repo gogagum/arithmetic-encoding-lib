@@ -34,18 +34,20 @@ class PPMADictionary {
   };
 
  private:
-  constexpr const static std::uint16_t _maxCtxLength = 16;
-  constexpr const static std::uint16_t _maxSeqLenLog2 = 40;
+  constexpr static std::uint16_t _maxCtxLength = 16;
+  constexpr static std::uint16_t _maxSeqLenLog2 = 40;
 
  public:
   /**
-   * PPMA dictionary constructor.
+   * @brief PPMA dictionary constructor.
+   * 
    * @param constructInfo - maximal order and context length.
    */
   explicit PPMADictionary(ConstructInfo constructInfo);
 
   /**
    * @brief getWordOrd - get word order index by cumulative count.
+   * 
    * @param cumulativeNumFound search key.
    * @return word with exact cumulative number found.
    */
@@ -53,6 +55,7 @@ class PPMADictionary {
 
   /**
    * @brief getWordProbabilityStats - get probability stats and update.
+   * 
    * @param ord - order of a word.
    * @return [low, high, total]
    */
@@ -60,6 +63,7 @@ class PPMADictionary {
 
   /**
    * @brief getTotalWordsCount - get total words count estimation.
+   * 
    * @return total words count estimation
    */
   [[nodiscard]] Count getTotalWordsCnt() const;
