@@ -62,10 +62,10 @@ class AdaptiveADictionary : public ael::impl::esc::dict::ADDictionaryBase {
 
   [[nodiscard]] StatsSeq getProbabilityStatsForNewWord_(Ord ord) const;
 
-  [[nodiscard]] ProbabilityStats getDecodeProbabilityStats_(Ord ord) const;
+  [[nodiscard]] ProbabilityStats getDecodeProbabilityStats_(Ord ord);
 
  private:
-  mutable bool escJustDecoded_{false};
+  bool escJustDecoded_{false};
 };
 
 }  // namespace ael::esc::dict

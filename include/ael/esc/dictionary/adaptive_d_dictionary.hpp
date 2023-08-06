@@ -55,15 +55,6 @@ class AdaptiveDDictionary : public ael::impl::esc::dict::ADDictionaryBase {
    */
   [[nodiscard]] Count getTotalWordsCnt() const;
 
-  /**
-   * @brief check if ord is esc-symbol.
-   * 
-   * @param ord to check.
-   * @return true if word is esc symbol.
-   * @return false if word is not an esc symbol.
-   */
-  //[[nodiscard]] bool isEsc(Ord ord) const;
-
  protected:
   [[nodiscard]] Ord getWordOrdAfterEsc_(Count cumulativeCnt) const;
 
@@ -73,12 +64,12 @@ class AdaptiveDDictionary : public ael::impl::esc::dict::ADDictionaryBase {
 
   [[nodiscard]] StatsSeq getProbabilityStats_(Ord ord) const;
 
-  [[nodiscard]] ProbabilityStats getDecodeProbabilityStats_(Ord ord) const;
+  [[nodiscard]] ProbabilityStats getDecodeProbabilityStats_(Ord ord);
 
   [[nodiscard]] StatsSeq getProbabilityStatsForNewWord_(Ord ord) const;
 
  private:
-  mutable bool escJustDecoded_{false};
+  bool escJustDecoded_{false};
 };
 
 }  // namespace ael::esc::dict
