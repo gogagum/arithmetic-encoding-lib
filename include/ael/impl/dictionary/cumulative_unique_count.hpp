@@ -21,7 +21,7 @@ class CumulativeUniqueCount {
    * @param maxOrd - maximalOrder;
    */
   explicit CumulativeUniqueCount(Ord maxOrd)
-      : cumulativeUniqueCnt_(0, maxOrd, 0), maxOrd_(maxOrd) {
+      : cumulativeUniqueCnt_{0, maxOrd, 0}, maxOrd_(maxOrd) {
   }
 
   /**
@@ -37,17 +37,7 @@ class CumulativeUniqueCount {
    * @return cumulative count.
    */
   [[nodiscard]] Count getLowerCumulativeCount(Ord ord) const {
-    return (ord == 0) ? 0 : getCumulativeCount(ord - 1);
-  }
-
-  /**
-   * @brief getCumulativeCount - get cumulative count from zero
-   * to given ord including it.
-   * @param ord - order index of a checked word.
-   * @return cumulative count.
-   */
-  [[nodiscard]] Count getCumulativeCount(Ord ord) const {
-    return cumulativeUniqueCnt_.get(ord);
+    return (ord == 0) ? 0 : getCumulativeCount_(ord - 1);
   }
 
   /**
@@ -72,6 +62,16 @@ class CumulativeUniqueCount {
     return maxOrd_;
   }
 
+  /**
+   * @brief getCumulativeCount - get cumulative count from zero
+   * to given ord including it.
+   * @param ord - order index of a checked word.
+   * @return cumulative count.
+   */
+  [[nodiscard]] Count getCumulativeCount_(Ord ord) const {
+    return cumulativeUniqueCnt_.get(ord);
+  }
+
  private:
   using DST_ =
       dst::DynamicSegmentTree<Ord, Count, void, dst::NoRangeGetOp,
@@ -79,7 +79,7 @@ class CumulativeUniqueCount {
 
  private:
   DST_ cumulativeUniqueCnt_;
-  std::unordered_set<Ord> ords_;
+  std::unordered_set<Ord> ords_{};
   const Ord maxOrd_;
 };
 

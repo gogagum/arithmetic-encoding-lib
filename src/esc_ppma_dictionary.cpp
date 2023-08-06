@@ -165,7 +165,8 @@ auto PPMADictionary::getDecodeProbabilityStats_(Ord ord) -> ProbabilityStats {
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMADictionary::getDecodeProbabilityStatsForNewWord_(Ord ord) const
     -> ProbabilityStats {
-  const auto symLow = Count{ord} - zeroCtxUniqueCnt_.getCumulativeCount(ord);
+  const auto symLow =
+      Count{ord} - zeroCtxUniqueCnt_.getLowerCumulativeCount(ord);
   const auto symHigh = symLow + 1;
   const auto symTotal = getMaxOrd_() - zeroCtxUniqueCnt_.getTotalWordsCnt();
   return {symLow, symHigh, symTotal};
