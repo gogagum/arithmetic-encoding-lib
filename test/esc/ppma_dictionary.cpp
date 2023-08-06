@@ -226,11 +226,13 @@ TEST(EscPPMADictionary, Example) {
 
   {
     const auto stats = dict.getProbabilityStats('C');
-    EXPECT_EQ(stats.size(), 2);
+    EXPECT_EQ(stats.size(), 3);
     EXPECT_EQ(stats[0].high - stats[0].low, 1);
-    EXPECT_EQ(stats[0].total, 7);
+    EXPECT_EQ(stats[0].total, 2);
     EXPECT_EQ(stats[1].high - stats[1].low, 1);
-    EXPECT_EQ(stats[1].total, 251);
+    EXPECT_EQ(stats[1].total, 7);
+    EXPECT_EQ(stats[2].high - stats[2].low, 1);
+    EXPECT_EQ(stats[2].total, 251);
   }
 
   {

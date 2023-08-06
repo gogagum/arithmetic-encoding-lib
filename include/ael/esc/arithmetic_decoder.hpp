@@ -94,6 +94,13 @@ void ArithmeticDecoder::decode(auto& source, Dict& dict, OutIter outIter,
     }
 
     auto [low, high, total] = dict.getDecodeProbabilityStats(ord);
+    assert(high > low &&
+           "Probability of a word must be positive ang greater than zero.");
+    assert(total >= high);
+    assert(total == dictTotalWords &&
+           "Total word count in a model must not differ in two tests for the "
+           "same decoded word.");
+
     currRange = RC::rangeFromStatsAndPrev(currRange, {low, high, total});
 
     while (true) {

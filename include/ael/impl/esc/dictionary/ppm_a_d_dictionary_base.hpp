@@ -34,8 +34,15 @@ class PPMADDictionaryBase {
     return maxOrd_;
   }
 
+  [[nodiscard]] std::size_t getEscDecoded_() const {
+    return escDecoded_;
+  }
+
+  void updateEscDecoded_(Ord ord) const;
+
  private:
   const Ord maxOrd_;
+  mutable std::size_t escDecoded_{0};
 };
 
 }  // namespace ael::impl::esc::dict

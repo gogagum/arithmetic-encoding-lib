@@ -24,7 +24,7 @@ class PPMADictionary : public ael::impl::esc::dict::PPMADDictionaryBase {
       impl::esc::dict::PPMADDictionaryBase::ProbabilityStats;
   using StatsSeq =
       boost::container::static_vector<ProbabilityStats, _maxCtxLength>;
-  constexpr const static std::uint16_t countNumBits = 62;
+  constexpr static std::uint16_t countNumBits = 62;
 
   struct ConstructInfo {
     Ord maxOrd{2};
@@ -74,14 +74,25 @@ class PPMADictionary : public ael::impl::esc::dict::PPMADDictionaryBase {
   using SearchCtx_ = boost::container::static_vector<Ord, _maxCtxLength>;
 
  protected:
-  [[nodiscard]] ProbabilityStats getDecodeProbabilityStats_(Ord ord) const;
+  [[nodiscard]] ProbabilityStats getDecodeProbabilityStats_(Ord ord);
 
   [[nodiscard]] ProbabilityStats getDecodeProbabilityStatsForNewWord_(
       Ord ord) const;
 
   void updateWordCnt_(Ord ord, std::int64_t cntChange);
 
-  SearchCtx_ getSearchCtxOfLength_(std::size_t ctxLength) const;
+  [[nodiscard]] Ord getWordOrdForNewWord_(Count cumulativeCnt) const;
+
+  void updateCtx_(Ord ord);
+
+  void skipNewCtxs_(SearchCtx_& currCtx) const;  // TODO(gogagum): move to base
+
+  void skipCtxsByEsc_(SearchCtx_& currCtx) const {
+    assert(escDecoded_ < currCtx.size() && "Checked other cases.");
+    currCtx.resize(currCtx.size() - escDecoded_);
+  }
+
+  [[nodiscard]] ProbabilityStats getZeroCtxEscStats_() const;
 
  private:
   using SearchCtxHash_ = boost::hash<SearchCtx_>;

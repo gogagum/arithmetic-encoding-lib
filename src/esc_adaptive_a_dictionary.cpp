@@ -17,7 +17,6 @@ auto AdaptiveADictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
   }
   assert(cumulativeCnt < getRealTotalWordsCnt_() + 1);
   if (cumulativeCnt == getRealTotalWordsCnt_()) {
-    escJustDecoded_ = true;
     return getMaxOrd_();
   }
   const auto idxs = rng::iota_view(Ord{0}, getMaxOrd_());
@@ -27,7 +26,6 @@ auto AdaptiveADictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
   const Ord retOrd =
       rng::upper_bound(idxs, cumulativeCnt, {}, getLowerCumulativeNumFound_) -
       idxs.begin();
-  escJustDecoded_ = isEsc(retOrd);
   return retOrd;
 }
 
@@ -99,9 +97,10 @@ auto AdaptiveADictionary::getProbabilityStatsForNewWord_(Ord ord) const
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto AdaptiveADictionary::getDecodeProbabilityStats_(Ord ord) const
+auto AdaptiveADictionary::getDecodeProbabilityStats_(Ord ord)
     -> ProbabilityStats {
   if (isEsc(ord)) {
+    escJustDecoded_ = true;
     const auto escLow = getRealTotalWordsCnt_();
     const auto escHigh = escLow + 1;
     const auto escTotal = getRealTotalWordsCnt_() + 1;

@@ -66,7 +66,7 @@ TEST(TEST_SUIT_NAME, EncodeSmall) {
   auto [wordsCount, bitsCount] =
       ael::esc::ArithmeticCoder::encode(encoded, dataConstructor, dict);
 
-  EXPECT_EQ(wordsCount, 9);
+  EXPECT_EQ(wordsCount, 10);
   EXPECT_GE(dataConstructor.size(), 0);
 }
 

@@ -22,7 +22,6 @@ auto AdaptiveDDictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
          "Invalid cumulative count.");
   if (cumulativeCnt >=
       getRealTotalWordsCnt_() * 2 - getTotalWordsUniqueCnt_()) {
-    escJustDecoded_ = true;
     return getMaxOrd_();
   }
   const auto idxs = rng::iota_view(Ord{0}, getMaxOrd_());
@@ -89,7 +88,7 @@ auto AdaptiveDDictionary::getProbabilityStats_(Ord ord) const -> StatsSeq {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto AdaptiveDDictionary::getDecodeProbabilityStats_(Ord ord) const
+auto AdaptiveDDictionary::getDecodeProbabilityStats_(Ord ord)
     -> ProbabilityStats {
   if (0 == getRealTotalWordsCnt_() && !escJustDecoded_) {
     escJustDecoded_ = true;
