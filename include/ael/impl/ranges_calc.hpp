@@ -1,7 +1,7 @@
 #ifndef RANGES_CALC_HPP
 #define RANGES_CALC_HPP
 
-#include <ael/dictionary/impl/word_probability_stats.hpp>
+#include <ael/impl/dictionary/word_probability_stats.hpp>
 #include <cstdint>
 #include <iostream>
 
@@ -17,7 +17,7 @@ class RangesCalc {
  public:
   using Count = CountT;
   struct Range;
-  using ProbabilityStats = dict::WordProbabilityStats<Count>;
+  using ProbabilityStats = ael::impl::dict::WordProbabilityStats<Count>;
 
   constexpr static const Count total = Count{1} << numBits;
   constexpr static const Count half = Count{1} << (numBits - 1);

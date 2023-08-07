@@ -5,7 +5,7 @@
 #include <dst/dynamic_segment_tree.hpp>
 #include <unordered_set>
 
-namespace ael::dict::impl {
+namespace ael::impl::dict {
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief The CumulativeUniqueCount class.
@@ -20,7 +20,9 @@ class CumulativeUniqueCount {
    * @brief CumulativeCount constructor.
    * @param maxOrd - maximalOrder;
    */
-  explicit CumulativeUniqueCount(Ord maxOrd);
+  explicit CumulativeUniqueCount(Ord maxOrd)
+      : cumulativeUniqueCnt_{0, maxOrd, 0}, maxOrd_(maxOrd) {
+  }
 
   /**
    * @brief update - update ord info.
@@ -34,7 +36,31 @@ class CumulativeUniqueCount {
    * @param ord - order index of a checked word.
    * @return cumulative count.
    */
-  [[nodiscard]] Count getLowerCumulativeCount(Ord ord) const;
+  [[nodiscard]] Count getLowerCumulativeCount(Ord ord) const {
+    return (ord == 0) ? 0 : getCumulativeCount_(ord - 1);
+  }
+
+  /**
+   * @brief get count of a word.
+   * @param ord - order index of a word.
+   * @return word count.
+   */
+  [[nodiscard]] Count getCount(Ord ord) const {
+    return static_cast<Count>(ords_.contains(ord) ? 1 : 0);
+  }
+
+  /**
+   * @brief get total words count.
+   * @return total words count.
+   */
+  [[nodiscard]] Count getTotalWordsCnt() const {
+    return ords_.size();
+  }
+
+ protected:
+  [[nodiscard]] Ord getmaxOrd_() const {
+    return maxOrd_;
+  }
 
   /**
    * @brief getCumulativeCount - get cumulative count from zero
@@ -42,20 +68,9 @@ class CumulativeUniqueCount {
    * @param ord - order index of a checked word.
    * @return cumulative count.
    */
-  [[nodiscard]] Count getCumulativeCount(Ord ord) const;
-
-  /**
-   * @brief get count of a word.
-   * @param ord - order index of a word.
-   * @return word count.
-   */
-  [[nodiscard]] Count getCount(Ord ord) const;
-
-  /**
-   * @brief get total words count.
-   * @return total words count.
-   */
-  [[nodiscard]] Count getTotalWordsCnt() const;
+  [[nodiscard]] Count getCumulativeCount_(Ord ord) const {
+    return cumulativeUniqueCnt_.get(ord);
+  }
 
  private:
   using DST_ =
@@ -64,10 +79,10 @@ class CumulativeUniqueCount {
 
  private:
   DST_ cumulativeUniqueCnt_;
-  std::unordered_set<Ord> ords_;
+  std::unordered_set<Ord> ords_{};
   const Ord maxOrd_;
 };
 
-}  // namespace ael::dict::impl
+}  // namespace ael::impl::dict
 
 #endif  // CUMULATIVE_COUNT_HPP

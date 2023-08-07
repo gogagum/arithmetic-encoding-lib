@@ -1,5 +1,5 @@
-#ifndef CONTEXTUAL_DICTIONARY_BASE_IMPROVED_HPP
-#define CONTEXTUAL_DICTIONARY_BASE_IMPROVED_HPP
+#ifndef CONTEXTUAL_DICTIONARY_BASE_HPP
+#define CONTEXTUAL_DICTIONARY_BASE_HPP
 
 #include <cstdint>
 #include <optional>
@@ -7,13 +7,13 @@
 #include "contextual_dictionary_stats_base.hpp"
 #include "word_probability_stats.hpp"
 
-namespace ael::dict::impl {
+namespace ael::impl::dict {
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \brief The ContextualDictionaryBaseImproved<InternalDictT> class.
+/// \brief The ContextualDictionaryBase<InternalDictT> class
 ///
 template <class InternalDictT>
-class ContextualDictionaryBaseImproved
+class ContextualDictionaryBase
     : protected ContextualDictionaryStatsBase<InternalDictT> {
  public:
   using Ord = std::uint64_t;
@@ -26,16 +26,16 @@ class ContextualDictionaryBaseImproved
       InternalDictT>::ContextualDictionaryStatsBase;
 
   /**
-   * @brief getWord
-   * @param cumulativeNumFound
-   * @return
+   * @brief getWordOrd - ord getter.
+   * @param cumulativeNumFound - search count.
+   * @return - found word order.
    */
   [[nodiscard]] Ord getWordOrd(Count cumulativeNumFound) const;
 
   /**
-   * @brief getWordProbabilityStats
-   * @param word
-   * @return
+   * @brief getWordProbabilityStats - probability stats getter with update.
+   * @param ord order index of a word.
+   * @return probability stats.
    */
   [[nodiscard]] ProbabilityStats getProbabilityStats(Ord ord);
 
@@ -48,12 +48,12 @@ class ContextualDictionaryBaseImproved
 
 ////////////////////////////////////////////////////////////////////////////////
 template <class InternalDictT>
-auto ContextualDictionaryBaseImproved<InternalDictT>::getWordOrd(
+auto ContextualDictionaryBase<InternalDictT>::getWordOrd(
     Count cumulativeNumFound) const -> Ord {
   for (auto ctxLength = this->getCurrCtxLength_(); ctxLength != 0;
        --ctxLength) {
     const auto searchCtx = this->getSearchCtx_(ctxLength);
-    if (this->getContextualTotalWordCnt_(searchCtx) >= ctxLength) {
+    if (this->ctxExists_(searchCtx)) {
       return this->getContextualWordOrd_(searchCtx, cumulativeNumFound);
     }
   }
@@ -62,13 +62,13 @@ auto ContextualDictionaryBaseImproved<InternalDictT>::getWordOrd(
 
 ////////////////////////////////////////////////////////////////////////////////
 template <class InternalDictT>
-auto ContextualDictionaryBaseImproved<InternalDictT>::getProbabilityStats(
-    Ord ord) -> ProbabilityStats {
+auto ContextualDictionaryBase<InternalDictT>::getProbabilityStats(Ord ord)
+    -> ProbabilityStats {
   std::optional<ProbabilityStats> ret{};
   for (auto ctxLength = this->getCurrCtxLength_(); ctxLength != 0;
        --ctxLength) {
     const auto searchCtx = this->getSearchCtx_(ctxLength);
-    if (this->getContextualTotalWordCnt_(searchCtx) >= ctxLength) {
+    if (this->ctxExists_(searchCtx)) {
       ret = ret.value_or(this->getContextualProbStats_(searchCtx, ord));
     }
     this->updateContextualDictionary_(searchCtx, ord);
@@ -81,18 +81,18 @@ auto ContextualDictionaryBaseImproved<InternalDictT>::getProbabilityStats(
 
 ////////////////////////////////////////////////////////////////////////////////
 template <class InternalDictT>
-auto ContextualDictionaryBaseImproved<InternalDictT>::getTotalWordsCnt() const
+auto ContextualDictionaryBase<InternalDictT>::getTotalWordsCnt() const
     -> Count {
   for (auto ctxLength = this->getCurrCtxLength_(); ctxLength != 0;
        --ctxLength) {
     const auto searchCtx = this->getSearchCtx_(ctxLength);
-    if (this->getContextualTotalWordCnt_(searchCtx) >= ctxLength) {
+    if (this->ctxExists_(searchCtx)) {
       return this->getContextualTotalWordCnt_(searchCtx);
     }
   }
   return InternalDictT::getTotalWordsCnt();
 }
 
-}  // namespace ael::dict::impl
+}  // namespace ael::impl::dict
 
-#endif  // CONTEXTUAL_DICTIONARY_BASE_IMPROVED_HPP
+#endif  // CONTEXTUAL_DICTIONARY_BASE_HPP

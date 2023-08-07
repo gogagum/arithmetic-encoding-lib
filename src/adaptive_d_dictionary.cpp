@@ -5,14 +5,14 @@ namespace ael::dict {
 
 ////////////////////////////////////////////////////////////////////////////////
 AdaptiveDDictionary::AdaptiveDDictionary(Ord maxOrd)
-    : impl::ADDictionaryBase(maxOrd) {
+    : ael::impl::dict::ADDictionaryBase(maxOrd) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 auto AdaptiveDDictionary::getWordOrd(Count cumulativeNumFound) const -> Ord {
-  const auto idxs = std::ranges::iota_view(Ord{0}, this->getMaxOrd_());
+  const auto idxs = std::ranges::iota_view(Ord{0}, getMaxOrd_());
   const auto getLowerCumulNumFound_ = [this](Ord ord) {
-    return this->getLowerCumulativeCnt_(ord + 1);
+    return getLowerCumulativeCnt_(ord + 1);
   };
   const auto iter = std::ranges::upper_bound(idxs, cumulativeNumFound, {},
                                            getLowerCumulNumFound_);
@@ -22,50 +22,50 @@ auto AdaptiveDDictionary::getWordOrd(Count cumulativeNumFound) const -> Ord {
 ////////////////////////////////////////////////////////////////////////////////
 auto AdaptiveDDictionary::getProbabilityStats(Ord ord) -> ProbabilityStats {
   const auto ret = getProbabilityStats_(ord);
-  this->updateWordCnt_(ord, 1);
+  updateWordCnt_(ord, 1);
   return ret;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 auto AdaptiveDDictionary::getTotalWordsCnt() const -> Count {
-  const auto totalWordsCnt = this->getRealTotalWordsCnt_();
+  const auto totalWordsCnt = getRealTotalWordsCnt_();
   if (totalWordsCnt == 0) {
-    return this->getMaxOrd_();
+    return getMaxOrd_();
   }
-  const auto totalWordsUniqueCnt = this->getTotalWordsUniqueCnt_();
-  if (totalWordsUniqueCnt == this->getMaxOrd_()) {
+  const auto totalWordsUniqueCnt = getTotalWordsUniqueCnt_();
+  if (totalWordsUniqueCnt == getMaxOrd_()) {
     return totalWordsCnt;
   }
-  return 2 * (this->getMaxOrd_() - totalWordsUniqueCnt) * totalWordsCnt;
+  return 2 * (getMaxOrd_() - totalWordsUniqueCnt) * totalWordsCnt;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 auto AdaptiveDDictionary::getLowerCumulativeCnt_(Ord ord) const -> Count {
-  if (this->getRealTotalWordsCnt_() == 0) {
+  if (getRealTotalWordsCnt_() == 0) {
     return ord;
   }
-  const auto totalUniqueWordsCnt = this->getTotalWordsUniqueCnt_();
-  const auto cumulativeWordsCnt = this->getRealLowerCumulativeWordCnt_(ord);
-  if (totalUniqueWordsCnt == this->getMaxOrd_()) {
+  const auto totalUniqueWordsCnt = getTotalWordsUniqueCnt_();
+  const auto cumulativeWordsCnt = getRealLowerCumulativeWordCnt_(ord);
+  if (totalUniqueWordsCnt == getMaxOrd_()) {
     return cumulativeWordsCnt;
   }
-  return (this->getMaxOrd_() - totalUniqueWordsCnt) * 2 * cumulativeWordsCnt +
+  return (getMaxOrd_() - totalUniqueWordsCnt) * 2 * cumulativeWordsCnt +
          ord * totalUniqueWordsCnt -
-         this->getMaxOrd_() * this->getLowerCumulativeUniqueNumFound_(ord);
+         getMaxOrd_() * getLowerCumulativeUniqueNumFound_(ord);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 auto AdaptiveDDictionary::getWordCnt_(Ord ord) const -> Count {
-  if (this->getRealTotalWordsCnt_() == 0) {
+  if (getRealTotalWordsCnt_() == 0) {
     return 1;
   }
-  const auto totalUniqueWordsCount = this->getTotalWordsUniqueCnt_();
-  const auto realWordCnt = this->getRealWordCnt_(ord);
-  if (totalUniqueWordsCount == this->getMaxOrd_()) {
+  const auto totalUniqueWordsCount = getTotalWordsUniqueCnt_();
+  const auto realWordCnt = getRealWordCnt_(ord);
+  if (totalUniqueWordsCount == getMaxOrd_()) {
     return realWordCnt;
   }
-  return (this->getMaxOrd_() - totalUniqueWordsCount) * 2 * realWordCnt +
-         totalUniqueWordsCount - this->getMaxOrd_() * getWordUniqueCnt_(ord);
+  return (getMaxOrd_() - totalUniqueWordsCount) * 2 * realWordCnt +
+         totalUniqueWordsCount - getMaxOrd_() * getWordUniqueCnt_(ord);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

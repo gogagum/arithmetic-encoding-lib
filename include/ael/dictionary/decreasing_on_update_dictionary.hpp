@@ -1,10 +1,9 @@
 #ifndef DECREASING_ON_UPDATE_DICTIONARY_HPP
 #define DECREASING_ON_UPDATE_DICTIONARY_HPP
 
+#include <ael/impl/dictionary/adaptive_dictionary_base.hpp>
+#include <ael/impl/dictionary/word_probability_stats.hpp>
 #include <cstdint>
-
-#include "impl/adaptive_dictionary_base.hpp"
-#include "impl/word_probability_stats.hpp"
 
 namespace ael::dict {
 
@@ -12,11 +11,11 @@ namespace ael::dict {
 /// \brief The DecreasingOnUpdateDictionary class
 ///
 class DecreasingOnUpdateDictionary
-    : public impl::AdaptiveDictionaryBase<std::uint64_t> {
+    : public ael::impl::dict::AdaptiveDictionaryBase<std::uint64_t> {
  public:
   using Ord = std::uint64_t;
   using Count = std::uint64_t;
-  using ProbabilityStats = WordProbabilityStats<Count>;
+  using ProbabilityStats = ael::impl::dict::WordProbabilityStats<Count>;
   constexpr const static std::uint16_t countNumBits = 62;
 
  public:
@@ -53,11 +52,13 @@ class DecreasingOnUpdateDictionary
    * @return total words count in a dictionary.
    */
   [[nodiscard]] Count getTotalWordsCnt() const {
-    return this->getRealTotalWordsCnt_();
+    return getRealTotalWordsCnt_();
   }
 
  protected:
-  [[nodiscard]] Count getLowerCumulativeCnt_(Ord ord) const;
+  [[nodiscard]] Count getLowerCumulativeCnt_(Ord ord) const {
+    return getRealCumulativeCnt_(ord - 1);
+  }
 
   void updateWordCnt_(Ord ord, Count cnt);
 
@@ -71,11 +72,12 @@ class DecreasingOnUpdateDictionary
 template <std::ranges::input_range RangeT>
 DecreasingOnUpdateDictionary::DecreasingOnUpdateDictionary(
     Ord maxOrd, const RangeT& countRng)
-    : impl::AdaptiveDictionaryBase<Count>(maxOrd, 0), maxOrd_(maxOrd) {
+    : ael::impl::dict::AdaptiveDictionaryBase<Count>(maxOrd, 0),
+      maxOrd_(maxOrd) {
   for (const auto& [ord, count] : countRng) {
-    this->changeRealWordCnt_(ord, count);
-    this->changeRealCumulativeWordCnt_(ord, count);
-    this->changeRealTotalWordsCnt_(count);
+    changeRealWordCnt_(ord, count);
+    changeRealCumulativeWordCnt_(ord, count);
+    changeRealTotalWordsCnt_(count);
   }
 }
 

@@ -3,7 +3,7 @@
 
 #include <stdexcept>
 
-#include "impl/word_probability_stats.hpp"
+#include <ael/impl/dictionary/word_probability_stats.hpp>
 
 namespace ael::dict {
 
@@ -15,7 +15,7 @@ class DecreasingCountDictionary {
  public:
   using Ord = CountT;
   using Count = CountT;
-  using ProbabilityStats = WordProbabilityStats<Count>;
+  using ProbabilityStats = ael::impl::dict::WordProbabilityStats<Count>;
   constexpr const static std::uint16_t countNumBits = 62;
 
  public:

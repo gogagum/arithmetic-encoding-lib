@@ -6,8 +6,7 @@
 #include <ael/byte_data_constructor.hpp>
 #include <ael/impl/ranges_calc.hpp>
 #include <cstdint>
-#include <iostream>
-#include <optional>
+#include <boost/container/static_vector.hpp>
 
 namespace ael {
 
@@ -24,7 +23,9 @@ class ArithmeticCoder {
  public:
   /**
    * @brief encode - encode byte flow.
-   * @param bitFlow - byte
+   * @param ordFlow orders range.
+   * @param dataConstructor encoded sequence constructor.
+   * @param dict dictionary with words statistics.
    * @return [wordsCount, bitsEncoded]
    */
   template <class DictT>
@@ -34,7 +35,11 @@ class ArithmeticCoder {
 
   /**
    * @brief encode - encode byte flow.
-   * @param bitFlow - byte
+   * @param ordFlow orders range.
+   * @param dataConstructor encoded sequence constructor.
+   * @param dict dictionary with words statistics.
+   * @param tick function, which will be called every time when one element is
+   * encoded.
    * @return [wordsCount, bitsEncoded]
    */
   template <class DictT>

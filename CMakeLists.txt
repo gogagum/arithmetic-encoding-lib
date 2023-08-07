@@ -35,6 +35,12 @@ target_sources(${PROJECT_NAME}
         src/uniform_dictionary.cpp
         src/adaptive_dictionary_base.cpp
         src/ranges_calc.cpp
+        src/esc_adaptive_a_dictionary.cpp
+        src/esc_adaptive_d_dictionary.cpp
+        src/esc_a_d_dictionary_base.cpp
+        src/esc_ppma_dictionary.cpp
+        src/esc_ppmd_dictionary.cpp
+        src/esc_ppm_a_d_dictionary_base.cpp
 )
 
 target_include_directories(${PROJECT_NAME}
@@ -79,6 +85,12 @@ set(public_headers
     include/ael/word/bits_word.hpp
     include/ael/word/integer_word.hpp
     include/ael/word/uint_word.hpp
+    include/ael/esc/arithmetic_coder.hpp
+    include/ael/esc/arithmetic_decoder.hpp
+    include/ael/esc/dictionary/adaptive_a_dictionary.hpp
+    include/ael/esc/dictionary/adaptive_d_dictionary.hpp
+    include/ael/esc/dictionary/ppma_dictionary.hpp
+    include/ael/esc/dictionary/ppmd_dictionary.hpp
 )
 
 # note that ${public_headers} has to be in quotes

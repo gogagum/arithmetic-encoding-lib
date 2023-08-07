@@ -5,7 +5,7 @@
 #include <dst/dynamic_segment_tree.hpp>
 #include <unordered_map>
 
-namespace ael::dict::impl {
+namespace ael::impl::dict {
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief The CumulativeCount class.
@@ -20,7 +20,9 @@ class CumulativeCount {
    * @brief CumulativeCount constructor.
    * @param maxOrd - maximalOrder;
    */
-  explicit CumulativeCount(Ord maxOrd);
+  explicit CumulativeCount(Ord maxOrd)
+      : cumulativeCnt_{0, maxOrd, 0}, maxOrd_(maxOrd) {
+  }
 
   /**
    * @brief increaseOrdCount - increase one word count.
@@ -33,7 +35,30 @@ class CumulativeCount {
    * @param ord - order of a word.
    * @return lower cumulative count.
    */
-  [[nodiscard]] Count getLowerCumulativeCount(Ord ord) const;
+  [[nodiscard]] Count getLowerCumulativeCount(Ord ord) const {
+    return (ord > 0) ? getCumulativeCount_(ord - 1) : 0;
+  }
+
+  /**
+   * @brief get count of a word.
+   * @param ord - order index of a word.
+   * @return word count.
+   */
+  [[nodiscard]] Count getCount(Ord ord) const {
+    return cnt_.contains(ord) ? cnt_.at(ord) : Count{0};
+  }
+
+  /**
+   * @brief get total words count.
+   * @return total words count.
+   */
+  [[nodiscard]] Count getTotalWordsCnt() const {
+    return totalWordsCnt_;
+  }
+ protected:
+  [[nodiscard]] Ord getMaxOrd_() const {
+    return maxOrd_;
+  }
 
   /**
    * @brief getCumulativeCount - get cumulative count from zero
@@ -41,20 +66,9 @@ class CumulativeCount {
    * @param ord - order index of a checked word.
    * @return cumulative count.
    */
-  [[nodiscard]] Count getCumulativeCount(Ord ord) const;
-
-  /**
-   * @brief get count of a word.
-   * @param ord - order index of a word.
-   * @return word count.
-   */
-  [[nodiscard]] Count getCount(Ord ord) const;
-
-  /**
-   * @brief get total words count.
-   * @return total words count.
-   */
-  [[nodiscard]] Count getTotalWordsCnt() const;
+  [[nodiscard]] Count getCumulativeCount_(Ord ord) const {
+    return cumulativeCnt_.get(ord);
+  }
 
  private:
   using DST_ =
@@ -63,11 +77,11 @@ class CumulativeCount {
 
  private:
   DST_ cumulativeCnt_;
-  std::unordered_map<Ord, Count> cnt_;
+  std::unordered_map<Ord, Count> cnt_{};
   Count totalWordsCnt_{0};
   const Ord maxOrd_;
 };
 
-}  // namespace ael::dict::impl
+}  // namespace ael::impl::dict
 
 #endif  // CUMULATIVE_COUNT_HPP

@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <vector>
 
-#include "impl/word_probability_stats.hpp"
+#include <ael/impl/dictionary/word_probability_stats.hpp>
 
 namespace ael::dict {
 
@@ -15,7 +15,7 @@ class StaticDictionary {
  public:
   using Ord = std::uint64_t;
   using Count = std::uint64_t;
-  using ProbabilityStats = WordProbabilityStats<Count>;
+  using ProbabilityStats = ael::impl::dict::WordProbabilityStats<Count>;
 
  public:
   /**

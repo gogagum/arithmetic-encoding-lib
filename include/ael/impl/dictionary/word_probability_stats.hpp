@@ -3,7 +3,7 @@
 
 #include <cstdint>
 
-namespace ael::dict {
+namespace ael::impl::dict {
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief The ProbabilityStats class
@@ -15,6 +15,6 @@ struct WordProbabilityStats {
   CountT total;
 };
 
-}  // namespace ael::dict
+}  // namespace ael::impl::dict
 
 #endif  // WORD_PROBABILITY_STATS_HPP

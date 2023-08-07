@@ -1,21 +1,21 @@
 #ifndef ADAPTIVE_DICTIONARY_HPP
 #define ADAPTIVE_DICTIONARY_HPP
 
+#include <ael/impl/dictionary/adaptive_dictionary_base.hpp>
+#include <ael/impl/dictionary/word_probability_stats.hpp>
 #include <cstdint>
-
-#include "impl/adaptive_dictionary_base.hpp"
-#include "impl/word_probability_stats.hpp"
 
 namespace ael::dict {
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief The AdaptiveDictionary class
 ///
-class AdaptiveDictionary : public impl::AdaptiveDictionaryBase<std::uint64_t> {
+class AdaptiveDictionary
+    : public ael::impl::dict::AdaptiveDictionaryBase<std::uint64_t> {
  public:
   using Ord = std::uint64_t;
   using Count = std::uint64_t;
-  using ProbabilityStats = WordProbabilityStats<Count>;
+  using ProbabilityStats = ael::impl::dict::WordProbabilityStats<Count>;
   constexpr const static std::uint16_t countNumBits = 62;
 
   ////////////////////////////////////////////////////////////////////////////
@@ -53,7 +53,7 @@ class AdaptiveDictionary : public impl::AdaptiveDictionaryBase<std::uint64_t> {
    * @return
    */
   [[nodiscard]] Count getTotalWordsCnt() const {
-    return maxOrder_ + ratio_ * this->getRealTotalWordsCnt_();
+    return maxOrder_ + ratio_ * getRealTotalWordsCnt_();
   }
 
  private:

@@ -2,14 +2,14 @@
 #define ADAPTIVE_A_CONTEXTUAL_DICTIONARY_HPP
 
 #include "adaptive_a_dictionary.hpp"
-#include "impl/contextual_dictionary_base.hpp"
+#include <ael/impl/dictionary/contextual_dictionary_base.hpp>
 
 namespace ael::dict {
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief The adaptive contextual A dictionary class
 using AdaptiveAContextualDictionary =
-    impl::ContextualDictionaryBase<AdaptiveADictionary>;
+    ael::impl::dict::ContextualDictionaryBase<AdaptiveADictionary>;
 
 }  // namespace ael::dict
 

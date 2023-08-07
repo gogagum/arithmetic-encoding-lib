@@ -6,14 +6,14 @@
 #include <unordered_map>
 
 #include "adaptive_a_dictionary.hpp"
-#include "impl/contectual_dictionary_base_improved.hpp"
+#include <ael/impl/dictionary/contectual_dictionary_base_improved.hpp>
 
 namespace ael::dict {
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief The adaptive contextual A improved dictionary class
 using AdaptiveAContextualDictionaryImproved =
-    impl::ContextualDictionaryBaseImproved<AdaptiveADictionary>;
+    ael::impl::dict::ContextualDictionaryBaseImproved<AdaptiveADictionary>;
 
 }  // namespace ael::dict
 
