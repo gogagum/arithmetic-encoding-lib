@@ -12,6 +12,9 @@
 
 namespace ael::esc::dict {
 
+////////////////////////////////////////////////////////////////////////////////
+/// \brief PPMDDictionary - PPMD escape version dictionary class.
+///
 class PPMDDictionary : public ael::impl::esc::dict::PPMADDictionaryBase {
  private:
   constexpr static std::uint16_t _maxCtxLength = 16;
@@ -32,33 +35,78 @@ class PPMDDictionary : public ael::impl::esc::dict::PPMADDictionaryBase {
   };
 
  public:
+  /**
+   * @brief PPMD dictionary with esc sympols constructor.
+   *
+   * @param constructInfo - maximal order and context length.
+   */
   explicit PPMDDictionary(ConstructInfo constructInfo);
 
-  [[nodiscard]] Ord getWordOrd(Count cumulativrCnt) const;
+  /**
+   * @brief get word order (index) by cumulative count.
+   *
+   * @param cumulativeCnt search key.
+   * @return word with exact cumulative count estimation.
+   */
+  [[nodiscard]] Ord getWordOrd(Count cumulativeCnt) const;
 
+  /**
+   * @brief get probability statistics for encoding and update.
+   *
+   * @param ord order (index) of a word.
+   * @return a sequence of statistics, each of the following structure:
+   * [low, high, total]
+   */
   [[nodiscard]] StatsSeq getProbabilityStats(Ord ord);
 
+  /**
+   * @brief get probability statistics for decoding.
+   *
+   * @param ord ordere (index) of a word.
+   * @return [low, high, total]
+   */
   [[nodiscard]] ProbabilityStats getDecodeProbabilityStats(Ord ord);
 
+  /**
+   * @brief get total word count according to the model.
+   *
+   * @return total count.
+   */
   [[nodiscard]] Count getTotalWordsCnt() const;
+
  protected:
   using SearchCtx_ = boost::container::static_vector<Ord, _maxCtxLength>;
 
  protected:
-  [[nodiscard]] ProbabilityStats getDecodeProbabilityStats_(Ord ord) const;
+  [[nodiscard]] ProbabilityStats getDecodeProbabilityStats_(Ord ord);
 
   [[nodiscard]] ProbabilityStats getDecodeProbabilityStatsForNewWord_(
       Ord ord) const;
 
-  void updateWordCnt_(Ord ord, std::uint64_t cntChange);
+  void updateWordCnt_(Ord ord, std::int64_t cntChange);
 
-  [[nodiscard]] SearchCtx_ getSearchCtxOfLength_(std::size_t ctxLength) const;
+  [[nodiscard]] Ord getWordOrdForNewWord_(Count cumulativeCnt) const;
+
+  void updateCtx_(Ord ord);  // TODO(gogagum): move to base
+
+  void skipNewCtxs_(SearchCtx_& currCtx) const;  // TODO(gogagum): move to base
+
+  void skipCtxsByEsc_(SearchCtx_& currCtx) const {  // TODO(gogagum): move to base
+    assert(getEscDecoded_() < currCtx.size() && "Checked other cases.");
+    currCtx.resize(currCtx.size() - getEscDecoded_());
+  }
+
+  [[nodiscard]] ProbabilityStats getZeroCtxEscStats_() const;
 
  private:
   using SearchCtxHash_ = boost::hash<SearchCtx_>;
+  struct CtxCell_ {
+    ael::impl::dict::CumulativeCount cnt;
+    ael::impl::dict::CumulativeUniqueCount uniqueCnt;
+  };
   using CtxCountMapping_ =
-      std::unordered_map<SearchCtx_, ael::impl::dict::CumulativeCount,
-                         SearchCtxHash_>;
+      std::unordered_map<SearchCtx_, CtxCell_, SearchCtxHash_>;
+
  private:
   ael::impl::dict::CumulativeCount zeroCtxCnt_;
   ael::impl::dict::CumulativeUniqueCount zeroCtxUniqueCnt_;

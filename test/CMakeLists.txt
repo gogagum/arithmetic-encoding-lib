@@ -29,6 +29,7 @@ add_executable(ael-tests
     esc/adaptive_a_dictionary.cpp
     esc/adaptive_d_dictionary.cpp
     esc/ppma_dictionary.cpp
+    esc/ppmd_dictionary.cpp
     numerical_coder.cpp
     numerical_decoder.cpp
     encode_decode/no_esc/adaptive_a.cpp

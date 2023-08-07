@@ -39,6 +39,7 @@ target_sources(${PROJECT_NAME}
         src/esc_adaptive_d_dictionary.cpp
         src/esc_a_d_dictionary_base.cpp
         src/esc_ppma_dictionary.cpp
+        src/esc_ppmd_dictionary.cpp
         src/esc_ppm_a_d_dictionary_base.cpp
 )
 
@@ -88,6 +89,8 @@ set(public_headers
     include/ael/esc/arithmetic_decoder.hpp
     include/ael/esc/dictionary/adaptive_a_dictionary.hpp
     include/ael/esc/dictionary/adaptive_d_dictionary.hpp
+    include/ael/esc/dictionary/ppma_dictionary.hpp
+    include/ael/esc/dictionary/ppmd_dictionary.hpp
 )
 
 # note that ${public_headers} has to be in quotes

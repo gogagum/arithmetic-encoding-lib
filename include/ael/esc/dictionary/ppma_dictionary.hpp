@@ -12,6 +12,9 @@
 
 namespace ael::esc::dict {
 
+////////////////////////////////////////////////////////////////////////////////
+/// \brief PPMADictionary - PPMA escape version dictionary class.
+///
 class PPMADictionary : public ael::impl::esc::dict::PPMADDictionaryBase {
  private:
   constexpr static std::uint16_t _maxCtxLength = 16;
@@ -33,7 +36,7 @@ class PPMADictionary : public ael::impl::esc::dict::PPMADDictionaryBase {
 
  public:
   /**
-   * @brief PPMA dictionary with esc symbols.
+   * @brief PPMA dictionary with esc symbols constructor.
    *
    * @param constructInfo - maximal order and context length.
    */
@@ -42,23 +45,24 @@ class PPMADictionary : public ael::impl::esc::dict::PPMADDictionaryBase {
   /**
    * @brief get word order (index) by cumulative count.
    *
-   * @param cumulativeNUmFound search key.
+   * @param cumulativeCnt search key.
    * @return word with exact cumulative count estimation.
    */
   [[nodiscard]] Ord getWordOrd(Count cumulativeCnt) const;
 
   /**
-   * @brief get probability stats for encoding and update.
+   * @brief get probability statistics for encoding and update.
    *
-   * @param ord index of a word.
-   * @return a sequence of stats of the following structure: [low, high, total]
+   * @param ord order (index) of a word.
+   * @return a sequence of statistics, each of the following structure:
+   * [low, high, total]
    */
   [[nodiscard]] StatsSeq getProbabilityStats(Ord ord);
 
   /**
-   * @brief get probability stats for decoding.
+   * @brief get probability statistics for decoding.
    *
-   * @param ord index of a word.
+   * @param ord order (index) of a word.
    * @return [low, high, total]
    */
   [[nodiscard]] ProbabilityStats getDecodeProbabilityStats(Ord ord);
@@ -83,13 +87,13 @@ class PPMADictionary : public ael::impl::esc::dict::PPMADDictionaryBase {
 
   [[nodiscard]] Ord getWordOrdForNewWord_(Count cumulativeCnt) const;
 
-  void updateCtx_(Ord ord);
+  void updateCtx_(Ord ord);  // TODO(gogagum): move to base
 
   void skipNewCtxs_(SearchCtx_& currCtx) const;  // TODO(gogagum): move to base
 
-  void skipCtxsByEsc_(SearchCtx_& currCtx) const {
-    assert(escDecoded_ < currCtx.size() && "Checked other cases.");
-    currCtx.resize(currCtx.size() - escDecoded_);
+  void skipCtxsByEsc_(SearchCtx_& currCtx) const {  // TODO(gogaugm): move to base
+    assert(getEscDecoded_() < currCtx.size() && "Checked other cases.");
+    currCtx.resize(currCtx.size() - getEscDecoded_());
   }
 
   [[nodiscard]] ProbabilityStats getZeroCtxEscStats_() const;
@@ -106,7 +110,6 @@ class PPMADictionary : public ael::impl::esc::dict::PPMADDictionaryBase {
   std::deque<Ord> ctx_;
   CtxCountMapping_ ctxInfo_;
   const std::size_t ctxLength_;
-  mutable std::size_t escDecoded_{0};
 };
 
 }  // namespace ael::esc::dict
