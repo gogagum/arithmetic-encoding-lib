@@ -1,8 +1,8 @@
 // Uncomment these three lines to edit tests using IDE:
 
-// #define TESTED_CLASS ael::esc::dict::AdaptiveADictionary
-// #define TEST_SUIT_NAME EscAdaptiveAEncodeDecode
-// #include <ael/esc/dictionary/adaptive_a_dictionary.hpp>
+// #define TESTED_CLASS ael::esc::dict::PPMADictionary
+// #define TEST_SUIT_NAME EscPPMAEncodeDecode
+// #include <ael/esc/dictionary/ppma_dictionary.hpp>
 
 #if defined(TEST_SUIT_NAME) && defined(TESTED_CLASS)
 
@@ -15,12 +15,11 @@
 #include <boost/range/combine.hpp>
 #include <random>
 
-// NOLINTBEGIN(cppcoreguidelines-*, cert-*, readability-magic-numbers,
-// cert-err58-cpp)
+// NOLINTBEGIN(cppcoreguidelines-*)
 
 TEST(TEST_SUIT_NAME, EncodeEmpty) {
   const auto encoded = std::vector<std::uint64_t>();
-  auto dict = TESTED_CLASS(6);
+  auto dict = TESTED_CLASS({6, 2});
   auto dataConstructor = ael::ByteDataConstructor();
   auto [wordsCount, bitsCount] =
       ael::esc::ArithmeticCoder::encode(encoded, dataConstructor, dict);
@@ -32,7 +31,7 @@ TEST(TEST_SUIT_NAME, EncodeEmpty) {
 
 TEST(TEST_SUIT_NAME, DecodeEmpty) {
   const auto data = std::array<std::byte, 0>{};
-  auto dict = TESTED_CLASS(6);
+  auto dict = TESTED_CLASS({6, 3});
   auto dataParser = ael::DataParser(data);
   auto retOrds = std::vector<std::uint32_t>();
   ael::esc::ArithmeticDecoder::decode(dataParser, dict, std::back_inserter(retOrds),
@@ -47,13 +46,13 @@ TEST(TEST_SUIT_NAME, EncodeDecodeEmptySequence) {
   auto decoded = std::vector<std::uint64_t>();
 
   {
-    auto dict = TESTED_CLASS(6);
+    auto dict = TESTED_CLASS({6, 3});
     auto [wordsCount, bitsCount] =
         ael::esc::ArithmeticCoder::encode(encoded, dataConstructor, dict);
   }
 
   {
-    auto dict = TESTED_CLASS(6);
+    auto dict = TESTED_CLASS({6, 3});
     auto dataParser = ael::DataParser(
         std::span(dataConstructor.data<std::byte>(), dataConstructor.size()));
     ael::esc::ArithmeticDecoder::decode(
@@ -66,12 +65,12 @@ TEST(TEST_SUIT_NAME, EncodeDecodeEmptySequence) {
 
 TEST(TEST_SUIT_NAME, EncodeSmall) {
   const auto encoded = std::vector<std::uint64_t>{5, 3, 4, 5, 2};
-  auto dict = TESTED_CLASS(6);
+  auto dict = TESTED_CLASS({6, 3});
   auto dataConstructor = ael::ByteDataConstructor();
   auto [wordsCount, bitsCount] =
       ael::esc::ArithmeticCoder::encode(encoded, dataConstructor, dict);
 
-  EXPECT_EQ(wordsCount, 9);
+  EXPECT_EQ(wordsCount, 10);
   EXPECT_GE(dataConstructor.size(), 0);
 }
 
@@ -80,12 +79,12 @@ TEST(TEST_SUIT_NAME, EncodeDecodeSmallSequence) {
   auto dataConstructor = ael::ByteDataConstructor();
   auto decoded = std::vector<std::uint64_t>();
 
-  auto dict = TESTED_CLASS(8);
+  auto dict = TESTED_CLASS({8, 5});
   const auto [wordsCount, bitsCount] =
       ael::esc::ArithmeticCoder::encode(encoded, dataConstructor, dict);
 
   {
-    auto dict = TESTED_CLASS(8);
+    auto dict = TESTED_CLASS({8, 5});
     auto dataParser = ael::DataParser(
         std::span(dataConstructor.data<std::byte>(), dataConstructor.size()));
     ael::esc::ArithmeticDecoder::decode(
@@ -105,12 +104,12 @@ TEST(TEST_SUIT_NAME, EncodeDecodeSmallSequenceBitsLimit) {
   auto dataConstructor = ael::ByteDataConstructor();
   auto decoded = std::vector<std::uint64_t>();
 
-  auto dict0 = TESTED_CLASS(8);
+  auto dict0 = TESTED_CLASS({8, 5});
   const auto [wordsCount, bitsCount] =
       ael::esc::ArithmeticCoder::encode(encoded, dataConstructor, dict0);
 
   {
-    auto dict1 = TESTED_CLASS(8);
+    auto dict1 = TESTED_CLASS({8, 5});
     auto dataParser = ael::DataParser(
         std::span(dataConstructor.data<std::byte>(), dataConstructor.size()));
     ael::esc::ArithmeticDecoder::decode(dataParser, dict1,
@@ -141,12 +140,12 @@ TEST(TEST_SUIT_NAME, EncodeDecodeFuzz) {
     auto dataConstructor = ael::ByteDataConstructor();
     auto decoded = std::vector<std::uint64_t>();
 
-    auto dict = TESTED_CLASS(rng);
+    auto dict = TESTED_CLASS({rng, 5});
     const auto [wordsCount, bitsCount] =
         ael::esc::ArithmeticCoder::encode(encoded, dataConstructor, dict);
 
     {
-      auto dict = TESTED_CLASS(rng);
+      auto dict = TESTED_CLASS({rng, 5});
       auto dataParser = ael::DataParser(
           std::span(dataConstructor.data<std::byte>(), dataConstructor.size()));
       ael::esc::ArithmeticDecoder::decode(
@@ -178,12 +177,12 @@ TEST(TEST_SUIT_NAME, EncodeDecodeFuzzBitsLimit) {
     auto dataConstructor = ael::ByteDataConstructor();
     auto decoded = std::vector<std::uint64_t>();
 
-    auto dict1 = TESTED_CLASS(rng);
+    auto dict1 = TESTED_CLASS({rng, 5});
     const auto [wordsCount, bitsCount] =
         ael::esc::ArithmeticCoder::encode(encoded, dataConstructor, dict1);
 
     {
-      auto dict2 = TESTED_CLASS(rng);
+      auto dict2 = TESTED_CLASS({rng, 5});
       auto dataParser = ael::DataParser(
           std::span(dataConstructor.data<std::byte>(), dataConstructor.size()));
       ael::esc::ArithmeticDecoder::decode(dataParser, dict2,
@@ -199,7 +198,6 @@ TEST(TEST_SUIT_NAME, EncodeDecodeFuzzBitsLimit) {
   }
 }
 
-// NOLINTEND(cppcoreguidelines-*, cert-*, readability-magic-numbers,
-// cert-err58-cpp)
+// NOLINTEND(cppcoreguidelines-*)
 
 #endif
