@@ -41,7 +41,7 @@ auto PPMDDictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
            idxs.begin();
   }
   assert(getEscDecoded_() == currCtx.size() + 1 &&
-         "Esc decoded  count can not be that big.");
+         "Esc decoded count can not be that big.");
   return getWordOrdForNewWord_(cumulativeCnt);
 }
 
@@ -77,7 +77,7 @@ auto PPMDDictionary::getProbabilityStats(Ord ord) -> StatsSeq {
                         ? Count{1}
                         : zeroCtxUniqueCnt_.getTotalWordsCnt());
       const auto escTotal = (0 == zeroCtxCnt_.getTotalWordsCnt())
-                                ? 1
+                                ? Count{1}
                                 : (2 * zeroCtxCnt_.getTotalWordsCnt());
       ret.emplace_back(escLow, escHigh, escTotal);
       const auto symLow =
@@ -107,7 +107,7 @@ auto PPMDDictionary::getProbabilityStats(Ord ord) -> StatsSeq {
   ret.emplace_back(symLow, symHigh, symTotal);
   for (; !currCtx.empty(); currCtx.pop_back()) {
     ctxInfo_.at(currCtx).cnt.increaseOrdCount(ord, 1);
-    ctxInfo_.at(currCtx).uniqueCnt.update(1);
+    ctxInfo_.at(currCtx).uniqueCnt.update(ord);
   }
   zeroCtxCnt_.increaseOrdCount(ord, 1);
   zeroCtxUniqueCnt_.update(ord);
@@ -155,15 +155,23 @@ auto PPMDDictionary::getDecodeProbabilityStats_(Ord ord) -> ProbabilityStats {
       return getZeroCtxEscStats_();
     }
     if (getEscDecoded_() == currCtx.size()) {
+      if (0 == zeroCtxCnt_.getTotalWordsCnt()) {
+        updateEscDecoded_(ord);
+        return {0, 1, 1};
+      }
       const auto symLow = 2 * zeroCtxCnt_.getLowerCumulativeCount(ord) -
                           zeroCtxUniqueCnt_.getLowerCumulativeCount(ord);
-      const auto symHigh = symLow + zeroCtxCnt_.getCount(ord) -
-                           2 * zeroCtxUniqueCnt_.getCount(ord);
+      const auto symHigh = symLow + 2 * zeroCtxCnt_.getCount(ord) -
+                           zeroCtxUniqueCnt_.getCount(ord);
       const auto symTotal = 2 * zeroCtxCnt_.getTotalWordsCnt();
       updateEscDecoded_(ord);
-      assert(!isEsc(ord) && "ord can not be esc at this moment.");
-      return getDecodeProbabilityStatsForNewWord_(ord);
+      return {symLow, symHigh, symTotal};
     }
+    assert(getEscDecoded_() == currCtx.size() + 1 &&
+           "escDecoded_ can not be that big.");
+    updateEscDecoded_(ord);
+    assert(!isEsc(ord) && "ord can not be esc at this moment.");
+    return getDecodeProbabilityStatsForNewWord_(ord);
   }
   skipCtxsByEsc_(currCtx);
   updateEscDecoded_(ord);
@@ -177,7 +185,7 @@ auto PPMDDictionary::getDecodeProbabilityStats_(Ord ord) -> ProbabilityStats {
   }
   const auto symLow = 2 * currCtxInfo.cnt.getLowerCumulativeCount(ord) -
                       currCtxInfo.uniqueCnt.getLowerCumulativeCount(ord);
-  const auto symHigh = symLow + currCtxInfo.cnt.getCount(ord) -
+  const auto symHigh = symLow + 2 * currCtxInfo.cnt.getCount(ord) -
                        currCtxInfo.uniqueCnt.getCount(ord);
   const auto symTotal = 2 * currCtxInfo.cnt.getTotalWordsCnt();
   return {symLow, symHigh, symTotal};
@@ -242,6 +250,9 @@ void PPMDDictionary::skipNewCtxs_(SearchCtx_& currCtx) const {
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMDDictionary::getZeroCtxEscStats_() const -> ProbabilityStats {
+  if (0 == zeroCtxCnt_.getTotalWordsCnt()) {
+    return {0, 1, 1};
+  }
   const auto escLow =
       2 * zeroCtxCnt_.getTotalWordsCnt() - zeroCtxUniqueCnt_.getTotalWordsCnt();
   const auto escHigh = escLow + zeroCtxUniqueCnt_.getTotalWordsCnt();

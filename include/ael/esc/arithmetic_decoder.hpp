@@ -95,6 +95,7 @@ void ArithmeticDecoder::decode(auto& source, Dict& dict, OutIter outIter,
 
     auto [low, high, total] = dict.getDecodeProbabilityStats(ord);
     currRange = RC::rangeFromStatsAndPrev(currRange, {low, high, total});
+    assert(high > low);
 
     while (true) {
       if (currRange.high <= RC::half) {

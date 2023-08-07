@@ -44,6 +44,7 @@ add_executable(ael-tests
     encode_decode/esc/adaptive_a.cpp
     encode_decode/esc/adaptive_d.cpp
     encode_decode/esc/ppma.cpp
+    encode_decode/esc/ppmd.cpp
 )
 
 if (CMAKE_CROSSCOMPILING)
