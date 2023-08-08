@@ -31,11 +31,11 @@ class CumulativeCount {
   void increaseOrdCount(Ord ord, std::int64_t cntChange);
 
   /**
-   * @brief getLowerCumulativeCount - lower cumulative count getter.
+   * @brief getLowerCumulativeCnt - lower cumulative count getter.
    * @param ord - order of a word.
    * @return lower cumulative count.
    */
-  [[nodiscard]] Count getLowerCumulativeCount(Ord ord) const {
+  [[nodiscard]] Count getLowerCumulativeCnt(Ord ord) const {
     return (ord > 0) ? getCumulativeCount_(ord - 1) : 0;
   }
 

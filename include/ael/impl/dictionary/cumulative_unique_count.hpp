@@ -31,12 +31,12 @@ class CumulativeUniqueCount {
   void update(Ord ord);
 
   /**
-   * @brief getLowerCumulativeCount - get lower cumulative count from zero
+   * @brief getLowerCumulativeCnt - get lower cumulative count from zero
    * to given ord not including it.
    * @param ord - order index of a checked word.
    * @return cumulative count.
    */
-  [[nodiscard]] Count getLowerCumulativeCount(Ord ord) const {
+  [[nodiscard]] Count getLowerCumulativeCnt(Ord ord) const {
     return (ord == 0) ? 0 : getCumulativeCount_(ord - 1);
   }
 

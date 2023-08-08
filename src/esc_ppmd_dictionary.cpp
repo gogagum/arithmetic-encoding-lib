@@ -8,34 +8,33 @@ namespace rng = std::ranges;
 
 ////////////////////////////////////////////////////////////////////////////////
 PPMDDictionary::PPMDDictionary(ConstructInfo constructInfo)
-    : ael::impl::esc::dict::PPMADDictionaryBase(constructInfo.maxOrd),
-      zeroCtxCnt_(constructInfo.maxOrd),
-      zeroCtxUniqueCnt_(constructInfo.maxOrd),
-      ctxLength_(constructInfo.ctxLength) {
+    : ael::impl::esc::dict::PPMADDictionaryBase(constructInfo.maxOrd,
+                                                constructInfo.ctxLength),
+      zeroCtxCell_(constructInfo.maxOrd) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMDDictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
   const auto idxs = rng::iota_view{Ord{0}, getMaxOrd_()};
-  auto currCtx = SearchCtx_(ctx_.rbegin(), ctx_.rend());
+  auto currCtx = SearchCtx_(getCtx_().rbegin(), getCtx_().rend());
   skipNewCtxs_(currCtx);
   if (getEscDecoded_() < currCtx.size()) {
     skipCtxsByEsc_(currCtx);
     const auto& currCtxInfo = ctxInfo_.at(currCtx);
     const auto getLowerCumulCnt = [&currCtxInfo](Ord ord) {
-      return 2 * currCtxInfo.cnt.getLowerCumulativeCount(ord + 1) -
-             currCtxInfo.uniqueCnt.getLowerCumulativeCount(ord + 1);
+      return 2 * currCtxInfo.cnt.getLowerCumulativeCnt(ord + 1) -
+             currCtxInfo.uniqueCnt.getLowerCumulativeCnt(ord + 1);
     };
     return rng::upper_bound(idxs, cumulativeCnt, {}, getLowerCumulCnt) -
            idxs.begin();
   }
   if (getEscDecoded_() == currCtx.size()) {
-    if (0 == zeroCtxCnt_.getTotalWordsCnt()) {
+    if (0 == zeroCtxCell_.cnt.getTotalWordsCnt()) {
       return getMaxOrd_();
     }
     const auto getLowerCumulCnt = [this](Ord ord) {
-      return 2 * zeroCtxCnt_.getLowerCumulativeCount(ord + 1) -
-             zeroCtxUniqueCnt_.getLowerCumulativeCount(ord + 1);
+      return 2 * zeroCtxCell_.cnt.getLowerCumulativeCnt(ord + 1) -
+             zeroCtxCell_.uniqueCnt.getLowerCumulativeCnt(ord + 1);
     };
     return rng::upper_bound(idxs, cumulativeCnt, {}, getLowerCumulCnt) -
            idxs.begin();
@@ -48,69 +47,70 @@ auto PPMDDictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMDDictionary::getProbabilityStats(Ord ord) -> StatsSeq {
   StatsSeq ret;
-  auto currCtx = SearchCtx_(ctx_.rbegin(), ctx_.rend());
+  auto currCtx = SearchCtx_(getCtx_().rbegin(), getCtx_().rend());
   updateCtx_(ord);
   for (; !currCtx.empty() && !ctxInfo_.contains(currCtx); currCtx.pop_back()) {
-    ctxInfo_.emplace(currCtx,
-                     CtxCell_{impl::dict::CumulativeCount(getMaxOrd_()),
-                              impl::dict::CumulativeUniqueCount(getMaxOrd_())});
-    ctxInfo_.at(currCtx).cnt.increaseOrdCount(ord, 1);
-    ctxInfo_.at(currCtx).uniqueCnt.update(ord);
+    auto [iter, insertionHappened] = ctxInfo_.emplace(currCtx, getMaxOrd_());
+    assert(insertionHappened && "Insertion must happen.");
+    iter->second.cnt.increaseOrdCount(ord, 1);
+    iter->second.uniqueCnt.update(ord);
   }
-  for (; !currCtx.empty() && ctxInfo_.at(currCtx).cnt.getCount(ord) == 0;
-       currCtx.pop_back()) {
-    const auto escLow = 2 * ctxInfo_.at(currCtx).cnt.getTotalWordsCnt() -
-                        ctxInfo_.at(currCtx).uniqueCnt.getTotalWordsCnt();
-    const auto escHigh =
-        escLow + ctxInfo_.at(currCtx).uniqueCnt.getTotalWordsCnt();
-    const auto escTotal = 2 * ctxInfo_.at(currCtx).cnt.getTotalWordsCnt();
+  for (; !currCtx.empty(); currCtx.pop_back()) {
+    auto& currCtxInfo = ctxInfo_.at(currCtx);
+    if (currCtxInfo.cnt.getCount(ord) > 0) {
+      break;
+    }
+    const auto currTotal = currCtxInfo.cnt.getTotalWordsCnt();
+    const auto currTotalUnique = currCtxInfo.uniqueCnt.getTotalWordsCnt();
+    const auto escLow = 2 * currTotal - currTotalUnique;
+    const auto escHigh = escLow + currTotalUnique;
+    const auto escTotal = 2 * currTotal;
     ret.emplace_back(escLow, escHigh, escTotal);
-    ctxInfo_.at(currCtx).cnt.increaseOrdCount(ord, 1);
-    ctxInfo_.at(currCtx).uniqueCnt.update(ord);
+    currCtxInfo.cnt.increaseOrdCount(ord, 1);
+    currCtxInfo.uniqueCnt.update(ord);
   }
   if (currCtx.empty()) {
-    if (0 == zeroCtxCnt_.getCount(ord)) {
-      const auto escLow = 2 * zeroCtxCnt_.getTotalWordsCnt() -
-                          zeroCtxUniqueCnt_.getTotalWordsCnt();
-      const auto escHigh =
-          escLow + ((0 == zeroCtxCnt_.getTotalWordsCnt())
-                        ? Count{1}
-                        : zeroCtxUniqueCnt_.getTotalWordsCnt());
-      const auto escTotal = (0 == zeroCtxCnt_.getTotalWordsCnt())
-                                ? Count{1}
-                                : (2 * zeroCtxCnt_.getTotalWordsCnt());
+    const auto zeroTotal = zeroCtxCell_.cnt.getTotalWordsCnt();
+    const auto zeroLowerUnique = zeroCtxCell_.uniqueCnt.getLowerCumulativeCnt(ord);
+    if (const auto zeroCount = zeroCtxCell_.cnt.getCount(ord); 0 == zeroCount) {
+      const auto zeroTotalUnique = zeroCtxCell_.uniqueCnt.getTotalWordsCnt();
+      const auto escLow = 2 * zeroTotal - zeroTotalUnique;
+      const auto escHigh = escLow + std::max(Count{1}, zeroTotalUnique);
+      const auto escTotal = std::max(Count{1}, 2 * zeroTotal);
       ret.emplace_back(escLow, escHigh, escTotal);
-      const auto symLow =
-          Count{ord} - zeroCtxUniqueCnt_.getLowerCumulativeCount(ord);
+      const auto symLow = Count{ord} - zeroLowerUnique;
       const auto symHigh = symLow + 1;
-      const auto symTotal = getMaxOrd_() - zeroCtxUniqueCnt_.getTotalWordsCnt();
+      const auto symTotal = getMaxOrd_() - zeroTotalUnique;
       ret.emplace_back(symLow, symHigh, symTotal);
     } else {
-      const auto symLow = 2 * zeroCtxCnt_.getLowerCumulativeCount(ord) -
-                          zeroCtxUniqueCnt_.getLowerCumulativeCount(ord);
-      const auto symHigh = symLow + 2 * zeroCtxCnt_.getCount(ord) -
-                           zeroCtxUniqueCnt_.getCount(ord);
-      const auto symTotal = 2 * zeroCtxCnt_.getTotalWordsCnt();
+      const auto zeroLower = zeroCtxCell_.cnt.getLowerCumulativeCnt(ord);
+      const auto zeroUnique = zeroCtxCell_.uniqueCnt.getCount(ord);
+      const auto symLow = 2 * zeroLower - zeroLowerUnique;
+      const auto symHigh = symLow + 2 * zeroCount - zeroUnique;
+      const auto symTotal = 2 * zeroTotal;
       ret.emplace_back(symLow, symHigh, symTotal);
     }
-    zeroCtxCnt_.increaseOrdCount(ord, 1);
-    zeroCtxUniqueCnt_.update(ord);
+    zeroCtxCell_.cnt.increaseOrdCount(ord, 1);
+    zeroCtxCell_.uniqueCnt.update(ord);
 
     return ret;
   }
-  const auto symLow =
-      2 * ctxInfo_.at(currCtx).cnt.getLowerCumulativeCount(ord) -
-      ctxInfo_.at(currCtx).uniqueCnt.getLowerCumulativeCount(ord);
-  const auto symHigh = symLow + 2 * ctxInfo_.at(currCtx).cnt.getCount(ord) -
-                       ctxInfo_.at(currCtx).uniqueCnt.getCount(ord);
-  const auto symTotal = 2 * ctxInfo_.at(currCtx).cnt.getTotalWordsCnt();
+  const auto& currCtxInfo = ctxInfo_.at(currCtx);
+  const auto lowerCnt = currCtxInfo.cnt.getLowerCumulativeCnt(ord);
+  const auto lowerUniqueCnt = currCtxInfo.uniqueCnt.getLowerCumulativeCnt(ord);
+  const auto symLow = 2 * lowerCnt - lowerUniqueCnt;
+  const auto cnt = currCtxInfo.cnt.getCount(ord);
+  const auto uniqueCnt = currCtxInfo.uniqueCnt.getCount(ord);
+  const auto symHigh = symLow + 2 * cnt - uniqueCnt;
+  const auto symTotal = 2 * currCtxInfo.cnt.getTotalWordsCnt();
   ret.emplace_back(symLow, symHigh, symTotal);
   for (; !currCtx.empty(); currCtx.pop_back()) {
-    ctxInfo_.at(currCtx).cnt.increaseOrdCount(ord, 1);
-    ctxInfo_.at(currCtx).uniqueCnt.update(ord);
+    auto& currCtxInfo = ctxInfo_.at(currCtx);
+    currCtxInfo.cnt.increaseOrdCount(ord, 1);
+    currCtxInfo.uniqueCnt.update(ord);
   }
-  zeroCtxCnt_.increaseOrdCount(ord, 1);
-  zeroCtxUniqueCnt_.update(ord);
+  zeroCtxCell_.cnt.increaseOrdCount(ord, 1);
+  zeroCtxCell_.uniqueCnt.update(ord);
   return ret;
 }
 
@@ -126,26 +126,26 @@ auto PPMDDictionary::getDecodeProbabilityStats(Ord ord) -> ProbabilityStats {
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMDDictionary::getTotalWordsCnt() const -> Count {
-  auto currCtx = SearchCtx_(ctx_.rbegin(), ctx_.rend());
+  auto currCtx = SearchCtx_(getCtx_().rbegin(), getCtx_().rend());
   skipNewCtxs_(currCtx);
   if (getEscDecoded_() < currCtx.size()) {
     skipCtxsByEsc_(currCtx);
     return 2 * ctxInfo_.at(currCtx).cnt.getTotalWordsCnt();
   }
   if (getEscDecoded_() == currCtx.size()) {
-    if (0 == zeroCtxCnt_.getTotalWordsCnt()) {
+    if (0 == zeroCtxCell_.cnt.getTotalWordsCnt()) {
       return 1;
     }
-    return 2 * zeroCtxCnt_.getTotalWordsCnt();
+    return 2 * zeroCtxCell_.cnt.getTotalWordsCnt();
   }
   assert(getEscDecoded_() == currCtx.size() + 1 &&
          "Esc decode count can not be that big.");
-  return getMaxOrd_() - zeroCtxUniqueCnt_.getTotalWordsCnt();
+  return getMaxOrd_() - zeroCtxCell_.uniqueCnt.getTotalWordsCnt();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMDDictionary::getDecodeProbabilityStats_(Ord ord) -> ProbabilityStats {
-  auto currCtx = SearchCtx_(ctx_.rbegin(), ctx_.rend());
+  auto currCtx = SearchCtx_(getCtx_().rbegin(), getCtx_().rend());
   skipNewCtxs_(currCtx);
   if (getEscDecoded_() >= currCtx.size()) {
     if (isEsc(ord)) {
@@ -155,15 +155,17 @@ auto PPMDDictionary::getDecodeProbabilityStats_(Ord ord) -> ProbabilityStats {
       return getZeroCtxEscStats_();
     }
     if (getEscDecoded_() == currCtx.size()) {
-      if (0 == zeroCtxCnt_.getTotalWordsCnt()) {
+      if (0 == zeroCtxCell_.cnt.getTotalWordsCnt()) {
         updateEscDecoded_(ord);
         return {0, 1, 1};
       }
-      const auto symLow = 2 * zeroCtxCnt_.getLowerCumulativeCount(ord) -
-                          zeroCtxUniqueCnt_.getLowerCumulativeCount(ord);
-      const auto symHigh = symLow + 2 * zeroCtxCnt_.getCount(ord) -
-                           zeroCtxUniqueCnt_.getCount(ord);
-      const auto symTotal = 2 * zeroCtxCnt_.getTotalWordsCnt();
+      const auto zeroLower = zeroCtxCell_.cnt.getLowerCumulativeCnt(ord);
+      const auto zeroLowerUnique = zeroCtxCell_.uniqueCnt.getLowerCumulativeCnt(ord);
+      const auto zeroCnt = zeroCtxCell_.cnt.getCount(ord);
+      const auto zeroUniqueCnt = zeroCtxCell_.uniqueCnt.getCount(ord);
+      const auto symLow = 2 * zeroLower - zeroLowerUnique;
+      const auto symHigh = symLow + 2 * zeroCnt - zeroUniqueCnt;
+      const auto symTotal = 2 * zeroCtxCell_.cnt.getTotalWordsCnt();
       updateEscDecoded_(ord);
       return {symLow, symHigh, symTotal};
     }
@@ -176,54 +178,56 @@ auto PPMDDictionary::getDecodeProbabilityStats_(Ord ord) -> ProbabilityStats {
   skipCtxsByEsc_(currCtx);
   updateEscDecoded_(ord);
   const auto& currCtxInfo = ctxInfo_.at(currCtx);
+  const auto totalCnt = currCtxInfo.cnt.getTotalWordsCnt();
   if (isEsc(ord)) {
-    const auto escLow = 2 * currCtxInfo.cnt.getTotalWordsCnt() -
-                        currCtxInfo.uniqueCnt.getTotalWordsCnt();
-    const auto escHigh = escLow + currCtxInfo.uniqueCnt.getTotalWordsCnt();
-    const auto escTotal = 2 * currCtxInfo.cnt.getTotalWordsCnt();
+    const auto totalUniqueCnt = currCtxInfo.uniqueCnt.getTotalWordsCnt();
+    const auto escLow = 2 * totalCnt - totalUniqueCnt;
+    const auto escHigh = escLow + totalUniqueCnt;
+    const auto escTotal = 2 * totalCnt;
     return {escLow, escHigh, escTotal};
   }
-  const auto symLow = 2 * currCtxInfo.cnt.getLowerCumulativeCount(ord) -
-                      currCtxInfo.uniqueCnt.getLowerCumulativeCount(ord);
-  const auto symHigh = symLow + 2 * currCtxInfo.cnt.getCount(ord) -
-                       currCtxInfo.uniqueCnt.getCount(ord);
-  const auto symTotal = 2 * currCtxInfo.cnt.getTotalWordsCnt();
+  const auto lowerCnt = currCtxInfo.cnt.getLowerCumulativeCnt(ord);
+  const auto lowerUniqueCnt = currCtxInfo.uniqueCnt.getLowerCumulativeCnt(ord);
+  const auto cnt = currCtxInfo.cnt.getCount(ord);
+  const auto uniqueCnt = currCtxInfo.uniqueCnt.getCount(ord);
+  const auto symLow = 2 * lowerCnt - lowerUniqueCnt;
+  const auto symHigh = symLow + 2 * cnt - uniqueCnt;
+  const auto symTotal = 2 * totalCnt;
   return {symLow, symHigh, symTotal};
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMDDictionary::getDecodeProbabilityStatsForNewWord_(Ord ord) const
     -> ProbabilityStats {
-  const auto symLow =
-      Count{ord} - zeroCtxUniqueCnt_.getLowerCumulativeCount(ord);
+  const auto symLow = Count{ord} - zeroCtxCell_.uniqueCnt.getLowerCumulativeCnt(ord);
   const auto symHigh = symLow + 1;
-  const auto symTotal = getMaxOrd_() - zeroCtxUniqueCnt_.getTotalWordsCnt();
+  const auto symTotal = getMaxOrd_() - zeroCtxCell_.uniqueCnt.getTotalWordsCnt();
   return {symLow, symHigh, symTotal};
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void PPMDDictionary::updateWordCnt_(Ord ord, std::int64_t cntChange) {
-  auto currCtx = SearchCtx_(ctx_.rbegin(), ctx_.rend());
+  auto currCtx = SearchCtx_(getCtx_().rbegin(), getCtx_().rend());
   for (; !currCtx.empty() && !ctxInfo_.contains(currCtx); currCtx.pop_back()) {
-    ctxInfo_.emplace(currCtx,
-                     CtxCell_{impl::dict::CumulativeCount(getMaxOrd_()),
-                              impl::dict::CumulativeUniqueCount(getMaxOrd_())});
-    ctxInfo_.at(currCtx).cnt.increaseOrdCount(ord, cntChange);
-    ctxInfo_.at(currCtx).uniqueCnt.update(ord);
+    auto [iter, insertionHappened] = ctxInfo_.emplace(currCtx, getMaxOrd_());
+    assert(insertionHappened && "Insertion must happen.");
+    iter->second.cnt.increaseOrdCount(ord, cntChange);
+    iter->second.uniqueCnt.update(ord);
   }
   for (; !currCtx.empty(); currCtx.pop_back()) {
-    ctxInfo_.at(currCtx).cnt.increaseOrdCount(ord, cntChange);
-    ctxInfo_.at(currCtx).uniqueCnt.update(ord);
+    auto& currCtxInfo = ctxInfo_.at(currCtx);
+    currCtxInfo.cnt.increaseOrdCount(ord, cntChange);
+    currCtxInfo.uniqueCnt.update(ord);
   }
-  zeroCtxCnt_.increaseOrdCount(ord, cntChange);
-  zeroCtxUniqueCnt_.update(ord);
+  zeroCtxCell_.cnt.increaseOrdCount(ord, cntChange);
+  zeroCtxCell_.uniqueCnt.update(ord);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMDDictionary::getWordOrdForNewWord_(Count cumulativeCnt) const -> Ord {
   const auto idxs = rng::iota_view(Ord{0}, getMaxOrd_());
   const auto getLowerCumulCnt = [this](Ord ord) {
-    return ord + 1 - zeroCtxUniqueCnt_.getLowerCumulativeCount(ord + 1);
+    return ord + 1 - zeroCtxCell_.uniqueCnt.getLowerCumulativeCnt(ord + 1);
   };
   const auto retOrd =
       rng::upper_bound(idxs, cumulativeCnt, {}, getLowerCumulCnt) -
@@ -231,14 +235,6 @@ auto PPMDDictionary::getWordOrdForNewWord_(Count cumulativeCnt) const -> Ord {
   assert(!isEsc(retOrd) &&
          "Search in symbols which were not found yet. Esc is invalid here.");
   return retOrd;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void PPMDDictionary::updateCtx_(Ord ord) {
-  ctx_.push_back(ord);
-  if (ctx_.size() > ctxLength_) {
-    ctx_.pop_front();
-  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -250,13 +246,13 @@ void PPMDDictionary::skipNewCtxs_(SearchCtx_& currCtx) const {
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMDDictionary::getZeroCtxEscStats_() const -> ProbabilityStats {
-  if (0 == zeroCtxCnt_.getTotalWordsCnt()) {
+  const auto zeroTotal = zeroCtxCell_.cnt.getTotalWordsCnt();
+  if (0 == zeroTotal) [[unlikely]] {
     return {0, 1, 1};
   }
-  const auto escLow =
-      2 * zeroCtxCnt_.getTotalWordsCnt() - zeroCtxUniqueCnt_.getTotalWordsCnt();
-  const auto escHigh = escLow + zeroCtxUniqueCnt_.getTotalWordsCnt();
-  const auto escTotal = 2 * zeroCtxCnt_.getTotalWordsCnt();
+  const auto escLow = 2 * zeroTotal - zeroCtxCell_.uniqueCnt.getTotalWordsCnt();
+  const auto escHigh = escLow + zeroCtxCell_.uniqueCnt.getTotalWordsCnt();
+  const auto escTotal = 2 * zeroCtxCell_.cnt.getTotalWordsCnt();
   return {escLow, escHigh, escTotal};
 }
 

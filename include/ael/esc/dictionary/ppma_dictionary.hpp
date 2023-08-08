@@ -1,8 +1,8 @@
 #ifndef ESC_PPMA_DICTIONARY_HPP
 #define ESC_PPMA_DICTIONARY_HPP
 
-#include <ael/impl/dictionary/cumulative_unique_count.hpp>
 #include <ael/impl/dictionary/cumulative_count.hpp>
+#include <ael/impl/dictionary/cumulative_unique_count.hpp>
 #include <ael/impl/esc/dictionary/ppm_a_d_dictionary_base.hpp>
 #include <boost/container/static_vector.hpp>
 #include <boost/container_hash/hash.hpp>
@@ -17,14 +17,16 @@ namespace ael::esc::dict {
 ///
 class PPMADictionary : public ael::impl::esc::dict::PPMADDictionaryBase {
  private:
-  constexpr static std::uint16_t _maxCtxLength = 16;
+  using Base_ = ael::impl::esc::dict::PPMADDictionaryBase;
+  using CumulativeCount_ = ael::impl::dict::CumulativeCount;
+  using CumulativeUniqueCount_ = ael::impl::dict::CumulativeUniqueCount;
+  constexpr static std::uint16_t _maxCtxLength = Base_::maxCtxLength_;
   constexpr static std::uint16_t _maxSeqLenLog2 = 40;
 
  public:
-  using Ord = impl::esc::dict::PPMADDictionaryBase::Ord;
-  using Count = impl::esc::dict::PPMADDictionaryBase::Count;
-  using ProbabilityStats =
-      impl::esc::dict::PPMADDictionaryBase::ProbabilityStats;
+  using Ord = Base_::Ord;
+  using Count = Base_::Count;
+  using ProbabilityStats = Base_::ProbabilityStats;
   using StatsSeq =
       boost::container::static_vector<ProbabilityStats, _maxCtxLength>;
   constexpr static std::uint16_t countNumBits = 62;
@@ -75,7 +77,7 @@ class PPMADictionary : public ael::impl::esc::dict::PPMADDictionaryBase {
   [[nodiscard]] Count getTotalWordsCnt() const;
 
  protected:
-  using SearchCtx_ = boost::container::static_vector<Ord, _maxCtxLength>;
+  using SearchCtx_ = Base_::SearchCtx_;
 
  protected:
   [[nodiscard]] ProbabilityStats getDecodeProbabilityStats_(Ord ord);
@@ -87,27 +89,18 @@ class PPMADictionary : public ael::impl::esc::dict::PPMADDictionaryBase {
 
   [[nodiscard]] Ord getWordOrdForNewWord_(Count cumulativeCnt) const;
 
-  void updateCtx_(Ord ord);  // TODO(gogagum): move to base
-
   void skipNewCtxs_(SearchCtx_& currCtx) const;  // TODO(gogagum): move to base
-
-  void skipCtxsByEsc_(SearchCtx_& currCtx) const {  // TODO(gogaugm): move to base
-    assert(getEscDecoded_() < currCtx.size() && "Checked other cases.");
-    currCtx.resize(currCtx.size() - getEscDecoded_());
-  }
 
   [[nodiscard]] ProbabilityStats getZeroCtxEscStats_() const;
 
  private:
   using SearchCtxHash_ = boost::hash<SearchCtx_>;
   using CtxCountMapping_ =
-      std::unordered_map<SearchCtx_, ael::impl::dict::CumulativeCount,
-                         SearchCtxHash_>;
+      std::unordered_map<SearchCtx_, CumulativeCount_, SearchCtxHash_>;
 
  private:
-  ael::impl::dict::CumulativeCount zeroCtxCnt_;
-  ael::impl::dict::CumulativeUniqueCount zeroCtxUniqueCnt_;
-  std::deque<Ord> ctx_;
+  CumulativeCount_ zeroCtxCnt_;
+  CumulativeUniqueCount_ zeroCtxUniqueCnt_;
   CtxCountMapping_ ctxInfo_;
   const std::size_t ctxLength_;
 };

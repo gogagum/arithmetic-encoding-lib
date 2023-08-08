@@ -11,15 +11,21 @@
 #include <cstdint>
 #include <deque>
 #include <unordered_map>
+#include <ael/impl/dictionary/ppm_a_d_dictionary_base.hpp>
 
 namespace ael::dict {
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief PPMDDictionary - ppmd probability model.
 ///
-class PPMDDictionary {
+class PPMDDictionary : ael::impl::dict::PPMADDictionaryBase {
+ protected:
+  using Base_ = ael::impl::dict::PPMADDictionaryBase;
+  using CumulativeCount_ = ael::impl::dict::CumulativeCount;
+  using CumulativeUniqueCount_ = ael::impl::dict::CumulativeUniqueCount;
+
  public:
-  using Ord = std::uint64_t;
+  using Ord = Base_::Ord;
   using Count = boost::multiprecision::uint256_t;
   using ProbabilityStats = ael::impl::dict::WordProbabilityStats<Count>;
   constexpr const static std::uint16_t countNumBits = 240;
@@ -67,8 +73,9 @@ class PPMDDictionary {
   using SearchCtx_ = boost::container::static_vector<Ord, _maxCtxLength>;
   using SearchCtxHash_ = boost::hash<SearchCtx_>;
   struct CtxCell_ {
-    ael::impl::dict::CumulativeCount cnt;
-    ael::impl::dict::CumulativeUniqueCount uniqueCnt;
+    explicit CtxCell_(Ord maxOrd) : cnt(maxOrd), uniqueCnt(maxOrd) {}
+    CumulativeCount_ cnt;
+    CumulativeUniqueCount_ uniqueCnt;
   };
   using CtxCountMapping_ =
       std::unordered_map<SearchCtx_, CtxCell_, SearchCtxHash_>;
@@ -78,12 +85,11 @@ class PPMDDictionary {
 
   [[nodiscard]] ProbabilityStats getProbabilityStats_(Ord ord) const;
 
-  void updateWordCnt_(Ord ord, ael::impl::dict::CumulativeCount::Count cnt);
+  void updateWordCnt_(Ord ord, std::int64_t cnt);
 
   [[nodiscard]] SearchCtx_ getSearchCtxEmptySkipped_() const;
 
  private:
-  std::size_t maxOrd_;
   CtxCell_ zeroCtxCell_;
   std::deque<Ord> ctx_;
   CtxCountMapping_ ctxInfo_;

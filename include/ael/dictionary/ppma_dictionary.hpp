@@ -10,6 +10,7 @@
 #include <cstdint>
 #include <deque>
 #include <unordered_map>
+#include <ael/impl/dictionary/ppm_a_d_dictionary_base.hpp>
 
 namespace ael::dict {
 
@@ -18,9 +19,12 @@ namespace bm = boost::multiprecision;
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief PPMADictionary - ppma probability model.
 ///
-class PPMADictionary {
+class PPMADictionary : ael::impl::dict::PPMADDictionaryBase {
+ protected:
+  using Base_ = ael::impl::dict::PPMADDictionaryBase;
+
  public:
-  using Ord = std::uint64_t;
+  using Ord = Base_::Ord;
   using Count = bm::uint256_t;
   using ProbabilityStats = ael::impl::dict::WordProbabilityStats<Count>;
   constexpr const static std::uint16_t countNumBits = 240;
@@ -80,12 +84,11 @@ class PPMADictionary {
 
   [[nodiscard]] ProbabilityStats getProbabilityStats_(Ord ord) const;
 
-  void updateWordCnt_(Ord ord, ael::impl::dict::CumulativeCount::Count cnt);
+  void updateWordCnt_(Ord ord, std::int64_t cnt);
 
   [[nodiscard]] SearchCtx_ getSearchCtxEmptySkipped_() const;
 
  private:
-  std::size_t maxOrd_;
   ael::impl::dict::CumulativeCount zeroCtxCnt_;
   ael::impl::dict::CumulativeUniqueCount zeroCtxUniqueCnt_;
   std::deque<Ord> ctx_;

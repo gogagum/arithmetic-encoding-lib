@@ -8,7 +8,8 @@ namespace rng = std::ranges;
 
 ////////////////////////////////////////////////////////////////////////////////
 PPMADictionary::PPMADictionary(ConstructInfo constructInfo)
-    : ael::impl::esc::dict::PPMADDictionaryBase(constructInfo.maxOrd),
+    : ael::impl::esc::dict::PPMADDictionaryBase(constructInfo.maxOrd,
+                                                constructInfo.ctxLength),
       zeroCtxCnt_(constructInfo.maxOrd),
       zeroCtxUniqueCnt_(constructInfo.maxOrd),
       ctxLength_(constructInfo.ctxLength) {
@@ -17,20 +18,20 @@ PPMADictionary::PPMADictionary(ConstructInfo constructInfo)
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMADictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
   const auto idxs = rng::iota_view(Ord{0}, getMaxOrd_());
-  auto currCtx = SearchCtx_(ctx_.rbegin(), ctx_.rend());
+  auto currCtx = SearchCtx_(getCtx_().rbegin(), getCtx_().rend());
   skipNewCtxs_(currCtx);
   if (getEscDecoded_() < currCtx.size()) {
     skipCtxsByEsc_(currCtx);
     const auto& currCtxInfo = ctxInfo_.at(currCtx);
     const auto getLowerCumulCnt = [&currCtxInfo](Ord ord) {
-      return currCtxInfo.getLowerCumulativeCount(ord + 1);
+      return currCtxInfo.getLowerCumulativeCnt(ord + 1);
     };
     return rng::upper_bound(idxs, cumulativeCnt, {}, getLowerCumulCnt) -
            idxs.begin();
   }
   if (getEscDecoded_() == currCtx.size()) {
     const auto getLowerCumulCnt = [this](Ord ord) {
-      return zeroCtxCnt_.getLowerCumulativeCount(ord + 1);
+      return zeroCtxCnt_.getLowerCumulativeCnt(ord + 1);
     };
     return rng::upper_bound(idxs, cumulativeCnt, {}, getLowerCumulCnt) -
            idxs.begin();
@@ -43,7 +44,7 @@ auto PPMADictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMADictionary::getProbabilityStats(Ord ord) -> StatsSeq {
   StatsSeq ret;
-  auto currCtx = SearchCtx_(ctx_.rbegin(), ctx_.rend());
+  auto currCtx = SearchCtx_(getCtx_().rbegin(), getCtx_().rend());
   updateCtx_(ord);  // ctx_ is never read later
   for (; !currCtx.empty() && !ctxInfo_.contains(currCtx); currCtx.pop_back()) {
     ctxInfo_.emplace(currCtx, getMaxOrd_());
@@ -51,27 +52,29 @@ auto PPMADictionary::getProbabilityStats(Ord ord) -> StatsSeq {
   }
   for (; !currCtx.empty() && ctxInfo_.at(currCtx).getCount(ord) == 0;
        currCtx.pop_back()) {
-    const auto escLow = ctxInfo_.at(currCtx).getTotalWordsCnt();
+    const auto totalCnt = ctxInfo_.at(currCtx).getTotalWordsCnt();
+    const auto escLow = totalCnt;
     const auto escHigh = escLow + 1;
-    const auto escTotal = ctxInfo_.at(currCtx).getTotalWordsCnt() + 1;
+    const auto escTotal = totalCnt + 1;
     ret.emplace_back(escLow, escHigh, escTotal);
     ctxInfo_.at(currCtx).increaseOrdCount(ord, 1);
   }
   if (currCtx.empty()) {
-    if (0 == zeroCtxCnt_.getCount(ord)) {
-      const auto escLow = zeroCtxCnt_.getTotalWordsCnt();
+    const auto zeroTotal = zeroCtxCnt_.getTotalWordsCnt();
+    if (const auto zeroCnt = zeroCtxCnt_.getCount(ord); 0 == zeroCnt) {
+      const auto escLow = zeroTotal;
       const auto escHigh = escLow + 1;
-      const auto escTotal = zeroCtxCnt_.getTotalWordsCnt() + 1;
+      const auto escTotal = zeroTotal + 1;
       ret.emplace_back(escLow, escHigh, escTotal);
-      const auto symLow =
-          Count{ord} - zeroCtxUniqueCnt_.getLowerCumulativeCount(ord);
+      const auto zeroLower = zeroCtxUniqueCnt_.getLowerCumulativeCnt(ord);
+      const auto symLow = Count{ord} - zeroLower;
       const auto symHigh = symLow + 1;
       const auto symTotal = getMaxOrd_() - zeroCtxUniqueCnt_.getTotalWordsCnt();
       ret.emplace_back(symLow, symHigh, symTotal);
     } else {
-      const auto symLow = zeroCtxCnt_.getLowerCumulativeCount(ord);
-      const auto symHigh = symLow + zeroCtxCnt_.getCount(ord);
-      const auto symTotal = zeroCtxCnt_.getTotalWordsCnt() + 1;
+      const auto symLow = zeroCtxCnt_.getLowerCumulativeCnt(ord);
+      const auto symHigh = symLow + zeroCnt;
+      const auto symTotal = zeroTotal + 1;
       ret.emplace_back(symLow, symHigh, symTotal);
     }
 
@@ -80,9 +83,10 @@ auto PPMADictionary::getProbabilityStats(Ord ord) -> StatsSeq {
 
     return ret;
   }
-  const auto symLow = ctxInfo_.at(currCtx).getLowerCumulativeCount(ord);
-  const auto symHigh = symLow + ctxInfo_.at(currCtx).getCount(ord);
-  const auto symTotal = ctxInfo_.at(currCtx).getTotalWordsCnt() + 1;
+  const auto& currCtxInfo = ctxInfo_.at(currCtx);
+  const auto symLow = currCtxInfo.getLowerCumulativeCnt(ord);
+  const auto symHigh = symLow + currCtxInfo.getCount(ord);
+  const auto symTotal = currCtxInfo.getTotalWordsCnt() + 1;
   ret.emplace_back(symLow, symHigh, symTotal);
   for (; !currCtx.empty(); currCtx.pop_back()) {
     ctxInfo_.at(currCtx).increaseOrdCount(ord, 1);
@@ -104,7 +108,7 @@ auto PPMADictionary::getDecodeProbabilityStats(Ord ord) -> ProbabilityStats {
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMADictionary::getTotalWordsCnt() const -> Count {
-  auto currCtx = SearchCtx_(ctx_.rbegin(), ctx_.rend());
+  auto currCtx = SearchCtx_(getCtx_().rbegin(), getCtx_().rend());
   skipNewCtxs_(currCtx);
   if (getEscDecoded_() < currCtx.size()) {
     skipCtxsByEsc_(currCtx);
@@ -120,7 +124,7 @@ auto PPMADictionary::getTotalWordsCnt() const -> Count {
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMADictionary::getDecodeProbabilityStats_(Ord ord) -> ProbabilityStats {
-  auto currCtx = SearchCtx_(ctx_.rbegin(), ctx_.rend());
+  auto currCtx = SearchCtx_(getCtx_().rbegin(), getCtx_().rend());
   skipNewCtxs_(currCtx);
   if (getEscDecoded_() >= currCtx.size()) {
     if (isEsc(ord)) {
@@ -131,7 +135,7 @@ auto PPMADictionary::getDecodeProbabilityStats_(Ord ord) -> ProbabilityStats {
       return getZeroCtxEscStats_();
     }
     if (getEscDecoded_() == currCtx.size()) {
-      const auto symLow = zeroCtxCnt_.getLowerCumulativeCount(ord);
+      const auto symLow = zeroCtxCnt_.getLowerCumulativeCnt(ord);
       const auto symHigh = symLow + zeroCtxCnt_.getCount(ord);
       const auto symTotal = zeroCtxCnt_.getTotalWordsCnt() + 1;
       updateEscDecoded_(ord);
@@ -152,7 +156,7 @@ auto PPMADictionary::getDecodeProbabilityStats_(Ord ord) -> ProbabilityStats {
     const auto escTotal = currCtxInfo.getTotalWordsCnt() + 1;
     return {escLow, escHigh, escTotal};
   }
-  const auto symLow = currCtxInfo.getLowerCumulativeCount(ord);
+  const auto symLow = currCtxInfo.getLowerCumulativeCnt(ord);
   const auto symHigh = symLow + currCtxInfo.getCount(ord);
   const auto symTotal = currCtxInfo.getTotalWordsCnt() + 1;
   return {symLow, symHigh, symTotal};
@@ -161,8 +165,7 @@ auto PPMADictionary::getDecodeProbabilityStats_(Ord ord) -> ProbabilityStats {
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMADictionary::getDecodeProbabilityStatsForNewWord_(Ord ord) const
     -> ProbabilityStats {
-  const auto symLow =
-      Count{ord} - zeroCtxUniqueCnt_.getLowerCumulativeCount(ord);
+  const auto symLow = Count{ord} - zeroCtxUniqueCnt_.getLowerCumulativeCnt(ord);
   const auto symHigh = symLow + 1;
   const auto symTotal = getMaxOrd_() - zeroCtxUniqueCnt_.getTotalWordsCnt();
   return {symLow, symHigh, symTotal};
@@ -170,10 +173,11 @@ auto PPMADictionary::getDecodeProbabilityStatsForNewWord_(Ord ord) const
 
 ////////////////////////////////////////////////////////////////////////////////
 void PPMADictionary::updateWordCnt_(Ord ord, std::int64_t cntChange) {
-  auto currCtx = SearchCtx_(ctx_.rbegin(), ctx_.rend());
+  auto currCtx = SearchCtx_(getCtx_().rbegin(), getCtx_().rend());
   for (; !currCtx.empty() && !ctxInfo_.contains(currCtx); currCtx.pop_back()) {
-    ctxInfo_.emplace(currCtx, getMaxOrd_());
-    ctxInfo_.at(currCtx).increaseOrdCount(ord, cntChange);
+    auto [iter, insertionHappened] = ctxInfo_.emplace(currCtx, getMaxOrd_());
+    assert(insertionHappened && "Insertion must has happened here.");
+    iter->second.increaseOrdCount(ord, cntChange);
   }
   for (; !currCtx.empty(); currCtx.pop_back()) {
     ctxInfo_.at(currCtx).increaseOrdCount(ord, cntChange);
@@ -186,7 +190,7 @@ void PPMADictionary::updateWordCnt_(Ord ord, std::int64_t cntChange) {
 auto PPMADictionary::getWordOrdForNewWord_(Count cumulativeCnt) const -> Ord {
   const auto idxs = rng::iota_view(Ord{0}, getMaxOrd_());
   const auto getLowerCumulCnt = [this](Ord ord) {
-    return ord + 1 - zeroCtxUniqueCnt_.getLowerCumulativeCount(ord + 1);
+    return ord + 1 - zeroCtxUniqueCnt_.getLowerCumulativeCnt(ord + 1);
   };
   const auto retOrd =
       rng::upper_bound(idxs, cumulativeCnt, {}, getLowerCumulCnt) -
@@ -194,14 +198,6 @@ auto PPMADictionary::getWordOrdForNewWord_(Count cumulativeCnt) const -> Ord {
   assert(!isEsc(retOrd) &&
          "Search in symbols which were not found yet. Esc is invalid here.");
   return retOrd;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void PPMADictionary::updateCtx_(Ord ord) {
-  ctx_.push_back(ord);
-  if (ctx_.size() > ctxLength_) {
-    ctx_.pop_front();
-  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

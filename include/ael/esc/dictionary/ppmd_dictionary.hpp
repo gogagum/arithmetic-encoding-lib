@@ -17,16 +17,18 @@ namespace ael::esc::dict {
 ///
 class PPMDDictionary : public ael::impl::esc::dict::PPMADDictionaryBase {
  private:
-  constexpr static std::uint16_t _maxCtxLength = 16;
+  using Base_ = ael::impl::esc::dict::PPMADDictionaryBase;
+  using CumulativeCount_ = impl::dict::CumulativeCount;
+  using CumulativeUniqueCount_ = impl::dict::CumulativeUniqueCount;
+  constexpr static auto maxCtxLength_ = Base_::maxCtxLength_;
   constexpr static std::uint16_t _maxSeqLenLog2 = 40;
 
  public:
-  using Ord = impl::esc::dict::PPMADDictionaryBase::Ord;
-  using Count = impl::esc::dict::PPMADDictionaryBase::Count;
-  using ProbabilityStats =
-      impl::esc::dict::PPMADDictionaryBase::ProbabilityStats;
+  using Ord = Base_::Ord;
+  using Count = Base_::Count;
+  using ProbabilityStats = Base_::ProbabilityStats;
   using StatsSeq =
-      boost::container::static_vector<ProbabilityStats, _maxCtxLength>;
+      boost::container::static_vector<ProbabilityStats, maxCtxLength_>;
   constexpr static std::uint16_t countNumBits = 62;
 
   struct ConstructInfo {
@@ -75,7 +77,7 @@ class PPMDDictionary : public ael::impl::esc::dict::PPMADDictionaryBase {
   [[nodiscard]] Count getTotalWordsCnt() const;
 
  protected:
-  using SearchCtx_ = boost::container::static_vector<Ord, _maxCtxLength>;
+  using SearchCtx_ = Base_::SearchCtx_;
 
  protected:
   [[nodiscard]] ProbabilityStats getDecodeProbabilityStats_(Ord ord);
@@ -87,32 +89,25 @@ class PPMDDictionary : public ael::impl::esc::dict::PPMADDictionaryBase {
 
   [[nodiscard]] Ord getWordOrdForNewWord_(Count cumulativeCnt) const;
 
-  void updateCtx_(Ord ord);  // TODO(gogagum): move to base
-
   void skipNewCtxs_(SearchCtx_& currCtx) const;  // TODO(gogagum): move to base
-
-  void skipCtxsByEsc_(SearchCtx_& currCtx) const {  // TODO(gogagum): move to base
-    assert(getEscDecoded_() < currCtx.size() && "Checked other cases.");
-    currCtx.resize(currCtx.size() - getEscDecoded_());
-  }
 
   [[nodiscard]] ProbabilityStats getZeroCtxEscStats_() const;
 
  private:
   using SearchCtxHash_ = boost::hash<SearchCtx_>;
   struct CtxCell_ {
-    ael::impl::dict::CumulativeCount cnt;
-    ael::impl::dict::CumulativeUniqueCount uniqueCnt;
+    explicit CtxCell_(Ord maxOrd) : cnt(maxOrd), uniqueCnt(maxOrd) {
+    }
+
+    CumulativeCount_ cnt;
+    CumulativeUniqueCount_ uniqueCnt;
   };
   using CtxCountMapping_ =
       std::unordered_map<SearchCtx_, CtxCell_, SearchCtxHash_>;
 
  private:
-  ael::impl::dict::CumulativeCount zeroCtxCnt_;
-  ael::impl::dict::CumulativeUniqueCount zeroCtxUniqueCnt_;
-  std::deque<Ord> ctx_;
+  CtxCell_ zeroCtxCell_;
   CtxCountMapping_ ctxInfo_;
-  const std::size_t ctxLength_;
 };
 
 }  // namespace ael::esc::dict

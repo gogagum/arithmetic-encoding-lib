@@ -34,7 +34,7 @@ class ADDictionaryBase {
    * @return real cumulative count of a word.
    */
   [[nodiscard]] Count getRealLowerCumulativeWordCnt_(Ord ord) const {
-    return cumulativeCnt_.getLowerCumulativeCount(ord);
+    return cumulativeCnt_.getLowerCumulativeCnt(ord);
   }
 
   /**
@@ -63,7 +63,7 @@ class ADDictionaryBase {
    * @return lower cumulative unique count.
    */
   [[nodiscard]] Count getLowerCumulativeUniqueNumFound_(Ord ord) const {
-    return cumulativeUniqueCnt_.getLowerCumulativeCount(ord);
+    return cumulativeUniqueCnt_.getLowerCumulativeCnt(ord);
   }
 
   /**

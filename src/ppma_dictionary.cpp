@@ -1,6 +1,7 @@
 #include <ael/dictionary/ppma_dictionary.hpp>
 #include <ael/impl/dictionary/cumulative_count.hpp>
 #include <algorithm>
+#include <cstdint>
 #include <ranges>
 #include <stdexcept>
 
@@ -8,7 +9,7 @@ namespace ael::dict {
 
 ////////////////////////////////////////////////////////////////////////////////
 PPMADictionary::PPMADictionary(ConstructInfo constructInfo)
-    : maxOrd_(constructInfo.maxOrd),
+    : Base_(constructInfo.maxOrd),
       zeroCtxCnt_(constructInfo.maxOrd),
       zeroCtxUniqueCnt_(constructInfo.maxOrd),
       ctxLength_(constructInfo.ctxLength) {
@@ -24,7 +25,7 @@ PPMADictionary::PPMADictionary(ConstructInfo constructInfo)
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMADictionary::getWordOrd(const Count& cumulativeNumFound) const -> Ord {
-  const auto idxs = std::ranges::iota_view(Ord{0}, maxOrd_);
+  const auto idxs = std::ranges::iota_view(Ord{0}, getMaxOrd_());
   assert(cumulativeNumFound <= getTotalWordsCnt());
   const auto getLowerCumulCnt = [this](std::uint64_t ord) {
     assert(ord < maxOrd_);
@@ -52,8 +53,8 @@ auto PPMADictionary::getTotalWordsCnt() const -> Count {
   }
   total *= zeroCtxCnt_.getTotalWordsCnt() + 1;
   if (const auto zeroUniqueCnt = zeroCtxUniqueCnt_.getTotalWordsCnt();
-      zeroUniqueCnt < maxOrd_) {
-    total *= maxOrd_ - zeroUniqueCnt;
+      zeroUniqueCnt < getMaxOrd_()) {
+    total *= getMaxOrd_() - zeroUniqueCnt;
   }
   return total;
 }
@@ -65,14 +66,14 @@ auto PPMADictionary::getLowerCumulativeCnt_(Ord ord) const -> Count {
     const auto& ctxInfo = ctxInfo_.at(ctx);
     const auto ctxTotalCnt = ctxInfo.getTotalWordsCnt();
     lower *= ctxTotalCnt + 1;
-    lower += ctxInfo.getLowerCumulativeCount(ord);
+    lower += ctxInfo.getLowerCumulativeCnt(ord);
   }
   lower *= zeroCtxCnt_.getTotalWordsCnt() + 1;
-  lower += zeroCtxCnt_.getLowerCumulativeCount(ord);
+  lower += zeroCtxCnt_.getLowerCumulativeCnt(ord);
   if (const auto zeroUniqueCnt = zeroCtxUniqueCnt_.getTotalWordsCnt();
-      zeroUniqueCnt < maxOrd_) {
-    lower *= maxOrd_ - zeroUniqueCnt;
-    lower += ord - zeroCtxUniqueCnt_.getLowerCumulativeCount(ord);
+      zeroUniqueCnt < getMaxOrd_()) {
+    lower *= getMaxOrd_() - zeroUniqueCnt;
+    lower += ord - zeroCtxUniqueCnt_.getLowerCumulativeCnt(ord);
   }
   return {lower};
 }
@@ -87,21 +88,22 @@ auto PPMADictionary::getProbabilityStats_(Ord ord) const -> ProbabilityStats {
     const auto ctxTotalCnt = ctxInfo.getTotalWordsCnt();
     lower *= ctxTotalCnt + 1;
     total *= ctxTotalCnt + 1;
-    lower += ctxInfo.getLowerCumulativeCount(ord);
+    lower += ctxInfo.getLowerCumulativeCnt(ord);
     count *= ctxTotalCnt + 1;
     count += ctxInfo.getCount(ord);
   }
-  lower *= zeroCtxCnt_.getTotalWordsCnt() + 1;
-  total *= zeroCtxCnt_.getTotalWordsCnt() + 1;
-  lower += zeroCtxCnt_.getLowerCumulativeCount(ord);
-  count *= zeroCtxCnt_.getTotalWordsCnt() + 1;
+  const auto zeroTotal = zeroCtxCnt_.getTotalWordsCnt();
+  lower *= zeroTotal + 1;
+  total *= zeroTotal + 1;
+  lower += zeroCtxCnt_.getLowerCumulativeCnt(ord);
+  count *= zeroTotal + 1;
   count += zeroCtxCnt_.getCount(ord);
   if (const auto zeroUniqueCnt = zeroCtxUniqueCnt_.getTotalWordsCnt();
-      zeroUniqueCnt < maxOrd_) {
-    total *= maxOrd_ - zeroUniqueCnt;
-    lower *= maxOrd_ - zeroUniqueCnt;
-    lower += ord - zeroCtxUniqueCnt_.getLowerCumulativeCount(ord);
-    count *= maxOrd_ - zeroUniqueCnt;
+      zeroUniqueCnt < getMaxOrd_()) {
+    total *= getMaxOrd_() - zeroUniqueCnt;
+    lower *= getMaxOrd_() - zeroUniqueCnt;
+    lower += ord - zeroCtxUniqueCnt_.getLowerCumulativeCnt(ord);
+    count *= getMaxOrd_() - zeroUniqueCnt;
     count += 1 - zeroCtxUniqueCnt_.getCount(ord);
   }
   assert(count > 0);
@@ -110,16 +112,15 @@ auto PPMADictionary::getProbabilityStats_(Ord ord) const -> ProbabilityStats {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void PPMADictionary::updateWordCnt_(
-    Ord ord, ael::impl::dict::CumulativeCount::Count cnt) {
+void PPMADictionary::updateWordCnt_(Ord ord, std::int64_t cnt) {
   for (auto ctx = SearchCtx_(ctx_.rbegin(), ctx_.rend()); !ctx.empty();
        ctx.pop_back()) {
     if (!ctxInfo_.contains(ctx)) {
-      ctxInfo_.emplace(ctx, maxOrd_);
+      ctxInfo_.emplace(ctx, getMaxOrd_());
     }
-    ctxInfo_.at(ctx).increaseOrdCount(ord, static_cast<std::int64_t>(cnt));
+    ctxInfo_.at(ctx).increaseOrdCount(ord, cnt);
   }
-  zeroCtxCnt_.increaseOrdCount(ord, static_cast<std::int64_t>(cnt));
+  zeroCtxCnt_.increaseOrdCount(ord, cnt);
   zeroCtxUniqueCnt_.update(ord);
   ctx_.push_back(ord);
   if (ctx_.size() > ctxLength_) {
