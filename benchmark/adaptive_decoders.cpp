@@ -1,6 +1,8 @@
 #include <benchmark/benchmark.h>
 
 #include <ael/arithmetic_coder.hpp>
+#include <ael/arithmetic_decoder.hpp>
+#include <ael/data_parser.hpp>
 #include <ael/dictionary/adaptive_a_contextual_dictionary.hpp>
 #include <ael/dictionary/adaptive_a_contextual_dictionary_improved.hpp>
 #include <ael/dictionary/adaptive_a_dictionary.hpp>
@@ -11,6 +13,7 @@
 #include <ael/dictionary/ppma_dictionary.hpp>
 #include <ael/dictionary/ppmd_dictionary.hpp>
 #include <ael/esc/arithmetic_coder.hpp>
+#include <ael/esc/arithmetic_decoder.hpp>
 #include <ael/esc/dictionary/adaptive_a_dictionary.hpp>
 #include <ael/esc/dictionary/adaptive_d_dictionary.hpp>
 #include <ael/esc/dictionary/ppma_dictionary.hpp>
@@ -43,13 +46,22 @@ static void runTests(benchmark::State& state, DictInitializer dictInitializer,
       TwoPartsSource::GenerationConfig{maxOrd, m, h, seqLength, seed};
 
   auto src = TwoPartsSource::getGeneration(generationParams);
+  auto dataConstructor = ael::ByteDataConstructor();
+
+  auto encodeDict = dictInitializer();
+
+  const auto [wordsCount, bitsCount] =
+      ael::ArithmeticCoder::encode(src, dataConstructor, encodeDict);
 
   for ([[maybe_unused]] const auto st : state) {
-    auto dict = dictInitializer();
-    auto dataConstructor = ael::ByteDataConstructor();
+    auto decodeDict = dictInitializer();
+    auto decoded = std::vector<std::uint64_t>();
 
-    [[maybe_unused]] auto encoded =
-        ael::ArithmeticCoder::encode(src, dataConstructor, dict);
+    auto dataParser = ael::DataParser(
+        std::span(dataConstructor.data<std::byte>(), dataConstructor.size()));
+    ael::ArithmeticDecoder::decode(dataParser, decodeDict,
+                                   std::back_inserter(decoded),
+                                   {wordsCount, bitsCount});
   }
 }
 
@@ -67,18 +79,27 @@ static void runEscTests(benchmark::State& state,
       TwoPartsSource::GenerationConfig{maxOrd, m, h, seqLength, seed};
 
   auto src = TwoPartsSource::getGeneration(generationParams);
+  auto dataConstructor = ael::ByteDataConstructor();
+
+  auto encodeDict = dictInitializer();
+
+  const auto [wordsCount, bitsCount] =
+      ael::esc::ArithmeticCoder::encode(src, dataConstructor, encodeDict);
 
   for ([[maybe_unused]] const auto st : state) {
-    auto dict = dictInitializer();
-    auto dataConstructor = ael::ByteDataConstructor();
+    auto decodeDict = dictInitializer();
+    auto decoded = std::vector<std::uint64_t>();
 
-    [[maybe_unused]] auto encoded =
-        ael::esc::ArithmeticCoder::encode(src, dataConstructor, dict);
+    auto dataParser = ael::DataParser(
+        std::span(dataConstructor.data<std::byte>(), dataConstructor.size()));
+    ael::esc::ArithmeticDecoder::decode(dataParser, decodeDict,
+                                   std::back_inserter(decoded),
+                                   {wordsCount, bitsCount});
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-static void BM_benchmark_adaptive_coder(benchmark::State& state) {
+static void BM_benchmark_adaptive_decoder(benchmark::State& state) {
   const auto seqLength = static_cast<std::size_t>(state.range(0));
   const auto hQuater = static_cast<std::uint8_t>(state.range(1));
 
@@ -92,7 +113,7 @@ static void BM_benchmark_adaptive_coder(benchmark::State& state) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-static void BM_benchmark_adaptive_a_coder(benchmark::State& state) {
+static void BM_benchmark_adaptive_a_decoder(benchmark::State& state) {
   const auto seqLength = static_cast<std::size_t>(state.range(0));
   const auto hQuater = static_cast<std::uint8_t>(state.range(1));
 
@@ -104,7 +125,7 @@ static void BM_benchmark_adaptive_a_coder(benchmark::State& state) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-static void BM_benchmark_adaptive_d_coder(benchmark::State& state) {
+static void BM_benchmark_adaptive_d_decoder(benchmark::State& state) {
   const auto seqLength = static_cast<std::size_t>(state.range(0));
   const auto hQuater = static_cast<std::uint8_t>(state.range(1));
 
@@ -116,7 +137,7 @@ static void BM_benchmark_adaptive_d_coder(benchmark::State& state) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-static void BM_benchmark_adaptive_a_contextual_coder(benchmark::State& state) {
+static void BM_benchmark_adaptive_a_contextual_decoder(benchmark::State& state) {
   const auto seqLength = static_cast<std::size_t>(state.range(0));
   const auto hQuater = static_cast<std::uint8_t>(state.range(1));
 
@@ -130,7 +151,7 @@ static void BM_benchmark_adaptive_a_contextual_coder(benchmark::State& state) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-static void BM_benchmark_adaptive_d_contextual_coder(benchmark::State& state) {
+static void BM_benchmark_adaptive_d_contextual_decoder(benchmark::State& state) {
   const auto seqLength = static_cast<std::size_t>(state.range(0));
   const auto hQuater = static_cast<std::uint8_t>(state.range(1));
 
@@ -144,7 +165,7 @@ static void BM_benchmark_adaptive_d_contextual_coder(benchmark::State& state) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-static void BM_benchmark_adaptive_a_contextual_improved_coder(
+static void BM_benchmark_adaptive_a_contextual_improved_decoder(
     benchmark::State& state) {
   const auto seqLength = static_cast<std::size_t>(state.range(0));
   const auto hQuater = static_cast<std::uint8_t>(state.range(1));
@@ -160,7 +181,7 @@ static void BM_benchmark_adaptive_a_contextual_improved_coder(
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-static void BM_benchmark_adaptive_d_contextual_improved_coder(
+static void BM_benchmark_adaptive_d_contextual_improved_decoder(
     benchmark::State& state) {
   const auto seqLength = static_cast<std::size_t>(state.range(0));
   const auto hQuater = static_cast<std::uint8_t>(state.range(1));
@@ -176,7 +197,7 @@ static void BM_benchmark_adaptive_d_contextual_improved_coder(
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-static void BM_benchmark_ppma_coder(benchmark::State& state) {
+static void BM_benchmark_ppma_decoder(benchmark::State& state) {
   const auto seqLength = static_cast<std::size_t>(state.range(0));
   const auto hQuater = static_cast<std::uint8_t>(state.range(1));
 
@@ -190,7 +211,7 @@ static void BM_benchmark_ppma_coder(benchmark::State& state) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-static void BM_benchmark_ppmd_coder(benchmark::State& state) {
+static void BM_benchmark_ppmd_decoder(benchmark::State& state) {
   const auto seqLength = static_cast<std::size_t>(state.range(0));
   const auto hQuater = static_cast<std::uint8_t>(state.range(1));
 
@@ -204,7 +225,7 @@ static void BM_benchmark_ppmd_coder(benchmark::State& state) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-static void BM_benchmark_esc_adaptive_a_coder(benchmark::State& state) {
+static void BM_benchmark_esc_adaptive_a_decoder(benchmark::State& state) {
   const auto seqLength = static_cast<std::size_t>(state.range(0));
   const auto hQuater = static_cast<std::uint8_t>(state.range(1));
 
@@ -218,7 +239,7 @@ static void BM_benchmark_esc_adaptive_a_coder(benchmark::State& state) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-static void BM_benchmark_esc_adaptive_d_coder(benchmark::State& state) {
+static void BM_benchmark_esc_adaptive_d_decoder(benchmark::State& state) {
   const auto seqLength = static_cast<std::size_t>(state.range(0));
   const auto hQuater = static_cast<std::uint8_t>(state.range(1));
 
@@ -232,7 +253,7 @@ static void BM_benchmark_esc_adaptive_d_coder(benchmark::State& state) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-static void BM_benchmark_esc_ppma_coder(benchmark::State& state) {
+static void BM_benchmark_esc_ppma_decoder(benchmark::State& state) {
   const auto seqLength = static_cast<std::size_t>(state.range(0));
   const auto hQuater = static_cast<std::uint8_t>(state.range(1));
 
@@ -246,7 +267,7 @@ static void BM_benchmark_esc_ppma_coder(benchmark::State& state) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-static void BM_benchmark_esc_ppmd_coder(benchmark::State& state) {
+static void BM_benchmark_esc_ppmd_decoder(benchmark::State& state) {
   const auto seqLength = static_cast<std::size_t>(state.range(0));
   const auto hQuater = static_cast<std::uint8_t>(state.range(1));
 
@@ -262,25 +283,25 @@ static void BM_benchmark_esc_ppmd_coder(benchmark::State& state) {
 // NOLINTBEGIN(modernize-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays,
 // cppcoreguidelines-owning-memory)
 
-BENCHMARK(BM_benchmark_adaptive_coder)->Apply(setInputSizesAndMParameters);
-BENCHMARK(BM_benchmark_adaptive_a_coder)->Apply(setInputSizesAndMParameters);
-BENCHMARK(BM_benchmark_adaptive_d_coder)->Apply(setInputSizesAndMParameters);
-BENCHMARK(BM_benchmark_adaptive_a_contextual_coder)
+BENCHMARK(BM_benchmark_adaptive_decoder)->Apply(setInputSizesAndMParameters);
+BENCHMARK(BM_benchmark_adaptive_a_decoder)->Apply(setInputSizesAndMParameters);
+BENCHMARK(BM_benchmark_adaptive_d_decoder)->Apply(setInputSizesAndMParameters);
+BENCHMARK(BM_benchmark_adaptive_a_contextual_decoder)
     ->Apply(setInputSizesAndMParameters);
-BENCHMARK(BM_benchmark_adaptive_d_contextual_coder)
+BENCHMARK(BM_benchmark_adaptive_d_contextual_decoder)
     ->Apply(setInputSizesAndMParameters);
-BENCHMARK(BM_benchmark_adaptive_a_contextual_improved_coder)
+BENCHMARK(BM_benchmark_adaptive_a_contextual_improved_decoder)
     ->Apply(setInputSizesAndMParameters);
-BENCHMARK(BM_benchmark_adaptive_d_contextual_improved_coder)
+BENCHMARK(BM_benchmark_adaptive_d_contextual_improved_decoder)
     ->Apply(setInputSizesAndMParameters);
-BENCHMARK(BM_benchmark_ppma_coder)->Apply(setInputSizesAndMParameters);
-BENCHMARK(BM_benchmark_ppmd_coder)->Apply(setInputSizesAndMParameters);
-BENCHMARK(BM_benchmark_esc_adaptive_a_coder)
+BENCHMARK(BM_benchmark_ppma_decoder)->Apply(setInputSizesAndMParameters);
+BENCHMARK(BM_benchmark_ppmd_decoder)->Apply(setInputSizesAndMParameters);
+BENCHMARK(BM_benchmark_esc_adaptive_a_decoder)
     ->Apply(setInputSizesAndMParameters);
-BENCHMARK(BM_benchmark_esc_adaptive_d_coder)
+BENCHMARK(BM_benchmark_esc_adaptive_d_decoder)
     ->Apply(setInputSizesAndMParameters);
-BENCHMARK(BM_benchmark_esc_ppma_coder)->Apply(setInputSizesAndMParameters);
-BENCHMARK(BM_benchmark_esc_ppmd_coder)->Apply(setInputSizesAndMParameters);
+BENCHMARK(BM_benchmark_esc_ppma_decoder)->Apply(setInputSizesAndMParameters);
+BENCHMARK(BM_benchmark_esc_ppmd_decoder)->Apply(setInputSizesAndMParameters);
 
 BENCHMARK_MAIN();
 
