@@ -7,7 +7,7 @@ on:
 
 jobs:
     linux-gcc-12:
-        name: Linux GCC
+        name: Linux GCC 12
         runs-on: ubuntu-22.04
         env:
             CC: gcc-12
@@ -23,7 +23,7 @@ jobs:
             - run: valgrind ./build-valgrind/test/ael-tests
 
     linux-gcc-13:
-        name: Linux GCC
+        name: Linux GCC 13
         runs-on: ubuntu-22.04
         env:
             CC: gcc-13

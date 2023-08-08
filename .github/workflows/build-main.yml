@@ -6,8 +6,8 @@ on:
     branches: [ main ]
 
 jobs:
-    linux-gcc:
-        name: Linux GCC
+    linux-gcc-12:
+        name: Linux GCC 12
         runs-on: ubuntu-22.04
         env:
             CC: gcc-12
@@ -16,7 +16,21 @@ jobs:
             - uses: actions/checkout@v3
             - run: |
                   sudo apt-get update
-                  sudo apt-get install -y ninja-build g++-12 libstdc++-12-dev build-essential libicu-dev
+                  sudo apt-get install -y ninja-build g++-12 libstdc++-12-dev build-essential valgrind libicu-dev
+            - run: /bin/bash .ci/build-project.sh build-simple
+            - run: ./build-simple/test/ael-tests
+
+    linux-gcc-13:
+        name: Linux GCC 13
+        runs-on: ubuntu-22.04
+        env:
+            CC: gcc-13
+            CXX: g++-13
+        steps:
+            - uses: actions/checkout@v3
+            - run: |
+                  sudo apt-get update
+                  sudo apt-get install -y ninja-build g++-13 libstdc++-13-dev build-essential valgrind libicu-dev
             - run: /bin/bash .ci/build-project.sh build-simple
             - run: ./build-simple/test/ael-tests
 
