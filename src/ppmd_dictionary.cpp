@@ -29,7 +29,7 @@ auto PPMDDictionary::getWordOrd(const Count& cumulativeNumFound) const -> Ord {
   const auto idxs = rng::iota_view(Ord{0}, getMaxOrd_());
   assert(cumulativeNumFound <= getTotalWordsCnt());
   const auto getLowerCumulNumFound_ = [this](Ord ord) {
-    assert(ord < maxOrd_);
+    assert(ord < getMaxOrd_());
     return getLowerCumulativeCnt_(ord + 1);
   };
   const auto iter =
@@ -39,7 +39,7 @@ auto PPMDDictionary::getWordOrd(const Count& cumulativeNumFound) const -> Ord {
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMDDictionary::getProbabilityStats(Ord ord) -> ProbabilityStats {
-  assert(ord < maxOrd_);
+  assert(ord < getMaxOrd_());
   auto ret = getProbabilityStats_(ord);
   updateWordCnt_(ord, 1);
   return std::move(ret);
@@ -65,7 +65,7 @@ auto PPMDDictionary::getTotalWordsCnt() const -> Count {
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMDDictionary::getLowerCumulativeCnt_(Ord ord) const -> Count {
-  assert(ord <= maxOrd_);
+  assert(ord <= getMaxOrd_());
   Count lower = 0;
   Count uniqueCountsProd = 1;
   for (auto ctx = getSearchCtxEmptySkipped_(); !ctx.empty(); ctx.pop_back()) {
@@ -97,7 +97,7 @@ auto PPMDDictionary::getLowerCumulativeCnt_(Ord ord) const -> Count {
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMDDictionary::getProbabilityStats_(Ord ord) const -> ProbabilityStats {
-  assert(ord < maxOrd_);
+  assert(ord < getMaxOrd_());
   Count lower = 0;
   Count count = 0;
   Count total = 1;

@@ -31,6 +31,7 @@ target_sources(${PROJECT_NAME}
         src/multiply_and_divide.cpp
         src/ppma_dictionary.cpp
         src/ppmd_dictionary.cpp
+        src/ppm_a_d_dictionary_base.cpp
         src/static_dictionary.cpp
         src/uniform_dictionary.cpp
         src/adaptive_dictionary_base.cpp

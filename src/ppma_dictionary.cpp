@@ -28,7 +28,7 @@ auto PPMADictionary::getWordOrd(const Count& cumulativeNumFound) const -> Ord {
   const auto idxs = std::ranges::iota_view(Ord{0}, getMaxOrd_());
   assert(cumulativeNumFound <= getTotalWordsCnt());
   const auto getLowerCumulCnt = [this](std::uint64_t ord) {
-    assert(ord < maxOrd_);
+    assert(ord < getMaxOrd_());
     return getLowerCumulativeCnt_(ord + 1);
   };
   const auto iter =
@@ -38,7 +38,7 @@ auto PPMADictionary::getWordOrd(const Count& cumulativeNumFound) const -> Ord {
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMADictionary::getProbabilityStats(Ord ord) -> ProbabilityStats {
-  assert(ord < maxOrd_);
+  assert(ord < getMaxOrd_());
   auto ret = getProbabilityStats_(ord);
   updateWordCnt_(ord, 1);
   return std::move(ret);
