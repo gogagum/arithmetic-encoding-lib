@@ -50,6 +50,9 @@ static void runTests(benchmark::State& state, DictInitializer dictInitializer,
 
     [[maybe_unused]] auto encoded =
         ael::ArithmeticCoder::encode(src, dataConstructor, dict);
+    state.PauseTiming();
+    state.counters["encoded_size"] = encoded.bitsEncoded;
+    state.ResumeTiming();
   }
 }
 
