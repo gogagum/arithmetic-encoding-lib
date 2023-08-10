@@ -21,6 +21,8 @@ class AdaptiveDDictionary : public ael::impl::esc::dict::ADDictionaryBase {
   constexpr const static std::uint16_t countNumBits = 62;
 
  public:
+  AdaptiveDDictionary() = delete;
+
   /**
    * Adaptive <<D>> dictionary constructor.
    * @param maxOrd - maximal order.

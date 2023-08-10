@@ -15,6 +15,9 @@ class ADDictionaryBase {
   using Ord = std::uint64_t;
   using Count = std::uint64_t;
 
+ public:
+  ADDictionaryBase() = delete;
+
  protected:
   explicit ADDictionaryBase(Ord maxOrd);
 

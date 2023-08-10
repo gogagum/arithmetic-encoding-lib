@@ -37,6 +37,8 @@ class PPMDDictionary : public ael::impl::esc::dict::PPMADDictionaryBase {
   };
 
  public:
+  PPMDDictionary() = delete;
+
   /**
    * @brief PPMD dictionary with esc sympols constructor.
    *

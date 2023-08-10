@@ -62,7 +62,7 @@ auto ArithmeticCoder::encode(auto ordFlow, ByteDataConstructor& dataConstructor,
   using RC = impl::RangesCalc<typename DictT::Count, DictT::countNumBits>;
   auto currRange = typename RC::Range{0, RC::total};
 
-  std::size_t btf = 0;
+  auto btf = std::size_t{0};
 
   for (auto ord : ordFlow) {
     const auto statsSeq = dict.getProbabilityStats(ord);

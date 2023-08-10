@@ -12,9 +12,13 @@ class PPMADDictionaryBase {
  public:
   using Ord = std::uint64_t;
 
+ public:
+  PPMADDictionaryBase() = delete;
+
  protected:
-  explicit PPMADDictionaryBase(Ord maxOrd) : maxOrd_(maxOrd) {}
-  
+  explicit PPMADDictionaryBase(Ord maxOrd) : maxOrd_{maxOrd} {
+  }
+
   [[nodiscard]] Ord getMaxOrd_() const {
     return maxOrd_;
   }

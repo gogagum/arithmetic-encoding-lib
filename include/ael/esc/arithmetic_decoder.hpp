@@ -23,8 +23,8 @@ class ArithmeticDecoder {
   ////////////////////////////////////////////////////////////////////////////
   /// \brief The ArithmeticDecoder::DecodeLimits class.
   struct DecodeLimits {
-    std::size_t wordsLimit;
-    std::size_t bitsLimit;
+    std::size_t wordsLimit{std::numeric_limits<std::size_t>::max()};
+    std::size_t bitsLimit{std::numeric_limits<std::size_t>::max()};
   };
 
  public:
@@ -71,8 +71,8 @@ void ArithmeticDecoder::decode(auto& source, Dict& dict, OutIter outIter,
     return source.takeBit() ? 1 : 0;
   };
 
-  typename RC::Range currRange;
-  typename RC::Count value = 0;
+  auto currRange = typename RC::Range{};
+  auto value = typename RC::Count{0};
 
   for (auto _ : std::ranges::iota_view(std::size_t{0}, Dict::countNumBits)) {
     value = (value << 1) + takeBitLimited();

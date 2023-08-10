@@ -1,9 +1,8 @@
 #ifndef UNIFORM_DICTIONARY_HPP
 #define UNIFORM_DICTIONARY_HPP
 
-#include <cstdint>
-
 #include <ael/impl/dictionary/word_probability_stats.hpp>
+#include <cstdint>
 
 namespace ael::dict {
 
@@ -17,6 +16,8 @@ class UniformDictionary {
   using ProbabilityStats = ael::impl::dict::WordProbabilityStats<Count>;
 
  public:
+  UniformDictionary() = delete;
+
   /**
    * @brief UniformDictionary constructor.
    * @param maxOrd - maximal word order.

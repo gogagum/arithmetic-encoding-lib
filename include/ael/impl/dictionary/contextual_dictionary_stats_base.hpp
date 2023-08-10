@@ -48,6 +48,8 @@ class ContextualDictionaryStatsBase : protected InternalDict {
   };
 
  public:
+  ContextualDictionaryStatsBase() = delete;
+
   /**
    * @brief contextual dictionary constructor.
    * @param constructInfo - wordBitsCount, context length, context cell bits

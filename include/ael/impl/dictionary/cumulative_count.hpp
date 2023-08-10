@@ -16,6 +16,8 @@ class CumulativeCount {
   using Count = std::uint64_t;
 
  public:
+  CumulativeCount() = delete;
+
   /**
    * @brief CumulativeCount constructor.
    * @param maxOrd - maximalOrder;

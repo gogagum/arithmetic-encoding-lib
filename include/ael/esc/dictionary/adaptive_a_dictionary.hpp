@@ -1,11 +1,10 @@
 #ifndef ESC_ADAPTIVE_A_DICTIONARY_HPP
 #define ESC_ADAPTIVE_A_DICTIONARY_HPP
 
+#include <ael/impl/dictionary/word_probability_stats.hpp>
+#include <ael/impl/esc/dictionary/a_d_dictionary_base.hpp>
 #include <boost/container/static_vector.hpp>
 #include <cstdint>
-
-#include <ael/impl/esc/dictionary/a_d_dictionary_base.hpp>
-#include <ael/impl/dictionary/word_probability_stats.hpp>
 
 namespace ael::esc::dict {
 
@@ -21,6 +20,8 @@ class AdaptiveADictionary : public ael::impl::esc::dict::ADDictionaryBase {
   constexpr const static std::uint16_t countNumBits = 62;
 
  public:
+  AdaptiveADictionary() = delete;
+
   /**
    * Adaptive <<A>> dictionary constructor.
    * @param maxOrd - maximal order.
@@ -43,7 +44,7 @@ class AdaptiveADictionary : public ael::impl::esc::dict::ADDictionaryBase {
 
   /**
    * @brief get probability stats for decoding.
-   * 
+   *
    * @param ord index of a word.
    * @return [low, high, total]
    */

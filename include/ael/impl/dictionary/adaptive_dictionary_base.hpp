@@ -17,6 +17,9 @@ class AdaptiveDictionaryBase {
   using Count = CountT;
   constexpr const static std::uint16_t countNumBits = 62;
 
+ public:
+  AdaptiveDictionaryBase() = delete;
+
  protected:
   AdaptiveDictionaryBase(Ord maxOrd, Count initialTotalWordsCount);
 

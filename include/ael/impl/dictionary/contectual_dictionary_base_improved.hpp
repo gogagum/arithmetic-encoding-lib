@@ -15,6 +15,9 @@ namespace ael::impl::dict {
 template <class InternalDictT>
 class ContextualDictionaryBaseImproved
     : protected ContextualDictionaryStatsBase<InternalDictT> {
+ protected:
+  using Base_ = ContextualDictionaryStatsBase<InternalDictT>;
+
  public:
   using Ord = std::uint64_t;
   using Count = std::uint64_t;
@@ -22,8 +25,8 @@ class ContextualDictionaryBaseImproved
   constexpr const static std::uint16_t countNumBits = 62;
 
  public:
-  using ContextualDictionaryStatsBase<
-      InternalDictT>::ContextualDictionaryStatsBase;
+  // Using constructor of a base class.
+  using Base_::ContextualDictionaryStatsBase;
 
   /**
    * @brief getWord

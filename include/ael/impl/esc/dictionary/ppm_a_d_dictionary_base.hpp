@@ -62,9 +62,9 @@ class PPMADDictionaryBase {
   }
 
  private:
-  const std::size_t ctxLength_;
-  const Ord maxOrd_;
-  std::deque<Ord> ctx_;
+  const std::size_t ctxLength_{};
+  const Ord maxOrd_{};
+  std::deque<Ord> ctx_{};
   std::size_t escDecoded_{0};
 };
 

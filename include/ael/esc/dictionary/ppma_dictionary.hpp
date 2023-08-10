@@ -37,6 +37,8 @@ class PPMADictionary : public ael::impl::esc::dict::PPMADDictionaryBase {
   };
 
  public:
+  PPMADictionary() = delete;
+
   /**
    * @brief PPMA dictionary with esc symbols constructor.
    *
