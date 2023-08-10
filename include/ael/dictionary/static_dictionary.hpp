@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <vector>
+#include <ranges>
 
 #include <ael/impl/dictionary/word_probability_stats.hpp>
 
@@ -23,7 +24,7 @@ class StaticDictionary {
    * @param countsRng - count of each symbol ordered.
    * @return
    */
-  template <class RangeT>
+  template <std::ranges::input_range RangeT>
   explicit StaticDictionary(Ord maxOrd, const RangeT& countsRng);
 
   /**
@@ -61,7 +62,7 @@ class StaticDictionary {
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-template <class RangeT>
+template <std::ranges::input_range RangeT>
 StaticDictionary::StaticDictionary(Ord maxOrd, const RangeT& countsRng) {
   cumulativeNumFound_.resize(maxOrd);
   auto currOrd = Ord{0};

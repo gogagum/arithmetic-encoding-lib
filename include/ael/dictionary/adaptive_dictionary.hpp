@@ -27,6 +27,8 @@ class AdaptiveDictionary
   };
 
  public:
+  AdaptiveDictionary() = delete;
+
   /**
    * @brief AdaptiveDictionary constructor.
    * @param constructInfo - maximal order and ratio.

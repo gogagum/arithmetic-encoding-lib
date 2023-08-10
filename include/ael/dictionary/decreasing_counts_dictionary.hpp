@@ -1,9 +1,8 @@
 #ifndef DECREASING_COUNTS_DICTIONARY_HPP
 #define DECREASING_COUNTS_DICTIONARY_HPP
 
-#include <stdexcept>
-
 #include <ael/impl/dictionary/word_probability_stats.hpp>
+#include <stdexcept>
 
 namespace ael::dict {
 
@@ -19,6 +18,8 @@ class DecreasingCountDictionary {
   constexpr const static std::uint16_t countNumBits = 62;
 
  public:
+  DecreasingCountDictionary() = delete;
+
   /**
    * @brief DecreasingCountDictionary constructor.
    * @param initialCount - intintal count.

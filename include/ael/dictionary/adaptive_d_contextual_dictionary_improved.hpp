@@ -1,7 +1,7 @@
 #ifndef ADAPTIVE_D_CONTEXTUAL_DICTIONARY_IMPROVED_HPP
 #define ADAPTIVE_D_CONTEXTUAL_DICTIONARY_IMPROVED_HPP
 
-#include "adaptive_d_dictionary.hpp"
+#include <ael/dictionary/adaptive_d_dictionary.hpp>
 #include <ael/impl/dictionary/contectual_dictionary_base_improved.hpp>
 
 namespace ael::dict {
