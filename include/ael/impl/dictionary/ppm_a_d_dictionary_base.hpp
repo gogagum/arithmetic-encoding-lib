@@ -1,8 +1,8 @@
-#ifndef PPM_A_D_DICTIONARY_BASE_HPP
-#define PPM_A_D_DICTIONARY_BASE_HPP
+#ifndef AEL_IMPL_DICT_PPM_A_D_DICTIONARY_BASE_HPP
+#define AEL_IMPL_DICT_PPM_A_D_DICTIONARY_BASE_HPP
 
+#include <ael/impl/dictionary/max_ord_base.hpp>
 #include <cstdint>
-#include "ael/impl/dictionary/max_ord_base.hpp"
 
 namespace ael::impl::dict {
 
@@ -23,4 +23,4 @@ class PPMADDictionaryBase : protected MaxOrdBase<std::uint64_t> {
 
 }  // namespace ael::impl::dict
 
-#endif
+#endif  // AEL_IMPL_DICT_PPM_A_D_DICTIONARY_BASE_HPP

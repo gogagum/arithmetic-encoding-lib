@@ -1,5 +1,5 @@
-#ifndef ESC_ADAPTIVE_A_DICTIONARY_HPP
-#define ESC_ADAPTIVE_A_DICTIONARY_HPP
+#ifndef AEL_ESC_DICT_ADAPTIVE_A_DICTIONARY_HPP
+#define AEL_ESC_DICT_ADAPTIVE_A_DICTIONARY_HPP
 
 #include <ael/impl/dictionary/word_probability_stats.hpp>
 #include <ael/impl/esc/dictionary/a_d_dictionary_base.hpp>
@@ -71,4 +71,4 @@ class AdaptiveADictionary : public ael::impl::esc::dict::ADDictionaryBase {
 
 }  // namespace ael::esc::dict
 
-#endif  // ESC_ADAPTIVE_A_DICTIONARY_HPP
+#endif  // AEL_ESC_DICT_ADAPTIVE_A_DICTIONARY_HPP

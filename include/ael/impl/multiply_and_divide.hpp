@@ -1,5 +1,5 @@
-#ifndef MULTIPLY_AND_DIVIDE_HPP
-#define MULTIPLY_AND_DIVIDE_HPP
+#ifndef AEL_IMPL_MULTIPLY_AND_DIVIDE_HPP
+#define AEL_IMPL_MULTIPLY_AND_DIVIDE_HPP
 
 #include <boost/multiprecision/cpp_int.hpp>
 #include <cstddef>
@@ -75,4 +75,4 @@ WideNum<numBits> multiply_decrease_and_divide(const WideNum<numBits>& left,
 
 }  // namespace ael::impl
 
-#endif
+#endif  // AEL_IMPL_MULTIPLY_AND_DIVIDE_HPP

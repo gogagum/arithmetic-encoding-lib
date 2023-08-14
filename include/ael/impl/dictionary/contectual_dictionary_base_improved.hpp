@@ -1,11 +1,10 @@
-#ifndef CONTEXTUAL_DICTIONARY_BASE_IMPROVED_HPP
-#define CONTEXTUAL_DICTIONARY_BASE_IMPROVED_HPP
+#ifndef AEL_IMPL_DICT_CONTEXTUAL_DICTIONARY_BASE_IMPROVED_HPP
+#define AEL_IMPL_DICT_CONTEXTUAL_DICTIONARY_BASE_IMPROVED_HPP
 
+#include <ael/impl/dictionary/contextual_dictionary_stats_base.hpp>
+#include <ael/impl/dictionary/word_probability_stats.hpp>
 #include <cstdint>
 #include <optional>
-
-#include "contextual_dictionary_stats_base.hpp"
-#include "word_probability_stats.hpp"
 
 namespace ael::impl::dict {
 
@@ -98,4 +97,4 @@ auto ContextualDictionaryBaseImproved<InternalDictT>::getTotalWordsCnt() const
 
 }  // namespace ael::impl::dict
 
-#endif  // CONTEXTUAL_DICTIONARY_BASE_IMPROVED_HPP
+#endif  // AEL_IMPL_DICT_CONTEXTUAL_DICTIONARY_BASE_IMPROVED_HPP

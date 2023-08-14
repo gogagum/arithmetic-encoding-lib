@@ -1,5 +1,5 @@
-#ifndef ARITHMETIC_CODER_ENCODED_HPP
-#define ARITHMETIC_CODER_ENCODED_HPP
+#ifndef AEL_BYTE_DATA_CONSTRUCTOR_HPP
+#define AEL_BYTE_DATA_CONSTRUCTOR_HPP
 
 #include <array>
 #include <cstddef>
@@ -228,4 +228,4 @@ std::size_t ByteDataConstructor::saveSpaceForT() {
 
 }  // namespace ael
 
-#endif  // ARITHMETIC_CODER_ENCODED_HPP
+#endif  // AEL_BYTE_DATA_CONSTRUCTOR_HPP

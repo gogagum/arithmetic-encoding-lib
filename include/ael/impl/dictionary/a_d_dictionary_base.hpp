@@ -1,11 +1,11 @@
-#ifndef A_D_DICTIONARY_BASE_HPP
-#define A_D_DICTIONARY_BASE_HPP
+#ifndef AEL_IMPL_DICT_A_D_DICTIONARY_BASE_HPP
+#define AEL_IMPL_DICT_A_D_DICTIONARY_BASE_HPP
 
 #include <ael/impl/dictionary/cumulative_count.hpp>
 #include <ael/impl/dictionary/cumulative_unique_count.hpp>
+#include <ael/impl/dictionary/max_ord_base.hpp>
 #include <cstdint>
 #include <ranges>
-#include "ael/impl/dictionary/max_ord_base.hpp"
 
 namespace ael::impl::dict {
 
@@ -25,7 +25,7 @@ class ADDictionaryBase : protected MaxOrdBase<std::uint64_t> {
 
   /**
    * @brief get total words count without applying any model.
-   * 
+   *
    * @return total processed words count.
    */
   [[nodiscard]] Count getRealTotalWordsCnt_() const {
@@ -33,8 +33,8 @@ class ADDictionaryBase : protected MaxOrdBase<std::uint64_t> {
   }
 
   /**
-   * @brief get lower cumulative count without applying any model. 
-   * 
+   * @brief get lower cumulative count without applying any model.
+   *
    * @param ord index of a word((0, maxOrd]).
    * @return real cumulative count of a word.
    */
@@ -44,7 +44,7 @@ class ADDictionaryBase : protected MaxOrdBase<std::uint64_t> {
 
   /**
    * @brief get real word count without aplying models.
-   * 
+   *
    * @param ord index of a word.
    * @return real count of a word.
    */
@@ -54,7 +54,7 @@ class ADDictionaryBase : protected MaxOrdBase<std::uint64_t> {
 
   /**
    * @brief get real total word count.
-   * 
+   *
    * @return real total words counts.
    */
   [[nodiscard]] Count getTotalWordsUniqueCnt_() const {
@@ -63,7 +63,7 @@ class ADDictionaryBase : protected MaxOrdBase<std::uint64_t> {
 
   /**
    * @brief get lower cumulative unique count.
-   * 
+   *
    * @param ord index of a word.
    * @return lower cumulative unique count.
    */
@@ -73,7 +73,7 @@ class ADDictionaryBase : protected MaxOrdBase<std::uint64_t> {
 
   /**
    * @brief get word unique count.
-   * 
+   *
    * @param ord index of a word.
    * @return unique count of a word (in fact, 0, if it was not found, 1, if
    * was found).
@@ -84,7 +84,7 @@ class ADDictionaryBase : protected MaxOrdBase<std::uint64_t> {
 
   /**
    * @brief update unique and real counts for a word.
-   * 
+   *
    * @param ord index of a word.
    * @param cnt count change.
    */
@@ -97,4 +97,4 @@ class ADDictionaryBase : protected MaxOrdBase<std::uint64_t> {
 
 }  // namespace ael::impl::dict
 
-#endif  // A_D_DICTIONARY_BASE_HPP
+#endif  // AEL_IMPL_DICT_A_D_DICTIONARY_BASE_HPP

@@ -1,7 +1,5 @@
-#pragma once
-
-#ifndef ARITHMETIC_CODER_HPP
-#define ARITHMETIC_CODER_HPP
+#ifndef AEL_ARITHMETIC_CODER_HPP
+#define AEL_ARITHMETIC_CODER_HPP
 
 #include <ael/byte_data_constructor.hpp>
 #include <ael/impl/ranges_calc.hpp>
@@ -104,4 +102,4 @@ auto ArithmeticCoder::encode(auto ordFlow, ByteDataConstructor& dataConstructor,
 
 }  // namespace ael
 
-#endif  // ARITHMETIC_CODER_HPP
+#endif  // AEL_ARITHMETIC_CODER_HPP

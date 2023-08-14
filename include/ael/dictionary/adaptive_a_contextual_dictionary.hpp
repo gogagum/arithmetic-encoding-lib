@@ -1,5 +1,5 @@
-#ifndef ADAPTIVE_A_CONTEXTUAL_DICTIONARY_HPP
-#define ADAPTIVE_A_CONTEXTUAL_DICTIONARY_HPP
+#ifndef AEL_DICT_ADAPTIVE_A_CONTEXTUAL_DICTIONARY_HPP
+#define AEL_DICT_ADAPTIVE_A_CONTEXTUAL_DICTIONARY_HPP
 
 #include <ael/dictionary/adaptive_a_dictionary.hpp>
 #include <ael/impl/dictionary/contextual_dictionary_base.hpp>
@@ -13,4 +13,4 @@ using AdaptiveAContextualDictionary =
 
 }  // namespace ael::dict
 
-#endif  // ADAPTIVE_A_CONTEXTUAL_DICTIONARY_HPP
+#endif  // AEL_DICT_ADAPTIVE_A_CONTEXTUAL_DICTIONARY_HPP

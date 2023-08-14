@@ -1,5 +1,5 @@
-#ifndef DECREASING_ON_UPDATE_DICTIONARY_HPP
-#define DECREASING_ON_UPDATE_DICTIONARY_HPP
+#ifndef AEL_DICT_DECREASING_ON_UPDATE_DICTIONARY_HPP
+#define AEL_DICT_DECREASING_ON_UPDATE_DICTIONARY_HPP
 
 #include <ael/impl/dictionary/adaptive_dictionary_base.hpp>
 #include <ael/impl/dictionary/word_probability_stats.hpp>
@@ -83,4 +83,4 @@ DecreasingOnUpdateDictionary::DecreasingOnUpdateDictionary(
 
 }  // namespace ael::dict
 
-#endif  // DECREASING_TOTAL_COUNT_DICTIONARY_HPP
+#endif  // AEL_DICT_DECREASING_TOTAL_COUNT_DICTIONARY_HPP

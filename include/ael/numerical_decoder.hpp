@@ -1,5 +1,5 @@
-#ifndef NUMERICAL_DECODER_HPP
-#define NUMERICAL_DECODER_HPP
+#ifndef AEL_NUMERICAL_DECODER_HPP
+#define AEL_NUMERICAL_DECODER_HPP
 
 #include <concepts>
 #include <cstddef>
@@ -161,4 +161,4 @@ void NumericalDecoder::decodeContent_(
 
 }  // namespace ael
 
-#endif  // NUMERICAL_DECODER_HPP
+#endif  // AEL_NUMERICAL_DECODER_HPP

@@ -1,5 +1,5 @@
-#ifndef NUMERICAL_CODER_HPP
-#define NUMERICAL_CODER_HPP
+#ifndef AEL_NUMERICAL_CODER_HPP
+#define AEL_NUMERICAL_CODER_HPP
 
 #include <algorithm>
 #include <cstddef>
@@ -138,4 +138,4 @@ auto NumericalCoder::countWords(const auto& ordFlow)
 
 }  // namespace ael
 
-#endif  // NUMERICAL_CODER_HPP
+#endif  // AEL_NUMERICAL_CODER_HPP

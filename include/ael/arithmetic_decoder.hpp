@@ -1,7 +1,5 @@
-#pragma once
-
-#ifndef ARITHMETIC_DECODER_HPP
-#define ARITHMETIC_DECODER_HPP
+#ifndef AEL_ARITHMETIC_DECODER_HPP
+#define AEL_ARITHMETIC_DECODER_HPP
 
 #include <ael/impl/multiply_and_divide.hpp>
 #include <ael/impl/ranges_calc.hpp>
@@ -112,4 +110,4 @@ void ArithmeticDecoder::decode(auto& source, Dict& dict, OutIter outIter,
 
 }  // namespace ael
 
-#endif  // ARITHMETIC_DECODER_HPP
+#endif  // AEL_ARITHMETIC_DECODER_HPP

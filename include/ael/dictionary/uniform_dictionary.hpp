@@ -1,5 +1,5 @@
-#ifndef UNIFORM_DICTIONARY_HPP
-#define UNIFORM_DICTIONARY_HPP
+#ifndef AEL_DICT_UNIFORM_DICTIONARY_HPP
+#define AEL_DICT_UNIFORM_DICTIONARY_HPP
 
 #include <ael/impl/dictionary/word_probability_stats.hpp>
 #include <cstdint>
@@ -53,4 +53,4 @@ class UniformDictionary {
 
 }  // namespace ael::dict
 
-#endif  // UNIFORM_DICTIONARY_HPP
+#endif  // AEL_DICT_UNIFORM_DICTIONARY_HPP

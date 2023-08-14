@@ -1,5 +1,5 @@
-#ifndef RANGES_CALC_HPP
-#define RANGES_CALC_HPP
+#ifndef AEL_IMPL_RANGES_CALC_HPP
+#define AEL_IMPL_RANGES_CALC_HPP
 
 #include <ael/impl/dictionary/word_probability_stats.hpp>
 #include <cstdint>
@@ -69,4 +69,4 @@ auto RangesCalc<CountT, numBits>::rangeFromStatsAndPrev(
 
 }  // namespace ael::impl
 
-#endif  // RANGES_CALC_HPP
+#endif  // AEL_IMPL_RANGES_CALC_HPP

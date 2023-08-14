@@ -1,5 +1,5 @@
-#ifndef ADAPTIVE_DICTIONARY_BASE_HPP
-#define ADAPTIVE_DICTIONARY_BASE_HPP
+#ifndef AEL_IMPL_DICT_ADAPTIVE_DICTIONARY_BASE_HPP
+#define AEL_IMPL_DICT_ADAPTIVE_DICTIONARY_BASE_HPP
 
 #include <ael/impl/dictionary/max_ord_base.hpp>
 #include <cstdint>
@@ -99,4 +99,4 @@ auto AdaptiveDictionaryBase<CountT>::getRealCumulativeCnt_(Ord ord) const
 
 }  // namespace ael::impl::dict
 
-#endif  // ADAPTIVE_DICTIONARY_BASE_HPP
+#endif  // AEL_IMPL_DICT_ADAPTIVE_DICTIONARY_BASE_HPP

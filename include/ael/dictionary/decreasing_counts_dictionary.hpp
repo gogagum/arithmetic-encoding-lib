@@ -1,5 +1,5 @@
-#ifndef DECREASING_COUNTS_DICTIONARY_HPP
-#define DECREASING_COUNTS_DICTIONARY_HPP
+#ifndef AEL_DICT_DECREASING_COUNTS_DICTIONARY_HPP
+#define AEL_DICT_DECREASING_COUNTS_DICTIONARY_HPP
 
 #include <ael/impl/dictionary/word_probability_stats.hpp>
 #include <stdexcept>
@@ -78,4 +78,4 @@ auto DecreasingCountDictionary<CountT>::getProbabilityStats(Ord ord)
 
 }  // namespace ael::dict
 
-#endif  // DECREASING_COUNTS_DICTIONARY_HPP
+#endif  // AEL_DICT_DECREASING_COUNTS_DICTIONARY_HPP

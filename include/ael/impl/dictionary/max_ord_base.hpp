@@ -1,5 +1,5 @@
-#ifndef MAX_ORD_BASE_HPP
-#define MAX_ORD_BASE_HPP
+#ifndef AEL_IMPL_DICT_MAX_ORD_BASE_HPP
+#define AEL_IMPL_DICT_MAX_ORD_BASE_HPP
 
 #include <ranges>
 
@@ -31,4 +31,4 @@ class MaxOrdBase {
 
 }  // namespace ael::impl::dict
 
-#endif
+#endif  // AEL_IMPL_DICT_MAX_ORD_BASE_HPP

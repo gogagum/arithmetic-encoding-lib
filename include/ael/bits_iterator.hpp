@@ -1,5 +1,5 @@
-#ifndef BITS_ITERATOR_HPP
-#define BITS_ITERATOR_HPP
+#ifndef AEL_IMPL_BITS_ITERATOR_HPP
+#define AEL_IMPL_BITS_ITERATOR_HPP
 
 #include <array>
 #include <boost/iterator/iterator_facade.hpp>
@@ -111,4 +111,4 @@ class ReverseBitsIterator : public std::reverse_iterator<BitsIterator<T>> {
 
 }  // namespace ael::impl
 
-#endif  // BITS_ITERATOR_HPP
+#endif  // AEL_IMPL_BITS_ITERATOR_HPP

@@ -1,5 +1,5 @@
-#ifndef AEL_IMPL_DICT__CONTEXTUAL_DICTIONARY_STATS_BASE_HPP
-#define AEL_IMPL_DICT__CONTEXTUAL_DICTIONARY_STATS_BASE_HPP
+#ifndef AEL_IMPL_DICT_CONTEXTUAL_DICTIONARY_STATS_BASE_HPP
+#define AEL_IMPL_DICT_CONTEXTUAL_DICTIONARY_STATS_BASE_HPP
 
 #include <boost/multiprecision/cpp_int.hpp>
 #include <cstdint>
@@ -177,4 +177,4 @@ bool ContextualDictionaryStatsBase<InternalDictT>::ctxExists_(
 
 }  // namespace ael::impl::dict
 
-#endif  // AEL_IMPL_DICT__CONTEXTUAL_DICTIONARY_STATS_BASE_HPP
+#endif  // AEL_IMPL_DICT_CONTEXTUAL_DICTIONARY_STATS_BASE_HPP

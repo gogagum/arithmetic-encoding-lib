@@ -1,5 +1,5 @@
-#ifndef IMPL_ESC_PPM_A_D_DICTIONARY_BASE_HPP
-#define IMPL_ESC_PPM_A_D_DICTIONARY_BASE_HPP
+#ifndef AEL_IMPL_ESC_DICT_PPM_A_D_DICTIONARY_BASE_HPP
+#define AEL_IMPL_ESC_DICT_PPM_A_D_DICTIONARY_BASE_HPP
 
 #include <ael/impl/dictionary/word_probability_stats.hpp>
 #include <boost/container/static_vector.hpp>
@@ -72,4 +72,4 @@ class PPMADDictionaryBase
 
 }  // namespace ael::impl::esc::dict
 
-#endif
+#endif  // AEL_IMPL_ESC_DICT_PPM_A_D_DICTIONARY_BASE_HPP

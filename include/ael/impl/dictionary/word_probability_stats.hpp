@@ -1,5 +1,5 @@
-#ifndef WORD_PROBABILITY_STATS_HPP
-#define WORD_PROBABILITY_STATS_HPP
+#ifndef AEL_IMPL_DICT_WORD_PROBABILITY_STATS_HPP
+#define AEL_IMPL_DICT_WORD_PROBABILITY_STATS_HPP
 
 #include <cstdint>
 
@@ -17,4 +17,4 @@ struct WordProbabilityStats {
 
 }  // namespace ael::impl::dict
 
-#endif  // WORD_PROBABILITY_STATS_HPP
+#endif  // AEL_IMPL_DICT_WORD_PROBABILITY_STATS_HPP

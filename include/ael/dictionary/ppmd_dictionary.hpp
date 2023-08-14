@@ -1,5 +1,5 @@
-#ifndef PPMD_DICTIONARY_HPP
-#define PPMD_DICTIONARY_HPP
+#ifndef AEL_DICT_PPMD_DICTIONARY_HPP
+#define AEL_DICT_PPMD_DICTIONARY_HPP
 
 #include <ael/impl/dictionary/cumulative_count.hpp>
 #include <ael/impl/dictionary/cumulative_unique_count.hpp>
@@ -98,4 +98,4 @@ class PPMDDictionary : ael::impl::dict::PPMADDictionaryBase {
 
 }  // namespace ael::dict
 
-#endif  // PPMD_DICTIONARY_HPP
+#endif  // AEL_DICT_PPMD_DICTIONARY_HPP

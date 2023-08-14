@@ -1,5 +1,5 @@
-#ifndef ESC_PPMA_DICTIONARY_HPP
-#define ESC_PPMA_DICTIONARY_HPP
+#ifndef AEL_ESC_DICT_PPMA_DICTIONARY_HPP
+#define AEL_ESC_DICT_PPMA_DICTIONARY_HPP
 
 #include <ael/impl/dictionary/cumulative_count.hpp>
 #include <ael/impl/dictionary/cumulative_unique_count.hpp>
@@ -109,4 +109,4 @@ class PPMADictionary : public ael::impl::esc::dict::PPMADDictionaryBase {
 
 }  // namespace ael::esc::dict
 
-#endif
+#endif  // AEL_ESC_DICT_PPMA_DICTIONARY_HPP

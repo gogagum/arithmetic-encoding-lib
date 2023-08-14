@@ -1,5 +1,5 @@
-#ifndef ESC_A_D_DICTIONARY_BASE_HPP
-#define ESC_A_D_DICTIONARY_BASE_HPP
+#ifndef AEL_IMPL_ESC_DICT_A_D_DICTIONARY_BASE_HPP
+#define AEL_IMPL_ESC_DICT_A_D_DICTIONARY_BASE_HPP
 
 #include <ael/impl/dictionary/a_d_dictionary_base.hpp>
 
@@ -19,4 +19,4 @@ class ADDictionaryBase : protected ael::impl::dict::ADDictionaryBase {
 
 }  // namespace ael::impl::esc::dict
 
-#endif  // ESC_A_D_DICTIONARY_BASE_HPP
+#endif  // AEL_IMPL_ESC_DICT_A_D_DICTIONARY_BASE_HPP

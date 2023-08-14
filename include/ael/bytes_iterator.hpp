@@ -1,5 +1,5 @@
-#ifndef BYTES_ITERATOR_HPP
-#define BYTES_ITERATOR_HPP
+#ifndef AEL_IMPL_BYTES_ITERATOR_HPP
+#define AEL_IMPL_BYTES_ITERATOR_HPP
 
 #include <array>
 #include <boost/iterator/iterator_facade.hpp>
@@ -92,4 +92,4 @@ class ReverseBytesIterator : public std::reverse_iterator<BytesIterator<T>> {
 
 }  // namespace ael::impl
 
-#endif  // BYTES_ITERATOR_HPP
+#endif  // AEL_IMPL_BYTES_ITERATOR_HPP

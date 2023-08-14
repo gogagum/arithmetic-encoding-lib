@@ -1,7 +1,5 @@
-#pragma once
-
-#ifndef ARITHMETIC_DECODER_DECODED_HPP
-#define ARITHMETIC_DECODER_DECODED_HPP
+#ifndef AEL_IMPL_DATA_PARSER_HPP
+#define AEL_IMPL_DATA_PARSER_HPP
 
 #include <array>
 #include <cstddef>
@@ -183,4 +181,4 @@ T DataParser::takeT() {
 
 }  // namespace ael
 
-#endif  // ARITHMETIC_DECODER_DECODED_HPP
+#endif  // AEL_IMPL_DATA_PARSER_HPP

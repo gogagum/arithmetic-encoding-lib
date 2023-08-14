@@ -1,5 +1,5 @@
-#ifndef ESC_ADAPTIVE_D_DICTIONARY_HPP
-#define ESC_ADAPTIVE_D_DICTIONARY_HPP
+#ifndef AEL_ESC_DICT_ADAPTIVE_D_DICTIONARY_HPP
+#define AEL_ESC_DICT_ADAPTIVE_D_DICTIONARY_HPP
 
 #include <boost/container/static_vector.hpp>
 #include <cstdint>
@@ -76,4 +76,4 @@ class AdaptiveDDictionary : public ael::impl::esc::dict::ADDictionaryBase {
 
 }  // namespace ael::esc::dict
 
-#endif  // ESC_ADAPTIVE_D_DICTIONARY_HPP
+#endif  // AEL_ESC_DICT_ADAPTIVE_D_DICTIONARY_HPP

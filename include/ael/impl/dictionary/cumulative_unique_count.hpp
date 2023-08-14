@@ -1,5 +1,5 @@
-#ifndef CUMULATIVE_UNIQUE_COUNT_HPP
-#define CUMULATIVE_UNIQUE_COUNT_HPP
+#ifndef AEL_IMPL_DICT_CUMULATIVE_UNIQUE_COUNT_HPP
+#define AEL_IMPL_DICT_CUMULATIVE_UNIQUE_COUNT_HPP
 
 #include <cstdint>
 #include <dst/dynamic_segment_tree.hpp>
@@ -87,4 +87,4 @@ class CumulativeUniqueCount {
 
 }  // namespace ael::impl::dict
 
-#endif  // CUMULATIVE_COUNT_HPP
+#endif  // AEL_IMPL_DICT_CUMULATIVE_UNIQUE_COUNT_HPP

@@ -1,5 +1,5 @@
-#ifndef STATIC_DICTIONARY_HPP
-#define STATIC_DICTIONARY_HPP
+#ifndef AEL_DICT_STATIC_DICTIONARY_HPP
+#define AEL_DICT_STATIC_DICTIONARY_HPP
 
 #include <cstdint>
 #include <vector>
@@ -80,4 +80,4 @@ StaticDictionary::StaticDictionary(Ord maxOrd, const RangeT& countsRng) {
 
 }  // namespace ael::dict
 
-#endif  // STATIC_DICTIONARY_HPP
+#endif  // AEL_DICT_STATIC_DICTIONARY_HPP
