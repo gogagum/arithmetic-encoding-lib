@@ -15,7 +15,6 @@ PPMDDictionary::PPMDDictionary(ConstructInfo constructInfo)
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMDDictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
-  const auto idxs = rng::iota_view{Ord{0}, getMaxOrd_()};
   auto currCtx = SearchCtx_(getCtx_().rbegin(), getCtx_().rend());
   skipNewCtxs_(currCtx);
   if (getEscDecoded_() < currCtx.size()) {
@@ -25,8 +24,7 @@ auto PPMDDictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
       return 2 * currCtxInfo.cnt.getLowerCumulativeCnt(ord + 1) -
              currCtxInfo.uniqueCnt.getLowerCumulativeCnt(ord + 1);
     };
-    return rng::upper_bound(idxs, cumulativeCnt, {}, getLowerCumulCnt) -
-           idxs.begin();
+    return *rng::upper_bound(getOrdRng_(), cumulativeCnt, {}, getLowerCumulCnt);
   }
   if (getEscDecoded_() == currCtx.size()) {
     if (0 == zeroCtxCell_.cnt.getTotalWordsCnt()) {
@@ -36,8 +34,7 @@ auto PPMDDictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
       return 2 * zeroCtxCell_.cnt.getLowerCumulativeCnt(ord + 1) -
              zeroCtxCell_.uniqueCnt.getLowerCumulativeCnt(ord + 1);
     };
-    return rng::upper_bound(idxs, cumulativeCnt, {}, getLowerCumulCnt) -
-           idxs.begin();
+    return *rng::upper_bound(getOrdRng_(), cumulativeCnt, {}, getLowerCumulCnt);
   }
   assert(getEscDecoded_() == currCtx.size() + 1 &&
          "Esc decoded count can not be that big.");
@@ -71,7 +68,8 @@ auto PPMDDictionary::getProbabilityStats(Ord ord) -> StatsSeq {
   }
   if (currCtx.empty()) {
     const auto zeroTotal = zeroCtxCell_.cnt.getTotalWordsCnt();
-    const auto zeroLowerUnique = zeroCtxCell_.uniqueCnt.getLowerCumulativeCnt(ord);
+    const auto zeroLowerUnique =
+        zeroCtxCell_.uniqueCnt.getLowerCumulativeCnt(ord);
     if (const auto zeroCount = zeroCtxCell_.cnt.getCount(ord); 0 == zeroCount) {
       const auto zeroTotalUnique = zeroCtxCell_.uniqueCnt.getTotalWordsCnt();
       const auto escLow = 2 * zeroTotal - zeroTotalUnique;
@@ -160,7 +158,8 @@ auto PPMDDictionary::getDecodeProbabilityStats_(Ord ord) -> ProbabilityStats {
         return {0, 1, 1};
       }
       const auto zeroLower = zeroCtxCell_.cnt.getLowerCumulativeCnt(ord);
-      const auto zeroLowerUnique = zeroCtxCell_.uniqueCnt.getLowerCumulativeCnt(ord);
+      const auto zeroLowerUnique =
+          zeroCtxCell_.uniqueCnt.getLowerCumulativeCnt(ord);
       const auto zeroCnt = zeroCtxCell_.cnt.getCount(ord);
       const auto zeroUniqueCnt = zeroCtxCell_.uniqueCnt.getCount(ord);
       const auto symLow = 2 * zeroLower - zeroLowerUnique;
@@ -199,9 +198,11 @@ auto PPMDDictionary::getDecodeProbabilityStats_(Ord ord) -> ProbabilityStats {
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMDDictionary::getDecodeProbabilityStatsForNewWord_(Ord ord) const
     -> ProbabilityStats {
-  const auto symLow = Count{ord} - zeroCtxCell_.uniqueCnt.getLowerCumulativeCnt(ord);
+  const auto symLow =
+      Count{ord} - zeroCtxCell_.uniqueCnt.getLowerCumulativeCnt(ord);
   const auto symHigh = symLow + 1;
-  const auto symTotal = getMaxOrd_() - zeroCtxCell_.uniqueCnt.getTotalWordsCnt();
+  const auto symTotal =
+      getMaxOrd_() - zeroCtxCell_.uniqueCnt.getTotalWordsCnt();
   return {symLow, symHigh, symTotal};
 }
 
@@ -225,13 +226,11 @@ void PPMDDictionary::updateWordCnt_(Ord ord, std::int64_t cntChange) {
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMDDictionary::getWordOrdForNewWord_(Count cumulativeCnt) const -> Ord {
-  const auto idxs = rng::iota_view(Ord{0}, getMaxOrd_());
   const auto getLowerCumulCnt = [this](Ord ord) {
     return ord + 1 - zeroCtxCell_.uniqueCnt.getLowerCumulativeCnt(ord + 1);
   };
   const auto retOrd =
-      rng::upper_bound(idxs, cumulativeCnt, {}, getLowerCumulCnt) -
-      idxs.begin();
+      *rng::upper_bound(getOrdRng_(), cumulativeCnt, {}, getLowerCumulCnt);
   assert(!isEsc(retOrd) &&
          "Search in symbols which were not found yet. Esc is invalid here.");
   return retOrd;

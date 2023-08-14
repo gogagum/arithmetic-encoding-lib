@@ -93,7 +93,12 @@
         "complex": "cpp",
         "charconv": "cpp",
         "format": "cpp",
-        "stdfloat": "cpp"
+        "stdfloat": "cpp",
+        "cfenv": "cpp",
+        "codecvt": "cpp",
+        "future": "cpp",
+        "regex": "cpp",
+        "strstream": "cpp"
     },
     "cmake.configureArgs": [
         "-DAEL_TESTS:BOOL=1",

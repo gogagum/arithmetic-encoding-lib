@@ -3,6 +3,8 @@
 
 namespace ael::dict {
 
+namespace rng = std::ranges;
+
 ////////////////////////////////////////////////////////////////////////////////
 AdaptiveADictionary::AdaptiveADictionary(Ord maxOrd)
     : ael::impl::dict::ADDictionaryBase(maxOrd) {
@@ -10,13 +12,10 @@ AdaptiveADictionary::AdaptiveADictionary(Ord maxOrd)
 
 ////////////////////////////////////////////////////////////////////////////////
 auto AdaptiveADictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
-  const auto idxs = std::ranges::iota_view(Ord{0}, getMaxOrd_());
-  const auto getLowerCumulNumFound_ = [this](std::uint64_t ord) {
+  const auto getLowerCumulCnt_ = [this](Ord ord) {
     return getLowerCumulativeCnt_(ord + 1);
   };
-  const auto iter =
-      std::ranges::upper_bound(idxs, cumulativeCnt, {}, getLowerCumulNumFound_);
-  return iter - idxs.begin();
+  return *rng::upper_bound(this->getOrdRng_(), cumulativeCnt, {}, getLowerCumulCnt_);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

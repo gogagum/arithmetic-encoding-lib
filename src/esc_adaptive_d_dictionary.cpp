@@ -24,14 +24,11 @@ auto AdaptiveDDictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
       getRealTotalWordsCnt_() * 2 - getTotalWordsUniqueCnt_()) {
     return getMaxOrd_();
   }
-  const auto idxs = rng::iota_view(Ord{0}, getMaxOrd_());
-  const auto getLowerCumulativeNumFound_ = [this](Ord ord) {
+  const auto getLowerCumulCnt = [this](Ord ord) {
     return getRealLowerCumulativeWordCnt_(ord + 1) * 2 -
            getLowerCumulativeUniqueNumFound_(ord + 1);
   };
-  const auto iter =
-      rng::upper_bound(idxs, cumulativeCnt, {}, getLowerCumulativeNumFound_);
-  return iter - idxs.begin();
+  return *rng::upper_bound(getOrdRng_(), cumulativeCnt, {}, getLowerCumulCnt);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -65,13 +62,10 @@ auto AdaptiveDDictionary::getTotalWordsCnt() const -> Count {
 ////////////////////////////////////////////////////////////////////////////////
 auto AdaptiveDDictionary::getWordOrdAfterEsc_(Count cumulativeCnt) const
     -> Ord {
-  const auto idxs = rng::iota_view(Ord{0}, getMaxOrd_());
-  const auto getLowerCumulNumFound_ = [this](std::uint64_t ord) {
+  const auto getLowerCumulCnt_ = [this](std::uint64_t ord) {
     return ord + 1 - getLowerCumulativeUniqueNumFound_(ord + 1);
   };
-  const auto iter =
-      rng::upper_bound(idxs, cumulativeCnt, {}, getLowerCumulNumFound_);
-  return iter - idxs.begin();
+  return *rng::upper_bound(getOrdRng_(), cumulativeCnt, {}, getLowerCumulCnt_);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

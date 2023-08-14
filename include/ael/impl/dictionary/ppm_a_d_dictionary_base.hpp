@@ -2,29 +2,23 @@
 #define PPM_A_D_DICTIONARY_BASE_HPP
 
 #include <cstdint>
+#include "ael/impl/dictionary/max_ord_base.hpp"
 
 namespace ael::impl::dict {
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief PPMA and PPMD dictionary base class.
 ///
-class PPMADDictionaryBase {
+class PPMADDictionaryBase : protected MaxOrdBase<std::uint64_t> {
  public:
-  using Ord = std::uint64_t;
+  using Ord = MaxOrdBase::Ord;
 
  public:
   PPMADDictionaryBase() = delete;
 
  protected:
-  explicit PPMADDictionaryBase(Ord maxOrd) : maxOrd_{maxOrd} {
+  explicit PPMADDictionaryBase(Ord maxOrd) : MaxOrdBase(maxOrd) {
   }
-
-  [[nodiscard]] Ord getMaxOrd_() const {
-    return maxOrd_;
-  }
-
- private:
-  const Ord maxOrd_;
 };
 
 }  // namespace ael::impl::dict

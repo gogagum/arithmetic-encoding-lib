@@ -27,14 +27,10 @@ PPMDDictionary::PPMDDictionary(ConstructInfo constructInfo)
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMDDictionary::getWordOrd(const Count& cumulativeNumFound) const -> Ord {
   const auto idxs = rng::iota_view(Ord{0}, getMaxOrd_());
-  assert(cumulativeNumFound <= getTotalWordsCnt());
-  const auto getLowerCumulNumFound_ = [this](Ord ord) {
-    assert(ord < getMaxOrd_());
+  const auto getLowerCumulCnt_ = [this](Ord ord) {
     return getLowerCumulativeCnt_(ord + 1);
   };
-  const auto iter =
-      rng::upper_bound(idxs, cumulativeNumFound, {}, getLowerCumulNumFound_);
-  return iter - idxs.begin();
+  return *rng::upper_bound(getOrdRng_(), cumulativeNumFound, {}, getLowerCumulCnt_);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

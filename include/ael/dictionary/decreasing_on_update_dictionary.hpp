@@ -35,10 +35,10 @@ class DecreasingOnUpdateDictionary
 
   /**
    * @brief getWord - word by cumulatove count.
-   * @param cumulativeNumFound - count to search for.
+   * @param cumulativeCnt - count to search for.
    * @return found word.
    */
-  [[nodiscard]] Ord getWordOrd(Count cumulativeNumFound) const;
+  [[nodiscard]] Ord getWordOrd(Count cumulativeCnt) const;
 
   /**
    * @brief getWordProbabilityStats - get stats for a word.

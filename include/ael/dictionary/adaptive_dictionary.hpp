@@ -37,10 +37,10 @@ class AdaptiveDictionary
 
   /**
    * @brief getWord - get word by cumulative num found.
-   * @param cumulativeNumFound - search key.
+   * @param cumulativeCnt - search key.
    * @return word with exact cumulative number found.
    */
-  [[nodiscard]] Ord getWordOrd(Count cumulativeNumFound) const;
+  [[nodiscard]] Ord getWordOrd(Count cumulativeCnt) const;
 
   /**
    * @brief getProbabilityStats reads probability statistics, updates them,

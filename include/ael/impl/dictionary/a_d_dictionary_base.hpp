@@ -4,15 +4,17 @@
 #include <ael/impl/dictionary/cumulative_count.hpp>
 #include <ael/impl/dictionary/cumulative_unique_count.hpp>
 #include <cstdint>
+#include <ranges>
+#include "ael/impl/dictionary/max_ord_base.hpp"
 
 namespace ael::impl::dict {
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief The base A/D dictionary base class.
 ///
-class ADDictionaryBase {
- protected:
-  using Ord = std::uint64_t;
+class ADDictionaryBase : protected MaxOrdBase<std::uint64_t> {
+ public:
+  using Ord = MaxOrdBase::Ord;
   using Count = std::uint64_t;
 
  public:
@@ -88,19 +90,9 @@ class ADDictionaryBase {
    */
   void updateWordCnt_(Ord ord, Count cnt);
 
-  /**
-   * @brief get maximum order (index of a word).
-   * 
-   * @return maximum order.
-   */
-  [[nodiscard]] Ord getMaxOrd_() const {
-    return maxOrd_;
-  }
-
  private:
   CumulativeCount cumulativeCnt_;
   CumulativeUniqueCount cumulativeUniqueCnt_;
-  const std::uint64_t maxOrd_;
 };
 
 }  // namespace ael::impl::dict

@@ -6,12 +6,15 @@
 #include <cstdint>
 #include <deque>
 
+#include "ael/impl/dictionary/max_ord_base.hpp"
+
 namespace ael::impl::esc::dict {
 
 ////////////////////////////////////////////////////////////////////////////////
-class PPMADDictionaryBase {
+class PPMADDictionaryBase
+    : protected ael::impl::dict::MaxOrdBase<std::uint64_t> {
  public:
-  using Ord = std::uint64_t;
+  using Ord = MaxOrdBase::Ord;
   using Count = std::uint64_t;
   using ProbabilityStats = ael::impl::dict::WordProbabilityStats<Count>;
 
@@ -19,9 +22,12 @@ class PPMADDictionaryBase {
   constexpr static std::uint16_t maxCtxLength_ = 16;
   using SearchCtx_ = boost::container::static_vector<Ord, maxCtxLength_>;
 
+ public:
+  PPMADDictionaryBase() = delete;
+
  protected:
   PPMADDictionaryBase(Ord maxOrd, std::size_t ctxLength)
-      : ctxLength_(ctxLength), maxOrd_{maxOrd} {
+      : MaxOrdBase(maxOrd), ctxLength_(ctxLength) {
   }
 
  public:
@@ -33,14 +39,10 @@ class PPMADDictionaryBase {
    * @return false if word is not an esc symbol.
    */
   [[nodiscard]] bool isEsc(Ord ord) const {
-    return ord == maxOrd_;
+    return ord == getMaxOrd_();
   }
 
  protected:
-  [[nodiscard]] Ord getMaxOrd_() const {
-    return maxOrd_;
-  }
-
   [[nodiscard]] std::size_t getEscDecoded_() const {
     return escDecoded_;
   }

@@ -17,7 +17,6 @@ PPMADictionary::PPMADictionary(ConstructInfo constructInfo)
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMADictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
-  const auto idxs = rng::iota_view(Ord{0}, getMaxOrd_());
   auto currCtx = SearchCtx_(getCtx_().rbegin(), getCtx_().rend());
   skipNewCtxs_(currCtx);
   if (getEscDecoded_() < currCtx.size()) {
@@ -26,15 +25,13 @@ auto PPMADictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
     const auto getLowerCumulCnt = [&currCtxInfo](Ord ord) {
       return currCtxInfo.getLowerCumulativeCnt(ord + 1);
     };
-    return rng::upper_bound(idxs, cumulativeCnt, {}, getLowerCumulCnt) -
-           idxs.begin();
+    return *rng::upper_bound(getOrdRng_(), cumulativeCnt, {}, getLowerCumulCnt);
   }
   if (getEscDecoded_() == currCtx.size()) {
     const auto getLowerCumulCnt = [this](Ord ord) {
       return zeroCtxCnt_.getLowerCumulativeCnt(ord + 1);
     };
-    return rng::upper_bound(idxs, cumulativeCnt, {}, getLowerCumulCnt) -
-           idxs.begin();
+    return *rng::upper_bound(getOrdRng_(), cumulativeCnt, {}, getLowerCumulCnt);
   }
   assert(getEscDecoded_() == currCtx.size() + 1 &&
          "Esc decoded count can not be that big.");
@@ -188,13 +185,11 @@ void PPMADictionary::updateWordCnt_(Ord ord, std::int64_t cntChange) {
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMADictionary::getWordOrdForNewWord_(Count cumulativeCnt) const -> Ord {
-  const auto idxs = rng::iota_view(Ord{0}, getMaxOrd_());
   const auto getLowerCumulCnt = [this](Ord ord) {
     return ord + 1 - zeroCtxUniqueCnt_.getLowerCumulativeCnt(ord + 1);
   };
   const auto retOrd =
-      rng::upper_bound(idxs, cumulativeCnt, {}, getLowerCumulCnt) -
-      idxs.begin();
+      *rng::upper_bound(getOrdRng_(), cumulativeCnt, {}, getLowerCumulCnt);
   assert(!isEsc(retOrd) &&
          "Search in symbols which were not found yet. Esc is invalid here.");
   return retOrd;

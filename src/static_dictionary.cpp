@@ -3,11 +3,12 @@
 
 namespace ael::dict {
 
+namespace rng = std::ranges;
+
 ////////////////////////////////////////////////////////////////////////////////
 auto StaticDictionary::getWordOrd(Count cumulativeNumFound) const -> Ord {
-  const auto iter =
-      std::ranges::upper_bound(cumulativeNumFound_, cumulativeNumFound);
-  return iter - cumulativeNumFound_.begin();
+  return rng::upper_bound(cumulativeNumFound_, cumulativeNumFound) -
+         cumulativeNumFound_.begin();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

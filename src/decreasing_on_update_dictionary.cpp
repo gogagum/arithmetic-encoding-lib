@@ -4,6 +4,8 @@
 
 namespace ael::dict {
 
+namespace rng = std::ranges;
+
 ////////////////////////////////////////////////////////////////////////////////
 DecreasingOnUpdateDictionary::DecreasingOnUpdateDictionary(Ord maxOrd,
                                                            Count count)
@@ -16,15 +18,12 @@ DecreasingOnUpdateDictionary::DecreasingOnUpdateDictionary(Ord maxOrd,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto DecreasingOnUpdateDictionary::getWordOrd(Count cumulativeNumFound) const
+auto DecreasingOnUpdateDictionary::getWordOrd(Count cumulativeCnt) const
     -> Ord {
-  const auto idxs = std::ranges::iota_view(Ord{0}, maxOrd_);
-  const auto getLowerCumulNumFound_ = [this](Ord ord) {
+  const auto getLowerCumulCnt_ = [this](Ord ord) {
     return getLowerCumulativeCnt_(ord + 1);
   };
-  const auto iter = std::ranges::upper_bound(idxs, cumulativeNumFound, {},
-                                             getLowerCumulNumFound_);
-  return iter - idxs.begin();
+  return *rng::upper_bound(getOrdRng_(), cumulativeCnt, {}, getLowerCumulCnt_);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

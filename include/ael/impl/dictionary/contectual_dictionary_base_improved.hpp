@@ -55,8 +55,8 @@ auto ContextualDictionaryBaseImproved<InternalDictT>::getWordOrd(
     Count cumulativeNumFound) const -> Ord {
   for (auto ctxLength = this->getCurrCtxLength_(); ctxLength != 0;
        --ctxLength) {
-    const auto searchCtx = this->getSearchCtx_(ctxLength);
-    if (this->getContextualTotalWordCnt_(searchCtx) >= ctxLength) {
+    if (const auto searchCtx = this->getSearchCtx_(ctxLength);
+        this->getContextualTotalWordCnt_(searchCtx) >= ctxLength) {
       return this->getContextualWordOrd_(searchCtx, cumulativeNumFound);
     }
   }

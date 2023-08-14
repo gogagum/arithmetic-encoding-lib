@@ -4,7 +4,9 @@ namespace ael::impl::dict {
 
 ////////////////////////////////////////////////////////////////////////////////
 ADDictionaryBase::ADDictionaryBase(Ord maxOrd)
-    : cumulativeCnt_(maxOrd), cumulativeUniqueCnt_(maxOrd), maxOrd_(maxOrd) {
+    : MaxOrdBase(maxOrd),
+      cumulativeCnt_(maxOrd),
+      cumulativeUniqueCnt_(maxOrd) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////

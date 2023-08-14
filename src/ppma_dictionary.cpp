@@ -7,6 +7,8 @@
 
 namespace ael::dict {
 
+namespace rng = std::ranges;
+
 ////////////////////////////////////////////////////////////////////////////////
 PPMADictionary::PPMADictionary(ConstructInfo constructInfo)
     : Base_(constructInfo.maxOrd),
@@ -25,15 +27,12 @@ PPMADictionary::PPMADictionary(ConstructInfo constructInfo)
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMADictionary::getWordOrd(const Count& cumulativeNumFound) const -> Ord {
-  const auto idxs = std::ranges::iota_view(Ord{0}, getMaxOrd_());
   assert(cumulativeNumFound <= getTotalWordsCnt());
   const auto getLowerCumulCnt = [this](std::uint64_t ord) {
     assert(ord < getMaxOrd_());
     return getLowerCumulativeCnt_(ord + 1);
   };
-  const auto iter =
-      std::ranges::upper_bound(idxs, cumulativeNumFound, {}, getLowerCumulCnt);
-  return iter - idxs.begin();
+  return *rng::upper_bound(getOrdRng_(), cumulativeNumFound, {}, getLowerCumulCnt);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

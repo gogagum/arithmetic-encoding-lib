@@ -1,6 +1,7 @@
 #ifndef ADAPTIVE_DICTIONARY_BASE_HPP
 #define ADAPTIVE_DICTIONARY_BASE_HPP
 
+#include <ael/impl/dictionary/max_ord_base.hpp>
 #include <cstdint>
 #include <dst/dynamic_segment_tree.hpp>
 #include <unordered_map>
@@ -11,9 +12,10 @@ namespace ael::impl::dict {
 /// \brief The AdaptiveDictionaryBase class
 ///
 template <typename CountT>
-class AdaptiveDictionaryBase {
- protected:
-  using Ord = std::uint64_t;
+class AdaptiveDictionaryBase
+    : protected MaxOrdBase<std::uint64_t> {
+ public:
+  using Ord = MaxOrdBase::Ord;
   using Count = CountT;
   constexpr const static std::uint16_t countNumBits = 62;
 
@@ -44,16 +46,15 @@ class AdaptiveDictionaryBase {
   DST_ cumulativeWordCounts_;
   std::unordered_map<Ord, Count> wordCnts_{};
   Count totalWordsCnt_;
-  Ord maxOrd_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 template <typename CountT>
 AdaptiveDictionaryBase<CountT>::AdaptiveDictionaryBase(
     Ord maxOrd, Count initialTotalWordsCount)
-    : cumulativeWordCounts_{Ord{0}, maxOrd, 0},
-      totalWordsCnt_{initialTotalWordsCount},
-      maxOrd_{maxOrd} {
+    : MaxOrdBase(maxOrd),
+      cumulativeWordCounts_{Ord{0}, maxOrd, 0},
+      totalWordsCnt_{initialTotalWordsCount} {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -66,7 +67,7 @@ auto AdaptiveDictionaryBase<CountT>::getRealWordCnt_(Ord ord) const -> Count {
 template <typename CountT>
 void AdaptiveDictionaryBase<CountT>::changeRealCumulativeWordCnt_(
     Ord ord, std::int64_t cntChange) {
-  cumulativeWordCounts_.update(ord, maxOrd_, cntChange);
+  cumulativeWordCounts_.update(ord, this->getMaxOrd_(), cntChange);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
