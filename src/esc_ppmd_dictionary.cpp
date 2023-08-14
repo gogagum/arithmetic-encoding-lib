@@ -15,8 +15,10 @@ PPMDDictionary::PPMDDictionary(ConstructInfo constructInfo)
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMDDictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
-  auto currCtx = SearchCtx_(getCtx_().rbegin(), getCtx_().rend());
-  skipNewCtxs_(currCtx);
+  auto currCtx = getInitSearchCtx_();
+  skipNewCtxs_(currCtx, [this](const auto& searchCtx) {
+    return ctxInfo_.contains(searchCtx);
+  });
   if (getEscDecoded_() < currCtx.size()) {
     skipCtxsByEsc_(currCtx);
     const auto& currCtxInfo = ctxInfo_.at(currCtx);
@@ -44,7 +46,7 @@ auto PPMDDictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMDDictionary::getProbabilityStats(Ord ord) -> StatsSeq {
   StatsSeq ret;
-  auto currCtx = SearchCtx_(getCtx_().rbegin(), getCtx_().rend());
+  auto currCtx = getInitSearchCtx_();
   updateCtx_(ord);
   for (; !currCtx.empty() && !ctxInfo_.contains(currCtx); currCtx.pop_back()) {
     auto [iter, insertionHappened] = ctxInfo_.emplace(currCtx, getMaxOrd_());
@@ -124,8 +126,10 @@ auto PPMDDictionary::getDecodeProbabilityStats(Ord ord) -> ProbabilityStats {
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMDDictionary::getTotalWordsCnt() const -> Count {
-  auto currCtx = SearchCtx_(getCtx_().rbegin(), getCtx_().rend());
-  skipNewCtxs_(currCtx);
+  auto currCtx = getInitSearchCtx_();
+  skipNewCtxs_(currCtx, [this](const auto& searchCtx) {
+    return ctxInfo_.contains(searchCtx);
+  });
   if (getEscDecoded_() < currCtx.size()) {
     skipCtxsByEsc_(currCtx);
     return 2 * ctxInfo_.at(currCtx).cnt.getTotalWordsCnt();
@@ -143,8 +147,10 @@ auto PPMDDictionary::getTotalWordsCnt() const -> Count {
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMDDictionary::getDecodeProbabilityStats_(Ord ord) -> ProbabilityStats {
-  auto currCtx = SearchCtx_(getCtx_().rbegin(), getCtx_().rend());
-  skipNewCtxs_(currCtx);
+  auto currCtx = getInitSearchCtx_();
+  skipNewCtxs_(currCtx, [this](const auto& searchCtx) {
+    return ctxInfo_.contains(searchCtx);
+  });
   if (getEscDecoded_() >= currCtx.size()) {
     if (isEsc(ord)) {
       assert(getEscDecoded_() == currCtx.size() &&
@@ -208,7 +214,7 @@ auto PPMDDictionary::getDecodeProbabilityStatsForNewWord_(Ord ord) const
 
 ////////////////////////////////////////////////////////////////////////////////
 void PPMDDictionary::updateWordCnt_(Ord ord, std::int64_t cntChange) {
-  auto currCtx = SearchCtx_(getCtx_().rbegin(), getCtx_().rend());
+  auto currCtx = getInitSearchCtx_();
   for (; !currCtx.empty() && !ctxInfo_.contains(currCtx); currCtx.pop_back()) {
     auto [iter, insertionHappened] = ctxInfo_.emplace(currCtx, getMaxOrd_());
     assert(insertionHappened && "Insertion must happen.");
@@ -237,11 +243,11 @@ auto PPMDDictionary::getWordOrdForNewWord_(Count cumulativeCnt) const -> Ord {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void PPMDDictionary::skipNewCtxs_(SearchCtx_& currCtx) const {
-  for (; !currCtx.empty() && !ctxInfo_.contains(currCtx); currCtx.pop_back()) {
-    // Skip all empty contexts.
-  }
-}
+//void PPMDDictionary::skipNewCtxs_(SearchCtx_& currCtx) const {
+//  for (; !currCtx.empty() && !ctxInfo_.contains(currCtx); currCtx.pop_back()) {
+//    // Skip all empty contexts.
+//  }
+//}
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMDDictionary::getZeroCtxEscStats_() const -> ProbabilityStats {

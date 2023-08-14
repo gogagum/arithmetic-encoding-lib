@@ -20,15 +20,15 @@ class PPMADictionary : public ael::impl::esc::dict::PPMADDictionaryBase {
   using Base_ = ael::impl::esc::dict::PPMADDictionaryBase;
   using CumulativeCount_ = ael::impl::dict::CumulativeCount;
   using CumulativeUniqueCount_ = ael::impl::dict::CumulativeUniqueCount;
-  constexpr static std::uint16_t _maxCtxLength = Base_::maxCtxLength_;
-  constexpr static std::uint16_t _maxSeqLenLog2 = 40;
+  constexpr static auto maxCtxLength_ = std::uint16_t{16};
+  constexpr static std::uint16_t maxSeqLenLog2_ = 40;
 
  public:
   using Ord = Base_::Ord;
   using Count = Base_::Count;
   using ProbabilityStats = Base_::ProbabilityStats;
   using StatsSeq =
-      boost::container::static_vector<ProbabilityStats, _maxCtxLength>;
+      boost::container::static_vector<ProbabilityStats, maxCtxLength_ + 2>;
   constexpr static std::uint16_t countNumBits = 62;
 
   struct ConstructInfo {
@@ -91,7 +91,7 @@ class PPMADictionary : public ael::impl::esc::dict::PPMADDictionaryBase {
 
   [[nodiscard]] Ord getWordOrdForNewWord_(Count cumulativeCnt) const;
 
-  void skipNewCtxs_(SearchCtx_& currCtx) const;  // TODO(gogagum): move to base
+  //void skipNewCtxs_(SearchCtx_& currCtx) const;  // TODO(gogagum): move to base
 
   [[nodiscard]] ProbabilityStats getZeroCtxEscStats_() const;
 

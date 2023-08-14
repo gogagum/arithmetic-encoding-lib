@@ -2,7 +2,7 @@
 #define AEL_DICT_ADAPTIVE_A_CONTEXTUAL_DICTIONARY_IMPROVED_HPP
 
 #include <ael/dictionary/adaptive_a_dictionary.hpp>
-#include <ael/impl/dictionary/contectual_dictionary_base_improved.hpp>
+#include <ael/impl/dictionary/contextual_dictionary_base_improved.hpp>
 
 namespace ael::dict {
 

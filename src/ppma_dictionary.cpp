@@ -11,16 +11,15 @@ namespace rng = std::ranges;
 
 ////////////////////////////////////////////////////////////////////////////////
 PPMADictionary::PPMADictionary(ConstructInfo constructInfo)
-    : Base_(constructInfo.maxOrd),
+    : Base_(constructInfo.maxOrd, constructInfo.ctxLength),
       zeroCtxCnt_(constructInfo.maxOrd),
-      zeroCtxUniqueCnt_(constructInfo.maxOrd),
-      ctxLength_(constructInfo.ctxLength) {
+      zeroCtxUniqueCnt_(constructInfo.maxOrd) {
   /**
    * \tau_{ctx}_{i} < sequenceLength
    * Product of tau-s must be less than sequenceLength ^ "tau-s count"
    * Estimation: sequenceLength * l_{ctx} < maxCntBits.
    */
-  if (_maxSeqLenLog2 * ctxLength_ > countNumBits) {
+  if (maxSeqLenLog2_ * getCtxLength_() > countNumBits) {
     throw std::logic_error("Too big context.");
   }
 }
@@ -32,7 +31,8 @@ auto PPMADictionary::getWordOrd(const Count& cumulativeNumFound) const -> Ord {
     assert(ord < getMaxOrd_());
     return getLowerCumulativeCnt_(ord + 1);
   };
-  return *rng::upper_bound(getOrdRng_(), cumulativeNumFound, {}, getLowerCumulCnt);
+  return *rng::upper_bound(getOrdRng_(), cumulativeNumFound, {},
+                           getLowerCumulCnt);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -112,8 +112,7 @@ auto PPMADictionary::getProbabilityStats_(Ord ord) const -> ProbabilityStats {
 
 ////////////////////////////////////////////////////////////////////////////////
 void PPMADictionary::updateWordCnt_(Ord ord, std::int64_t cnt) {
-  for (auto ctx = SearchCtx_(ctx_.rbegin(), ctx_.rend()); !ctx.empty();
-       ctx.pop_back()) {
+  for (auto ctx = getInitSearchCtx_(); !ctx.empty(); ctx.pop_back()) {
     if (!ctxInfo_.contains(ctx)) {
       ctxInfo_.emplace(ctx, getMaxOrd_());
     }
@@ -121,15 +120,12 @@ void PPMADictionary::updateWordCnt_(Ord ord, std::int64_t cnt) {
   }
   zeroCtxCnt_.increaseOrdCount(ord, cnt);
   zeroCtxUniqueCnt_.update(ord);
-  ctx_.push_back(ord);
-  if (ctx_.size() > ctxLength_) {
-    ctx_.pop_front();
-  }
+  updateCtx_(ord);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMADictionary::getSearchCtxEmptySkipped_() const -> SearchCtx_ {
-  auto ctx = SearchCtx_(ctx_.rbegin(), ctx_.rend());
+  auto ctx = getInitSearchCtx_();
   for (; !ctx.empty() && !ctxInfo_.contains(ctx); ctx.pop_back()) {
     // Skip contexts which were not found yet.
   }

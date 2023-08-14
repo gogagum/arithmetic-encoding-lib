@@ -3,6 +3,7 @@
 
 #include <ael/impl/dictionary/cumulative_count.hpp>
 #include <ael/impl/dictionary/cumulative_unique_count.hpp>
+#include <ael/impl/dictionary/ppm_a_d_dictionary_base.hpp>
 #include <ael/impl/dictionary/word_probability_stats.hpp>
 #include <boost/container/static_vector.hpp>
 #include <boost/container_hash/hash.hpp>
@@ -11,16 +12,17 @@
 #include <cstdint>
 #include <deque>
 #include <unordered_map>
-#include <ael/impl/dictionary/ppm_a_d_dictionary_base.hpp>
 
 namespace ael::dict {
+
+constexpr auto ppmdMaxCtxLength = std::uint16_t{16};
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief PPMDDictionary - ppmd probability model.
 ///
-class PPMDDictionary : ael::impl::dict::PPMADDictionaryBase {
+class PPMDDictionary : ael::impl::dict::PPMADDictionaryBase<ppmdMaxCtxLength> {
  protected:
-  using Base_ = ael::impl::dict::PPMADDictionaryBase;
+  using Base_ = ael::impl::dict::PPMADDictionaryBase<ppmdMaxCtxLength>;
   using CumulativeCount_ = ael::impl::dict::CumulativeCount;
   using CumulativeUniqueCount_ = ael::impl::dict::CumulativeUniqueCount;
 
@@ -39,8 +41,7 @@ class PPMDDictionary : ael::impl::dict::PPMADDictionaryBase {
   };
 
  private:
-  constexpr const static std::uint16_t _maxCtxLength = 16;
-  constexpr const static std::uint16_t _maxSeqLenLog2 = 40;
+  constexpr static std::uint16_t maxSeqLenLog2_ = 40;
 
  public:
   /**
@@ -70,10 +71,11 @@ class PPMDDictionary : ael::impl::dict::PPMADDictionaryBase {
   [[nodiscard]] Count getTotalWordsCnt() const;
 
  private:
-  using SearchCtx_ = boost::container::static_vector<Ord, _maxCtxLength>;
+  using SearchCtx_ = Base_::SearchCtx_;
   using SearchCtxHash_ = boost::hash<SearchCtx_>;
   struct CtxCell_ {
-    explicit CtxCell_(Ord maxOrd) : cnt(maxOrd), uniqueCnt(maxOrd) {}
+    explicit CtxCell_(Ord maxOrd) : cnt(maxOrd), uniqueCnt(maxOrd) {
+    }
     CumulativeCount_ cnt;
     CumulativeUniqueCount_ uniqueCnt;
   };
@@ -91,9 +93,7 @@ class PPMDDictionary : ael::impl::dict::PPMADDictionaryBase {
 
  private:
   CtxCell_ zeroCtxCell_;
-  std::deque<Ord> ctx_;
   CtxCountMapping_ ctxInfo_;
-  const std::size_t ctxLength_;
 };
 
 }  // namespace ael::dict

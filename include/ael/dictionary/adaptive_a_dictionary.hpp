@@ -2,7 +2,7 @@
 #define AEL_DICT_ADAPTIVE_A_DICTIONARY_HPP
 
 #include <ael/impl/dictionary/a_d_dictionary_base.hpp>
-#include <ael/impl/dictionary/contectual_dictionary_base_improved.hpp>
+#include <ael/impl/dictionary/contextual_dictionary_base_improved.hpp>
 #include <ael/impl/dictionary/contextual_dictionary_base.hpp>
 #include <ael/impl/dictionary/word_probability_stats.hpp>
 #include <cstdint>

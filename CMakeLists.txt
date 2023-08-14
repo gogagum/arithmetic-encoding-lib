@@ -42,6 +42,16 @@ target_sources(${PROJECT_NAME}
         src/esc_ppma_dictionary.cpp
         src/esc_ppmd_dictionary.cpp
         src/esc_ppm_a_d_dictionary_base.cpp
+        src/ctx_base.cpp
+        src/max_ord_base.cpp
+        src/contextual_dictionary_stats_base.cpp
+        src/contextual_dictionary_base_improved.cpp
+        src/contextual_dictionary_base.cpp
+        src/word_probability_stats.cpp
+        src/bits_iterator.cpp
+        src/bytes_iterator.cpp
+        src/numerical_coder.cpp
+        src/numerical_decoder.cpp
 )
 
 target_include_directories(${PROJECT_NAME}
