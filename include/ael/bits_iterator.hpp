@@ -2,7 +2,6 @@
 #define AEL_IMPL_BITS_ITERATOR_HPP
 
 #include <array>
-#include <boost/iterator/iterator_facade.hpp>
 #include <cstddef>
 #include <cstdint>
 
@@ -12,12 +11,7 @@ namespace ael::impl {
 /// \brief The BitsIterator class
 ///
 template <class T>
-class BitsIterator
-    : public boost::iterators::iterator_facade<
-          BitsIterator<T>, bool, boost::random_access_traversal_tag, bool> {
- private:
-  using type = BitsIterator<T>;
-
+class BitsIterator {
  public:
   constexpr const static std::size_t bitsTSize = sizeof(T) * 8;
 
@@ -53,10 +47,10 @@ class BitsIterator
     return bitsInByte - (offset_ % bitsInByte) - 1;
   }
 
- protected:
+ public:
   // NOLINTBEGIN(readability-identifier-naming)
   //////////////////////////////////////////////////////////////////////////////
-  [[nodiscard]] std::ptrdiff_t distance_to(const type& rhs) const {
+  [[nodiscard]] std::ptrdiff_t operator-(const BitsIterator<T>& rhs) const {
     return rhs.offset_ - offset_;
   }
   //////////////////////////////////////////////////////////////////////////////
@@ -64,20 +58,34 @@ class BitsIterator
     offset_ += n;
   }
   //////////////////////////////////////////////////////////////////////////////
-  [[nodiscard]] bool dereference() const {
+  [[nodiscard]] bool operator*() const {
     return ((getByte_() >> getInByteIdx_()) & std::byte{1}) != std::byte{};
   }
   //////////////////////////////////////////////////////////////////////////////
-  [[nodiscard]] bool equal(const type& other) const {
+  [[nodiscard]] bool operator==(const BitsIterator<T>& other) const {
     return offset_ == other.offset_;
   }
   //////////////////////////////////////////////////////////////////////////////
-  void increment() {
+  BitsIterator<T>& operator++() {
     ++offset_;
+    return *this;
   }
   //////////////////////////////////////////////////////////////////////////////
-  void decrement() {
+  BitsIterator<T> operator++(int) {
+    auto copy = BitsIterator<T>(*this);
+    ++offset_;
+    return copy;
+  }
+  //////////////////////////////////////////////////////////////////////////////
+  BitsIterator<T>& operator--() {
     --offset_;
+    return *this;
+  }
+  //////////////////////////////////////////////////////////////////////////////
+  BitsIterator<T> operator--(int) {
+    auto copy = BitsIterator<T>(*this);
+    --offset_;
+    return copy;
   }
   // NOLINTEND(readability-identifier-naming)
 
@@ -88,9 +96,6 @@ class BitsIterator
  private:
   const void* iterated_;
   std::ptrdiff_t offset_;
-
- private:
-  friend class boost::iterators::iterator_core_access;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -110,5 +115,14 @@ class ReverseBitsIterator : public std::reverse_iterator<BitsIterator<T>> {
 };
 
 }  // namespace ael::impl
+
+template <class T>
+struct std::iterator_traits<ael::impl::BitsIterator<T>> {
+  using value_type = bool;
+  using reference = void;
+  using pointer = void;
+  using difference_type = std::ptrdiff_t;
+  using iterator_category = std::input_iterator_tag;
+};
 
 #endif  // AEL_IMPL_BITS_ITERATOR_HPP
