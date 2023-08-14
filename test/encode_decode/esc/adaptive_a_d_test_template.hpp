@@ -12,7 +12,6 @@
 #include <ael/esc/arithmetic_decoder.hpp>
 #include <ael/byte_data_constructor.hpp>
 #include <ael/data_parser.hpp>
-#include <boost/range/combine.hpp>
 #include <random>
 
 // NOLINTBEGIN(cppcoreguidelines-*, cert-*, readability-magic-numbers,
@@ -94,10 +93,7 @@ TEST(TEST_SUIT_NAME, EncodeDecodeSmallSequence) {
   }
 
   EXPECT_EQ(encoded.size(), decoded.size());
-
-  for (auto [enc, dec] : boost::range::combine(encoded, decoded)) {
-    EXPECT_EQ(enc, dec);
-  }
+  EXPECT_TRUE(std::ranges::equal(encoded, decoded));
 }
 
 TEST(TEST_SUIT_NAME, EncodeDecodeSmallSequenceBitsLimit) {
@@ -119,10 +115,7 @@ TEST(TEST_SUIT_NAME, EncodeDecodeSmallSequenceBitsLimit) {
   }
 
   EXPECT_EQ(encoded.size(), decoded.size());
-
-  for (auto [enc, dec] : boost::range::combine(encoded, decoded)) {
-    EXPECT_EQ(enc, dec);
-  }
+  EXPECT_TRUE(std::ranges::equal(encoded, decoded));
 }
 
 TEST(TEST_SUIT_NAME, EncodeDecodeFuzz) {
@@ -155,10 +148,7 @@ TEST(TEST_SUIT_NAME, EncodeDecodeFuzz) {
     }
 
     EXPECT_EQ(encoded.size(), decoded.size());
-
-    for (auto [enc, dec] : boost::range::combine(encoded, decoded)) {
-      EXPECT_EQ(enc, dec);
-    }
+    EXPECT_TRUE(std::ranges::equal(encoded, decoded));
   }
 }
 
@@ -192,10 +182,7 @@ TEST(TEST_SUIT_NAME, EncodeDecodeFuzzBitsLimit) {
     }
 
     EXPECT_EQ(encoded.size(), decoded.size());
-
-    for (auto [enc, dec] : boost::range::combine(encoded, decoded)) {
-      EXPECT_EQ(enc, dec);
-    }
+    EXPECT_TRUE(std::ranges::equal(encoded, decoded));
   }
 }
 

@@ -8,11 +8,10 @@
 
 #include <gtest/gtest.h>
 
-#include <ael/esc/arithmetic_coder.hpp>
-#include <ael/esc/arithmetic_decoder.hpp>
 #include <ael/byte_data_constructor.hpp>
 #include <ael/data_parser.hpp>
-#include <boost/range/combine.hpp>
+#include <ael/esc/arithmetic_coder.hpp>
+#include <ael/esc/arithmetic_decoder.hpp>
 #include <random>
 
 // NOLINTBEGIN(cppcoreguidelines-*)
@@ -34,8 +33,8 @@ TEST(TEST_SUIT_NAME, DecodeEmpty) {
   auto dict = TESTED_CLASS({6, 3});
   auto dataParser = ael::DataParser(data);
   auto retOrds = std::vector<std::uint32_t>();
-  ael::esc::ArithmeticDecoder::decode(dataParser, dict, std::back_inserter(retOrds),
-                                 {0, 0});
+  ael::esc::ArithmeticDecoder::decode(dataParser, dict,
+                                      std::back_inserter(retOrds), {0, 0});
 
   EXPECT_EQ(retOrds.size(), 0);
 }
@@ -93,10 +92,7 @@ TEST(TEST_SUIT_NAME, EncodeDecodeSmallSequence) {
   }
 
   EXPECT_EQ(encoded.size(), decoded.size());
-
-  for (auto [enc, dec] : boost::range::combine(encoded, decoded)) {
-    EXPECT_EQ(enc, dec);
-  }
+  EXPECT_TRUE(std::ranges::equal(encoded, decoded));
 }
 
 TEST(TEST_SUIT_NAME, EncodeDecodeSmallSequenceBitsLimit) {
@@ -113,15 +109,12 @@ TEST(TEST_SUIT_NAME, EncodeDecodeSmallSequenceBitsLimit) {
     auto dataParser = ael::DataParser(
         std::span(dataConstructor.data<std::byte>(), dataConstructor.size()));
     ael::esc::ArithmeticDecoder::decode(dataParser, dict1,
-                                   std::back_inserter(decoded),
-                                   {wordsCount, bitsCount});
+                                        std::back_inserter(decoded),
+                                        {wordsCount, bitsCount});
   }
 
   EXPECT_EQ(encoded.size(), decoded.size());
-
-  for (auto [enc, dec] : boost::range::combine(encoded, decoded)) {
-    EXPECT_EQ(enc, dec);
-  }
+  EXPECT_TRUE(std::ranges::equal(encoded, decoded));
 }
 
 TEST(TEST_SUIT_NAME, EncodeDecodeFuzz) {
@@ -154,10 +147,7 @@ TEST(TEST_SUIT_NAME, EncodeDecodeFuzz) {
     }
 
     EXPECT_EQ(encoded.size(), decoded.size());
-
-    for (auto [enc, dec] : boost::range::combine(encoded, decoded)) {
-      EXPECT_EQ(enc, dec);
-    }
+    EXPECT_TRUE(std::ranges::equal(encoded, decoded));
   }
 }
 
@@ -186,15 +176,12 @@ TEST(TEST_SUIT_NAME, EncodeDecodeFuzzBitsLimit) {
       auto dataParser = ael::DataParser(
           std::span(dataConstructor.data<std::byte>(), dataConstructor.size()));
       ael::esc::ArithmeticDecoder::decode(dataParser, dict2,
-                                     std::back_inserter(decoded),
-                                     {wordsCount, bitsCount});
+                                          std::back_inserter(decoded),
+                                          {wordsCount, bitsCount});
     }
 
     EXPECT_EQ(encoded.size(), decoded.size());
-
-    for (auto [enc, dec] : boost::range::combine(encoded, decoded)) {
-      EXPECT_EQ(enc, dec);
-    }
+    EXPECT_TRUE(std::ranges::equal(encoded, decoded));
   }
 }
 

@@ -8,7 +8,6 @@
 #include <stdexcept>
 #include <vector>
 #include <cstdint>
-#include <boost/iterator/iterator_facade.hpp>
 
 namespace ael {
 
@@ -19,48 +18,53 @@ class DataParser {
  public:
   ////////////////////////////////////////////////////////////////////////////
   /// \brief The BitIterator class
-  class BitsIterator
-      : public boost::iterators::iterator_facade<
-            BitsIterator, bool, boost::random_access_traversal_tag, bool> {
-   public:
-    using type = BitsIterator;
-
+  class BitsIterator {
    public:
     BitsIterator(DataParser& owner, std::size_t bitsPosition)
         : owner_(&owner), bitsPosition_(bitsPosition) {
     }
 
-   protected:
+    BitsIterator(const BitsIterator& other) = default;
+
+    BitsIterator(BitsIterator&& other) noexcept = default;
+
     // NOLINTBEGIN(readability-identifier-naming)
     ////////////////////////////////////////////////////////////////////////////
-    [[nodiscard]] bool dereference() const {
+    [[nodiscard]] bool operator*() const {
       return owner_->seek(bitsPosition_).takeBit();
     }
     ////////////////////////////////////////////////////////////////////////////
-    [[nodiscard]] bool equal(const type& other) const {
+    [[nodiscard]] bool operator==(const BitsIterator& other) const {
       return bitsPosition_ == other.bitsPosition_;
     }
     ////////////////////////////////////////////////////////////////////////////
-    [[nodiscard]] std::ptrdiff_t distance_to(const type& other) const {
+    [[nodiscard]] std::ptrdiff_t operator-(const BitsIterator& other) const {
       return static_cast<ptrdiff_t>(other.bitsPosition_) -
              static_cast<ptrdiff_t>(bitsPosition_);
     }
     ////////////////////////////////////////////////////////////////////////////
-    void increment() {
+    BitsIterator& operator++() {
       ++bitsPosition_;
+      return *this;
     }
     ////////////////////////////////////////////////////////////////////////////
-    void advance(std::ptrdiff_t offset) {
+    BitsIterator operator++(int) {
+      auto retCopy = *this;
+      ++bitsPosition_;
+      return retCopy;
+    }
+    ////////////////////////////////////////////////////////////////////////////
+    void operator+=(std::ptrdiff_t offset) {
       bitsPosition_ += offset;
     }
+    ////////////////////////////////////////////////////////////////////////////
+    ~BitsIterator() = default;
+
     // NOLINTEND(readability-identifier-naming)
 
    private:
     DataParser* owner_;
     std::size_t bitsPosition_;
-
-   private:
-    friend class boost::iterators::iterator_core_access;
   };
 
   //////////////////////////////////////////////////////////////////////////////
@@ -180,5 +184,14 @@ T DataParser::takeT() {
 }
 
 }  // namespace ael
+
+template <>
+struct std::iterator_traits<ael::DataParser::BitsIterator> {
+  using difference_type = std::ptrdiff_t;
+  using value_type = bool;
+  using pointer = void;
+  using reference = void;
+  using iterator_category = std::input_iterator_tag;
+};
 
 #endif  // AEL_IMPL_DATA_PARSER_HPP
