@@ -2,7 +2,6 @@
 
 #include <ael/data_parser.hpp>
 #include <array>
-#include <boost/range/combine.hpp>
 #include <cstddef>
 #include <vector>
 
@@ -186,10 +185,7 @@ TEST(DataParser, IterateBits) {
   const auto bitsExpected =
       std::array<bool, 16>{0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0};
 
-  for (const auto& [received, expected] :
-       boost::range::combine(bitsReceived, bitsExpected)) {
-    EXPECT_EQ(received, expected);
-  }
+  EXPECT_TRUE(std::ranges::equal(bitsReceived, bitsExpected));
 }
 
 TEST(DataParser, IterateBitsTwice) {
@@ -207,10 +203,7 @@ TEST(DataParser, IterateBitsTwice) {
       std::array<bool, 32>{0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0,
                            0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0};
 
-  for (const auto& [received, expected] :
-       boost::range::combine(bitsReceived, bitsExpected)) {
-    EXPECT_EQ(received, expected);
-  }
+  EXPECT_TRUE(std::ranges::equal(bitsReceived, bitsExpected));
 }
 
 // NOLINTEND(cppcoreguidelines-*, cert-*, readability-magic-numbers,
