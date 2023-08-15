@@ -13,6 +13,7 @@
 #include <ael/byte_data_constructor.hpp>
 #include <ael/data_parser.hpp>
 #include <random>
+#include <ord_generator.hpp>
 
 // NOLINTBEGIN(cppcoreguidelines-*, cert-*, readability-magic-numbers,
 // cert-err58-cpp)
@@ -130,10 +131,8 @@ TEST(TEST_SUIT_NAME, EncodeDecodeFuzz) {
     const std::uint32_t rng = gen() % 256;
 
     auto encoded = boost::container::static_vector<std::uint64_t, 250>{};
-
-    for (const auto _ : std::ranges::iota_view(std::size_t{0}, length)) {
-      encoded.push_back(gen() % rng);
-    }
+    std::generate_n(std::back_inserter(encoded), length,
+                    ael::test::OrdGenerator(gen, rng));
 
     auto dataConstructor = ael::ByteDataConstructor();
     auto decoded = std::vector<std::uint64_t>();
@@ -169,10 +168,8 @@ TEST(TEST_SUIT_NAME, EncodeDecodeFuzzBitsLimit) {
     const std::uint32_t rng = gen() % 256;
 
     auto encoded = boost::container::static_vector<std::uint64_t, 250>{};
-
-    for (const auto _ : std::ranges::iota_view(std::size_t{0}, length)) {
-      encoded.push_back(gen() % rng);
-    }
+    std::generate_n(std::back_inserter(encoded), length,
+                    ael::test::OrdGenerator(gen, rng));
 
     auto dataConstructor = ael::ByteDataConstructor();
     auto decoded = std::vector<std::uint64_t>();

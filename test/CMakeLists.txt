@@ -7,6 +7,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 
 enable_testing()
+
 add_executable(ael-tests
     bits_iterator.cpp
     bytes_iterator.cpp
@@ -46,6 +47,8 @@ add_executable(ael-tests
     encode_decode/esc/ppma.cpp
     encode_decode/esc/ppmd.cpp
 )
+
+target_include_directories(ael-tests PRIVATE lib)
 
 if (CMAKE_CROSSCOMPILING)
     message("Cross compiling. Use static libraries for tests.")
