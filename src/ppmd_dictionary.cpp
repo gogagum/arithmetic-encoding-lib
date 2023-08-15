@@ -44,7 +44,10 @@ auto PPMDDictionary::getProbabilityStats(Ord ord) -> ProbabilityStats {
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMDDictionary::getTotalWordsCnt() const -> Count {
   Count total = 1;
-  for (auto ctx = getSearchCtxEmptySkipped_(); !ctx.empty(); ctx.pop_back()) {
+  for (auto ctx = getSearchCtxEmptySkipped_([this](const SearchCtx_& ctx) {
+         return ctxInfo_.contains(ctx);
+       });
+       !ctx.empty(); ctx.pop_back()) {
     const auto totalCnt = ctxInfo_.at(ctx).cnt.getTotalWordsCnt();
     total *= totalCnt * 2;
   }
@@ -64,7 +67,9 @@ auto PPMDDictionary::getLowerCumulativeCnt_(Ord ord) const -> Count {
   assert(ord <= getMaxOrd_());
   Count lower = 0;
   Count uniqueCountsProd = 1;
-  for (auto ctx = getSearchCtxEmptySkipped_(); !ctx.empty(); ctx.pop_back()) {
+  for (auto ctx = getSearchCtxEmptySkipped_([this](const SearchCtx_& ctx) {
+         return ctxInfo_.contains(ctx);
+       }); !ctx.empty(); ctx.pop_back()) {
     const auto& ctxCell = ctxInfo_.at(ctx);
     const auto ctxTotalCnt = ctxCell.cnt.getTotalWordsCnt();
     lower *= ctxTotalCnt * 2;
@@ -98,7 +103,9 @@ auto PPMDDictionary::getProbabilityStats_(Ord ord) const -> ProbabilityStats {
   Count count = 0;
   Count total = 1;
   Count uniqueCountsProd = 1;
-  for (auto ctx = getSearchCtxEmptySkipped_(); !ctx.empty(); ctx.pop_back()) {
+  for (auto ctx = getSearchCtxEmptySkipped_([this](const SearchCtx_& ctx) {
+         return ctxInfo_.contains(ctx);
+       }); !ctx.empty(); ctx.pop_back()) {
     const auto& ctxInfo = ctxInfo_.at(ctx).cnt;
     const auto& ctxUniqueInfo = ctxInfo_.at(ctx).uniqueCnt;
     const auto ctxTotalCnt = ctxInfo.getTotalWordsCnt();
@@ -152,15 +159,6 @@ void PPMDDictionary::updateWordCnt_(Ord ord, std::int64_t cnt) {
   zeroCtxCell_.cnt.increaseOrdCount(ord, cnt);
   zeroCtxCell_.uniqueCnt.update(ord);
   updateCtx_(ord);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-auto PPMDDictionary::getSearchCtxEmptySkipped_() const -> SearchCtx_ {
-  auto ctx = getInitSearchCtx_();
-  for (; !ctx.empty() && !ctxInfo_.contains(ctx); ctx.pop_back()) {
-    // Skip contexts which were not found yet.
-  }
-  return ctx;
 }
 
 }  // namespace ael::dict

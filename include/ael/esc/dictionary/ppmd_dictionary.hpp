@@ -81,6 +81,14 @@ class PPMDDictionary : public ael::impl::esc::dict::PPMADDictionaryBase {
  protected:
   using SearchCtx_ = Base_::SearchCtx_;
 
+  struct CtxCell_ {
+    explicit CtxCell_(Ord maxOrd) : cnt(maxOrd), uniqueCnt(maxOrd) {
+    }
+
+    CumulativeCount_ cnt;
+    CumulativeUniqueCount_ uniqueCnt;
+  };
+
  protected:
   [[nodiscard]] ProbabilityStats getDecodeProbabilityStats_(Ord ord);
 
@@ -93,15 +101,10 @@ class PPMDDictionary : public ael::impl::esc::dict::PPMADDictionaryBase {
 
   [[nodiscard]] ProbabilityStats getZeroCtxEscStats_() const;
 
+  [[nodiscard]] const CtxCell_& getCurrCtxCell_(SearchCtx_&& currCtx) const;
+
  private:
   using SearchCtxHash_ = boost::hash<SearchCtx_>;
-  struct CtxCell_ {
-    explicit CtxCell_(Ord maxOrd) : cnt(maxOrd), uniqueCnt(maxOrd) {
-    }
-
-    CumulativeCount_ cnt;
-    CumulativeUniqueCount_ uniqueCnt;
-  };
   using CtxCountMapping_ =
       std::unordered_map<SearchCtx_, CtxCell_, SearchCtxHash_>;
 

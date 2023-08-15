@@ -34,6 +34,10 @@ class CtxBase {
   template <class CtxWasFound>
   void skipNewCtxs_(SearchCtx_& currCtx, const CtxWasFound& ctxWasFound) const;
 
+  template <class CtxWasFound>
+  [[nodiscard]] SearchCtx_ getSearchCtxEmptySkipped_(
+      const CtxWasFound& ctxWasFound) const;
+
  private:
   const std::size_t ctxLength_;
   std::deque<Ord> ctx_{};
@@ -56,6 +60,16 @@ void CtxBase<OrdT, maxCtxLength>::skipNewCtxs_(
   for (; !currCtx.empty() && !ctxWasFound(currCtx); currCtx.pop_back()) {
     // Skip all empty contexts.
   }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+template <typename OrdT, std::uint16_t maxCtxLength>
+template <class CtxWasFound>
+auto CtxBase<OrdT, maxCtxLength>::getSearchCtxEmptySkipped_(
+    const CtxWasFound& ctxWasFound) const -> SearchCtx_ {
+  auto ret = getInitSearchCtx_();
+  skipNewCtxs_(ret, ctxWasFound);
+  return ret;
 }
 
 }  // namespace ael::impl::dict

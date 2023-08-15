@@ -15,31 +15,21 @@ PPMDDictionary::PPMDDictionary(ConstructInfo constructInfo)
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMDDictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
-  auto currCtx = getInitSearchCtx_();
-  skipNewCtxs_(currCtx, [this](const auto& searchCtx) {
+  auto currCtx = getSearchCtxEmptySkipped_([this](const auto& searchCtx) {
     return ctxInfo_.contains(searchCtx);
   });
-  if (getEscDecoded_() < currCtx.size()) {
-    skipCtxsByEsc_(currCtx);
-    const auto& currCtxInfo = ctxInfo_.at(currCtx);
-    const auto getLowerCumulCnt = [&currCtxInfo](Ord ord) {
-      return 2 * currCtxInfo.cnt.getLowerCumulativeCnt(ord + 1) -
-             currCtxInfo.uniqueCnt.getLowerCumulativeCnt(ord + 1);
+  if (0 == zeroCtxCell_.cnt.getTotalWordsCnt() &&
+      getEscDecoded_() == currCtx.size()) [[unlikely]] {
+    return getMaxOrd_();
+  }
+  if (getEscDecoded_() <= currCtx.size()) {
+    const auto& cell = getCurrCtxCell_(std::move(currCtx));
+    const auto getLowerCumulCnt = [&cell](Ord ord) {
+      return 2 * cell.cnt.getLowerCumulativeCnt(ord + 1) -
+             cell.uniqueCnt.getLowerCumulativeCnt(ord + 1);
     };
     return *rng::upper_bound(getOrdRng_(), cumulativeCnt, {}, getLowerCumulCnt);
   }
-  if (getEscDecoded_() == currCtx.size()) {
-    if (0 == zeroCtxCell_.cnt.getTotalWordsCnt()) {
-      return getMaxOrd_();
-    }
-    const auto getLowerCumulCnt = [this](Ord ord) {
-      return 2 * zeroCtxCell_.cnt.getLowerCumulativeCnt(ord + 1) -
-             zeroCtxCell_.uniqueCnt.getLowerCumulativeCnt(ord + 1);
-    };
-    return *rng::upper_bound(getOrdRng_(), cumulativeCnt, {}, getLowerCumulCnt);
-  }
-  assert(getEscDecoded_() == currCtx.size() + 1 &&
-         "Esc decoded count can not be that big.");
   return getWordOrdForNewWord_(cumulativeCnt);
 }
 
@@ -90,24 +80,22 @@ auto PPMDDictionary::getProbabilityStats(Ord ord) -> StatsSeq {
       const auto symTotal = 2 * zeroTotal;
       ret.emplace_back(symLow, symHigh, symTotal);
     }
-    zeroCtxCell_.cnt.increaseOrdCount(ord, 1);
-    zeroCtxCell_.uniqueCnt.update(ord);
-
-    return ret;
-  }
-  const auto& currCtxInfo = ctxInfo_.at(currCtx);
-  const auto lowerCnt = currCtxInfo.cnt.getLowerCumulativeCnt(ord);
-  const auto lowerUniqueCnt = currCtxInfo.uniqueCnt.getLowerCumulativeCnt(ord);
-  const auto symLow = 2 * lowerCnt - lowerUniqueCnt;
-  const auto cnt = currCtxInfo.cnt.getCount(ord);
-  const auto uniqueCnt = currCtxInfo.uniqueCnt.getCount(ord);
-  const auto symHigh = symLow + 2 * cnt - uniqueCnt;
-  const auto symTotal = 2 * currCtxInfo.cnt.getTotalWordsCnt();
-  ret.emplace_back(symLow, symHigh, symTotal);
-  for (; !currCtx.empty(); currCtx.pop_back()) {
-    auto& currCtxInfo = ctxInfo_.at(currCtx);
-    currCtxInfo.cnt.increaseOrdCount(ord, 1);
-    currCtxInfo.uniqueCnt.update(ord);
+  } else {
+    const auto& currCtxInfo = ctxInfo_.at(currCtx);
+    const auto lowerCnt = currCtxInfo.cnt.getLowerCumulativeCnt(ord);
+    const auto lowerUniqueCnt =
+        currCtxInfo.uniqueCnt.getLowerCumulativeCnt(ord);
+    const auto symLow = 2 * lowerCnt - lowerUniqueCnt;
+    const auto cnt = currCtxInfo.cnt.getCount(ord);
+    const auto uniqueCnt = currCtxInfo.uniqueCnt.getCount(ord);
+    const auto symHigh = symLow + 2 * cnt - uniqueCnt;
+    const auto symTotal = 2 * currCtxInfo.cnt.getTotalWordsCnt();
+    ret.emplace_back(symLow, symHigh, symTotal);
+    for (; !currCtx.empty(); currCtx.pop_back()) {
+      auto& currCtxInfo = ctxInfo_.at(currCtx);
+      currCtxInfo.cnt.increaseOrdCount(ord, 1);
+      currCtxInfo.uniqueCnt.update(ord);
+    }
   }
   zeroCtxCell_.cnt.increaseOrdCount(ord, 1);
   zeroCtxCell_.uniqueCnt.update(ord);
@@ -126,8 +114,7 @@ auto PPMDDictionary::getDecodeProbabilityStats(Ord ord) -> ProbabilityStats {
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMDDictionary::getTotalWordsCnt() const -> Count {
-  auto currCtx = getInitSearchCtx_();
-  skipNewCtxs_(currCtx, [this](const auto& searchCtx) {
+  auto currCtx = getSearchCtxEmptySkipped_([this](const auto& searchCtx) {
     return ctxInfo_.contains(searchCtx);
   });
   if (getEscDecoded_() < currCtx.size()) {
@@ -135,10 +122,7 @@ auto PPMDDictionary::getTotalWordsCnt() const -> Count {
     return 2 * ctxInfo_.at(currCtx).cnt.getTotalWordsCnt();
   }
   if (getEscDecoded_() == currCtx.size()) {
-    if (0 == zeroCtxCell_.cnt.getTotalWordsCnt()) {
-      return 1;
-    }
-    return 2 * zeroCtxCell_.cnt.getTotalWordsCnt();
+    return std::max(Count{1}, 2 * zeroCtxCell_.cnt.getTotalWordsCnt());
   }
   assert(getEscDecoded_() == currCtx.size() + 1 &&
          "Esc decode count can not be that big.");
@@ -243,13 +227,6 @@ auto PPMDDictionary::getWordOrdForNewWord_(Count cumulativeCnt) const -> Ord {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-//void PPMDDictionary::skipNewCtxs_(SearchCtx_& currCtx) const {
-//  for (; !currCtx.empty() && !ctxInfo_.contains(currCtx); currCtx.pop_back()) {
-//    // Skip all empty contexts.
-//  }
-//}
-
-////////////////////////////////////////////////////////////////////////////////
 auto PPMDDictionary::getZeroCtxEscStats_() const -> ProbabilityStats {
   const auto zeroTotal = zeroCtxCell_.cnt.getTotalWordsCnt();
   if (0 == zeroTotal) [[unlikely]] {
@@ -259,6 +236,17 @@ auto PPMDDictionary::getZeroCtxEscStats_() const -> ProbabilityStats {
   const auto escHigh = escLow + zeroCtxCell_.uniqueCnt.getTotalWordsCnt();
   const auto escTotal = 2 * zeroCtxCell_.cnt.getTotalWordsCnt();
   return {escLow, escHigh, escTotal};
+}
+
+////////////////////////////////////////////////////////////////////////////////
+auto PPMDDictionary::getCurrCtxCell_(SearchCtx_&& currCtx) const
+    -> const CtxCell_& {
+  if (getEscDecoded_() < currCtx.size()) {
+    skipCtxsByEsc_(currCtx);
+    return ctxInfo_.at(currCtx);
+  }
+  assert(getEscDecoded_() == currCtx.size());
+  return zeroCtxCell_;
 }
 
 }  // namespace ael::esc::dict

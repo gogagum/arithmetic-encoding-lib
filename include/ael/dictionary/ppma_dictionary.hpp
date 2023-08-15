@@ -85,8 +85,6 @@ class PPMADictionary : ael::impl::dict::PPMADDictionaryBase<ppmaMaxCtxLength> {
 
   void updateWordCnt_(Ord ord, std::int64_t cnt);
 
-  [[nodiscard]] SearchCtx_ getSearchCtxEmptySkipped_() const;
-
  private:
   ael::impl::dict::CumulativeCount zeroCtxCnt_;
   ael::impl::dict::CumulativeUniqueCount zeroCtxUniqueCnt_;

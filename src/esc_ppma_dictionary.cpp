@@ -11,32 +11,21 @@ PPMADictionary::PPMADictionary(ConstructInfo constructInfo)
     : ael::impl::esc::dict::PPMADDictionaryBase(constructInfo.maxOrd,
                                                 constructInfo.ctxLength),
       zeroCtxCnt_(constructInfo.maxOrd),
-      zeroCtxUniqueCnt_(constructInfo.maxOrd),
-      ctxLength_(constructInfo.ctxLength) {
+      zeroCtxUniqueCnt_(constructInfo.maxOrd) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMADictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
-  auto currCtx = getInitSearchCtx_();
-  skipNewCtxs_(currCtx, [this](const auto& searchCtx) {
+  auto currCtx = getSearchCtxEmptySkipped_([this](const auto& searchCtx) {
     return ctxInfo_.contains(searchCtx);
   });
-  if (getEscDecoded_() < currCtx.size()) {
-    skipCtxsByEsc_(currCtx);
-    const auto& currCtxInfo = ctxInfo_.at(currCtx);
-    const auto getLowerCumulCnt = [&currCtxInfo](Ord ord) {
-      return currCtxInfo.getLowerCumulativeCnt(ord + 1);
+  if (getEscDecoded_() <= currCtx.size()) {
+    const auto& cell = getCurrCumulativeCnt_(std::move(currCtx));
+    const auto getLowerCumulCnt = [&cell](Ord ord) {
+      return cell.getLowerCumulativeCnt(ord + 1);
     };
     return *rng::upper_bound(getOrdRng_(), cumulativeCnt, {}, getLowerCumulCnt);
   }
-  if (getEscDecoded_() == currCtx.size()) {
-    const auto getLowerCumulCnt = [this](Ord ord) {
-      return zeroCtxCnt_.getLowerCumulativeCnt(ord + 1);
-    };
-    return *rng::upper_bound(getOrdRng_(), cumulativeCnt, {}, getLowerCumulCnt);
-  }
-  assert(getEscDecoded_() == currCtx.size() + 1 &&
-         "Esc decoded count can not be that big.");
   return getWordOrdForNewWord_(cumulativeCnt);
 }
 
@@ -207,6 +196,17 @@ auto PPMADictionary::getZeroCtxEscStats_() const -> ProbabilityStats {
   const auto escHigh = escLow + 1;
   const auto escTotal = zeroCtxCnt_.getTotalWordsCnt() + 1;
   return {escLow, escHigh, escTotal};
+}
+
+////////////////////////////////////////////////////////////////////////////////
+auto PPMADictionary::getCurrCumulativeCnt_(SearchCtx_&& currCtx) const
+    -> const CumulativeCount_& {
+  if (getEscDecoded_() < currCtx.size()) {
+    skipCtxsByEsc_(currCtx);
+    return ctxInfo_.at(currCtx);
+  }
+  assert(getEscDecoded_() == currCtx.size());
+  return zeroCtxCnt_;
 }
 
 }  // namespace ael::esc::dict

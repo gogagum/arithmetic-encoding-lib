@@ -12,15 +12,15 @@ AdaptiveADictionary::AdaptiveADictionary(Ord maxOrd)
 
 ////////////////////////////////////////////////////////////////////////////////
 auto AdaptiveADictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
-  const auto getLowerCumulCnt_ = [this](Ord ord) {
+  const auto getLowerCumulCnt = [this](Ord ord) {
     return getLowerCumulativeCnt_(ord + 1);
   };
-  return *rng::upper_bound(this->getOrdRng_(), cumulativeCnt, {}, getLowerCumulCnt_);
+  return *rng::upper_bound(this->getOrdRng_(), cumulativeCnt, {},
+                           getLowerCumulCnt);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 auto AdaptiveADictionary::getProbabilityStats(Ord ord) -> ProbabilityStats {
-  assert(ord < getMaxOrd_() && "ord is out of range");
   const auto ret = getProbabilityStats_(ord);
   updateWordCnt_(ord, 1);
   return ret;
@@ -66,8 +66,6 @@ auto AdaptiveADictionary::getProbabilityStats_(Ord ord) const
   const auto low = getLowerCumulativeCnt_(ord);
   const auto high = low + getWordCnt_(ord);
   const auto total = getTotalWordsCnt();
-  assert(high > low);
-  assert(total >= high);
   return {low, high, total};
 }
 

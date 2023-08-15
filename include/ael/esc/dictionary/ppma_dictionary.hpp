@@ -91,9 +91,10 @@ class PPMADictionary : public ael::impl::esc::dict::PPMADDictionaryBase {
 
   [[nodiscard]] Ord getWordOrdForNewWord_(Count cumulativeCnt) const;
 
-  //void skipNewCtxs_(SearchCtx_& currCtx) const;  // TODO(gogagum): move to base
-
   [[nodiscard]] ProbabilityStats getZeroCtxEscStats_() const;
+
+  [[nodiscard]] const CumulativeCount_& getCurrCumulativeCnt_(
+      SearchCtx_&& currCtx) const;
 
  private:
   using SearchCtxHash_ = boost::hash<SearchCtx_>;
@@ -104,7 +105,6 @@ class PPMADictionary : public ael::impl::esc::dict::PPMADDictionaryBase {
   CumulativeCount_ zeroCtxCnt_;
   CumulativeUniqueCount_ zeroCtxUniqueCnt_;
   CtxCountMapping_ ctxInfo_;
-  const std::size_t ctxLength_;
 };
 
 }  // namespace ael::esc::dict

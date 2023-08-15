@@ -89,8 +89,6 @@ class PPMDDictionary : ael::impl::dict::PPMADDictionaryBase<ppmdMaxCtxLength> {
 
   void updateWordCnt_(Ord ord, std::int64_t cnt);
 
-  [[nodiscard]] SearchCtx_ getSearchCtxEmptySkipped_() const;
-
  private:
   CtxCell_ zeroCtxCell_;
   CtxCountMapping_ ctxInfo_;

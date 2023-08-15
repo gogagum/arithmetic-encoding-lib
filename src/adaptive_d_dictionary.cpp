@@ -15,7 +15,8 @@ auto AdaptiveDDictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
   const auto getLowerCumulCnt = [this](Ord ord) {
     return getLowerCumulativeCnt_(ord + 1);
   };
-  return *rng::upper_bound(this->getOrdRng_(), cumulativeCnt, {}, getLowerCumulCnt);
+  return *rng::upper_bound(this->getOrdRng_(), cumulativeCnt, {},
+                           getLowerCumulCnt);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
