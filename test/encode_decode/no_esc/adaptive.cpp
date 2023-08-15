@@ -88,7 +88,8 @@ TEST(AdaptiveEncodeDecode, EncodeDecodeSmallSequence) {
   }
 
   EXPECT_EQ(encoded.size(), decoded.size());
-  EXPECT_TRUE(std::ranges::equal(encoded, decoded));
+  EXPECT_EQ(0, std::memcmp(encoded.data(), decoded.data(),
+                           encoded.size() * sizeof(std::uint64_t)));
 }
 
 TEST(AdaptiveEncodeDecode, EncodeDecodeSmallSequenceBitsLimit) {
@@ -110,7 +111,8 @@ TEST(AdaptiveEncodeDecode, EncodeDecodeSmallSequenceBitsLimit) {
   }
 
   EXPECT_EQ(encoded.size(), decoded.size());
-  EXPECT_TRUE(std::ranges::equal(encoded, decoded));
+  EXPECT_EQ(0, std::memcmp(encoded.data(), decoded.data(),
+                           encoded.size() * sizeof(std::uint64_t)));
 }
 
 TEST(AdaptiveEncodeDecode, EncodeDecodeFuzz) {
@@ -120,7 +122,7 @@ TEST(AdaptiveEncodeDecode, EncodeDecodeFuzz) {
     const std::size_t length = gen() % 250;
     const std::uint32_t rng = gen() % 256;
 
-    auto encoded = std::vector<std::uint32_t>{};
+    auto encoded = boost::container::static_vector<std::uint64_t, 250>{};
 
     for (const auto _ : std::ranges::iota_view(std::size_t{0}, length)) {
       encoded.push_back(gen() % rng);
@@ -147,7 +149,8 @@ TEST(AdaptiveEncodeDecode, EncodeDecodeFuzz) {
     }
 
     EXPECT_EQ(encoded.size(), decoded.size());
-    EXPECT_TRUE(std::ranges::equal(encoded, decoded));
+    EXPECT_EQ(0, std::memcmp(encoded.data(), decoded.data(),
+                             encoded.size() * sizeof(std::uint64_t)));
   }
 }
 
@@ -158,7 +161,7 @@ TEST(AdaptiveEncodeDecode, EncodeDecodeFuzzBitsLimit) {
     const std::size_t length = gen() % 250;
     const std::uint32_t rng = gen() % 256;
 
-    auto encoded = std::vector<std::uint32_t>{};
+    auto encoded = boost::container::static_vector<std::uint64_t, 250>{};
 
     for (const auto _ : std::ranges::iota_view(std::size_t{0}, length)) {
       encoded.push_back(gen() % rng);
@@ -183,7 +186,8 @@ TEST(AdaptiveEncodeDecode, EncodeDecodeFuzzBitsLimit) {
     }
 
     EXPECT_EQ(encoded.size(), decoded.size());
-    EXPECT_TRUE(std::ranges::equal(encoded, decoded));
+    EXPECT_EQ(0, std::memcmp(encoded.data(), decoded.data(),
+                             encoded.size() * sizeof(std::uint64_t)));
   }
 }
 

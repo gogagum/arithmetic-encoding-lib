@@ -1,8 +1,8 @@
 // Uncomment these three lines to edit tests using IDE:
 
-//#define TESTED_CLASS ael::dict::PPMADictionary
-//#define TEST_SUIT_NAME PPMAEncodeDecode
-//#include <ael/dictionary/ppma_dictionary.hpp>
+// #define TESTED_CLASS ael::dict::PPMADictionary
+// #define TEST_SUIT_NAME PPMAEncodeDecode
+// #include <ael/dictionary/ppma_dictionary.hpp>
 
 #if defined(TEST_SUIT_NAME) && defined(TESTED_CLASS)
 
@@ -95,7 +95,8 @@ TEST(TEST_SUIT_NAME, EncodeDecodeSmallSequence) {
   }
 
   EXPECT_EQ(encoded.size(), decoded.size());
-  EXPECT_TRUE(std::ranges::equal(encoded, decoded));
+  EXPECT_EQ(0, std::memcmp(encoded.data(), decoded.data(),
+                           encoded.size() * sizeof(std::uint64_t)));
 }
 
 TEST(TEST_SUIT_NAME, EncodeDecodeSmallSequenceBitsLimit) {
@@ -117,7 +118,8 @@ TEST(TEST_SUIT_NAME, EncodeDecodeSmallSequenceBitsLimit) {
   }
 
   EXPECT_EQ(encoded.size(), decoded.size());
-  EXPECT_TRUE(std::ranges::equal(encoded, decoded));
+  EXPECT_EQ(0, std::memcmp(encoded.data(), decoded.data(),
+                           encoded.size() * sizeof(std::uint64_t)));
 }
 
 TEST(TEST_SUIT_NAME, EncodeDecodeFuzz) {
@@ -127,7 +129,7 @@ TEST(TEST_SUIT_NAME, EncodeDecodeFuzz) {
     const std::size_t length = gen() % 250;
     const std::uint32_t rng = gen() % 256;
 
-    auto encoded = std::vector<std::uint32_t>{};
+    auto encoded = boost::container::static_vector<std::uint64_t, 250>{};
 
     for (const auto _ : std::ranges::iota_view(std::size_t{0}, length)) {
       encoded.push_back(gen() % rng);
@@ -154,7 +156,8 @@ TEST(TEST_SUIT_NAME, EncodeDecodeFuzz) {
     }
 
     EXPECT_EQ(encoded.size(), decoded.size());
-    EXPECT_TRUE(std::ranges::equal(encoded, decoded));
+    EXPECT_EQ(0, std::memcmp(encoded.data(), decoded.data(),
+                             encoded.size() * sizeof(std::uint64_t)));
   }
 }
 
@@ -165,7 +168,7 @@ TEST(TEST_SUIT_NAME, EncodeDecodeFuzzBitsLimit) {
     const std::size_t length = gen() % 250;
     const std::uint32_t rng = gen() % 256;
 
-    auto encoded = std::vector<std::uint32_t>{};
+    auto encoded = boost::container::static_vector<std::uint64_t, 250>{};
 
     for (const auto _ : std::ranges::iota_view(std::size_t{0}, length)) {
       encoded.push_back(gen() % rng);
@@ -190,7 +193,8 @@ TEST(TEST_SUIT_NAME, EncodeDecodeFuzzBitsLimit) {
     }
 
     EXPECT_EQ(encoded.size(), decoded.size());
-    EXPECT_TRUE(std::ranges::equal(encoded, decoded));
+    EXPECT_EQ(0, std::memcmp(encoded.data(), decoded.data(),
+                             encoded.size() * sizeof(std::uint64_t)));
   }
 }
 
