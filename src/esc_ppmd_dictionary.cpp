@@ -8,16 +8,14 @@ namespace rng = std::ranges;
 
 ////////////////////////////////////////////////////////////////////////////////
 PPMDDictionary::PPMDDictionary(ConstructInfo constructInfo)
-    : ael::impl::esc::dict::PPMADDictionaryBase(constructInfo.maxOrd,
-                                                constructInfo.ctxLength),
+    : ael::impl::esc::dict::PPMADDictionaryBase<PPMDDictionary>(
+          constructInfo.maxOrd, constructInfo.ctxLength),
       zeroCtxCell_(constructInfo.maxOrd) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMDDictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
-  auto currCtx = getSearchCtxEmptySkipped_([this](const auto& searchCtx) {
-    return ctxInfo_.contains(searchCtx);
-  });
+  auto currCtx = getSearchCtxEmptySkipped_();
   if (0 == zeroCtxCell_.cnt.getTotalWordsCnt() &&
       getEscDecoded_() == currCtx.size()) [[unlikely]] {
     return getMaxOrd_();
@@ -114,9 +112,7 @@ auto PPMDDictionary::getDecodeProbabilityStats(Ord ord) -> ProbabilityStats {
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMDDictionary::getTotalWordsCnt() const -> Count {
-  auto currCtx = getSearchCtxEmptySkipped_([this](const auto& searchCtx) {
-    return ctxInfo_.contains(searchCtx);
-  });
+  auto currCtx = getSearchCtxEmptySkipped_();
   if (getEscDecoded_() < currCtx.size()) {
     skipCtxsByEsc_(currCtx);
     return 2 * ctxInfo_.at(currCtx).cnt.getTotalWordsCnt();
@@ -131,10 +127,7 @@ auto PPMDDictionary::getTotalWordsCnt() const -> Count {
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMDDictionary::getDecodeProbabilityStats_(Ord ord) -> ProbabilityStats {
-  auto currCtx = getInitSearchCtx_();
-  skipNewCtxs_(currCtx, [this](const auto& searchCtx) {
-    return ctxInfo_.contains(searchCtx);
-  });
+  auto currCtx = getSearchCtxEmptySkipped_();
   if (getEscDecoded_() >= currCtx.size()) {
     if (isEsc(ord)) {
       assert(getEscDecoded_() == currCtx.size() &&

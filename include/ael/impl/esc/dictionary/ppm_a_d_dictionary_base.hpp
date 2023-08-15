@@ -12,9 +12,11 @@ namespace ael::impl::esc::dict {
 constexpr auto ppmadCtxMaxLength = std::uint16_t{16};
 
 ////////////////////////////////////////////////////////////////////////////////
+template <class DictT>
 class PPMADDictionaryBase
     : protected ael::impl::dict::MaxOrdBase<std::uint64_t>,
-      protected ael::impl::dict::CtxBase<std::uint64_t, ppmadCtxMaxLength> {
+      protected ael::impl::dict::CtxBase<DictT, std::uint64_t,
+                                         ppmadCtxMaxLength> {
  public:
   using Ord = MaxOrdBase::Ord;
   using Count = std::uint64_t;
@@ -29,7 +31,9 @@ class PPMADDictionaryBase
 
  protected:
   PPMADDictionaryBase(Ord maxOrd, std::size_t ctxLength)
-      : MaxOrdBase(maxOrd), CtxBase(ctxLength) {
+      : MaxOrdBase(maxOrd),
+        ael::impl::dict::CtxBase<DictT, std::uint64_t, ppmadCtxMaxLength>(
+            ctxLength) {
   }
 
  public:
@@ -59,6 +63,16 @@ class PPMADDictionaryBase
  private:
   std::size_t escDecoded_{0};
 };
+
+////////////////////////////////////////////////////////////////////////////////
+template <class DictT>
+void PPMADDictionaryBase<DictT>::updateEscDecoded_(Ord ord) {
+  if (isEsc(ord)) {
+    ++escDecoded_;
+  } else {
+    escDecoded_ = 0;
+  }
+}
 
 }  // namespace ael::impl::esc::dict
 

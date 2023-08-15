@@ -20,9 +20,11 @@ constexpr auto ppmdMaxCtxLength = std::uint16_t{16};
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief PPMDDictionary - ppmd probability model.
 ///
-class PPMDDictionary : ael::impl::dict::PPMADDictionaryBase<ppmdMaxCtxLength> {
+class PPMDDictionary
+    : ael::impl::dict::PPMADDictionaryBase<PPMDDictionary, ppmdMaxCtxLength> {
  protected:
-  using Base_ = ael::impl::dict::PPMADDictionaryBase<ppmdMaxCtxLength>;
+  using Base_ =
+      ael::impl::dict::PPMADDictionaryBase<PPMDDictionary, ppmdMaxCtxLength>;
   using CumulativeCount_ = ael::impl::dict::CumulativeCount;
   using CumulativeUniqueCount_ = ael::impl::dict::CumulativeUniqueCount;
 
@@ -92,6 +94,10 @@ class PPMDDictionary : ael::impl::dict::PPMADDictionaryBase<ppmdMaxCtxLength> {
  private:
   CtxCell_ zeroCtxCell_;
   CtxCountMapping_ ctxInfo_;
+
+ private:
+  template <class DictT, typename CountT, std::uint16_t maxCtxLength>
+  friend class ael::impl::dict::CtxBase;
 };
 
 }  // namespace ael::dict

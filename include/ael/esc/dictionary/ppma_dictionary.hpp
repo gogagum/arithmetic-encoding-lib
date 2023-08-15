@@ -15,9 +15,10 @@ namespace ael::esc::dict {
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief PPMADictionary - PPMA escape version dictionary class.
 ///
-class PPMADictionary : public ael::impl::esc::dict::PPMADDictionaryBase {
+class PPMADictionary
+    : public ael::impl::esc::dict::PPMADDictionaryBase<PPMADictionary> {
  private:
-  using Base_ = ael::impl::esc::dict::PPMADDictionaryBase;
+  using Base_ = ael::impl::esc::dict::PPMADDictionaryBase<PPMADictionary>;
   using CumulativeCount_ = ael::impl::dict::CumulativeCount;
   using CumulativeUniqueCount_ = ael::impl::dict::CumulativeUniqueCount;
   constexpr static auto maxCtxLength_ = std::uint16_t{16};
@@ -105,6 +106,10 @@ class PPMADictionary : public ael::impl::esc::dict::PPMADDictionaryBase {
   CumulativeCount_ zeroCtxCnt_;
   CumulativeUniqueCount_ zeroCtxUniqueCnt_;
   CtxCountMapping_ ctxInfo_;
+
+ private:
+  template <class DictT, class CountT, std::uint16_t maxCtxLength>
+  friend class ael::impl::dict::CtxBase;
 };
 
 }  // namespace ael::esc::dict

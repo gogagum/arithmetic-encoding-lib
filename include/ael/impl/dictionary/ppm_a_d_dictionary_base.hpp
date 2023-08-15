@@ -10,21 +10,21 @@ namespace ael::impl::dict {
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief PPMA and PPMD dictionary base class.
 ///
-template <std::uint16_t maxCtxLength>
+template <class DictT, std::uint16_t maxCtxLength>
 class PPMADDictionaryBase : protected MaxOrdBase<std::uint64_t>,
-                            protected CtxBase<std::uint64_t, maxCtxLength> {
+                            protected CtxBase<DictT, std::uint64_t, maxCtxLength> {
  public:
   using Ord = MaxOrdBase::Ord;
 
  protected:
-  using SearchCtx_ = CtxBase<std::uint64_t, maxCtxLength>::SearchCtx_;
+  using SearchCtx_ = CtxBase<DictT, std::uint64_t, maxCtxLength>::SearchCtx_;
 
  public:
   PPMADDictionaryBase() = delete;
 
  protected:
   explicit PPMADDictionaryBase(Ord maxOrd, std::size_t ctxLength)
-      : MaxOrdBase(maxOrd), CtxBase<std::uint64_t, maxCtxLength>(ctxLength) {
+      : MaxOrdBase(maxOrd), CtxBase<DictT, std::uint64_t, maxCtxLength>(ctxLength) {
   }
 };
 

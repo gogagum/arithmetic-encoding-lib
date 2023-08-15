@@ -46,10 +46,7 @@ auto PPMADictionary::getProbabilityStats(Ord ord) -> ProbabilityStats {
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMADictionary::getTotalWordsCnt() const -> Count {
   Count total = 1;
-  for (auto ctx = getSearchCtxEmptySkipped_([this](const SearchCtx_& ctx) {
-         return ctxInfo_.contains(ctx);
-       });
-       !ctx.empty(); ctx.pop_back()) {
+  for (auto ctx = getSearchCtxEmptySkipped_(); !ctx.empty(); ctx.pop_back()) {
     const auto totalCnt = ctxInfo_.at(ctx).getTotalWordsCnt();
     total *= totalCnt + 1;
   }
@@ -64,10 +61,7 @@ auto PPMADictionary::getTotalWordsCnt() const -> Count {
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMADictionary::getLowerCumulativeCnt_(Ord ord) const -> Count {
   Count lower = 0;
-  for (auto ctx = getSearchCtxEmptySkipped_([this](const SearchCtx_& ctx) {
-         return ctxInfo_.contains(ctx);
-       });
-       !ctx.empty(); ctx.pop_back()) {
+  for (auto ctx = getSearchCtxEmptySkipped_(); !ctx.empty(); ctx.pop_back()) {
     const auto& ctxInfo = ctxInfo_.at(ctx);
     const auto ctxTotalCnt = ctxInfo.getTotalWordsCnt();
     lower *= ctxTotalCnt + 1;
@@ -88,10 +82,7 @@ auto PPMADictionary::getProbabilityStats_(Ord ord) const -> ProbabilityStats {
   Count lower = 0;
   Count count = 0;
   Count total = 1;
-  for (auto ctx = getSearchCtxEmptySkipped_([this](const SearchCtx_& ctx) {
-         return ctxInfo_.contains(ctx);
-       });
-       !ctx.empty(); ctx.pop_back()) {
+  for (auto ctx = getSearchCtxEmptySkipped_(); !ctx.empty(); ctx.pop_back()) {
     const auto& ctxInfo = ctxInfo_.at(ctx);
     const auto ctxTotalCnt = ctxInfo.getTotalWordsCnt();
     lower *= ctxTotalCnt + 1;

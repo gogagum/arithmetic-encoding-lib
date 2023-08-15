@@ -8,7 +8,7 @@ namespace rng = std::ranges;
 
 ////////////////////////////////////////////////////////////////////////////////
 PPMADictionary::PPMADictionary(ConstructInfo constructInfo)
-    : ael::impl::esc::dict::PPMADDictionaryBase(constructInfo.maxOrd,
+    : ael::impl::esc::dict::PPMADDictionaryBase<PPMADictionary>(constructInfo.maxOrd,
                                                 constructInfo.ctxLength),
       zeroCtxCnt_(constructInfo.maxOrd),
       zeroCtxUniqueCnt_(constructInfo.maxOrd) {
@@ -16,9 +16,7 @@ PPMADictionary::PPMADictionary(ConstructInfo constructInfo)
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMADictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
-  auto currCtx = getSearchCtxEmptySkipped_([this](const auto& searchCtx) {
-    return ctxInfo_.contains(searchCtx);
-  });
+  auto currCtx = getSearchCtxEmptySkipped_();
   if (getEscDecoded_() <= currCtx.size()) {
     const auto& cell = getCurrCumulativeCnt_(std::move(currCtx));
     const auto getLowerCumulCnt = [&cell](Ord ord) {
@@ -96,10 +94,7 @@ auto PPMADictionary::getDecodeProbabilityStats(Ord ord) -> ProbabilityStats {
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMADictionary::getTotalWordsCnt() const -> Count {
-  auto currCtx = getInitSearchCtx_();
-  skipNewCtxs_(currCtx, [this](const auto& searchCtx) {
-    return ctxInfo_.contains(searchCtx);
-  });
+  auto currCtx = getSearchCtxEmptySkipped_();
   if (getEscDecoded_() < currCtx.size()) {
     skipCtxsByEsc_(currCtx);
     return ctxInfo_.at(currCtx).getTotalWordsCnt() + 1;
@@ -114,10 +109,7 @@ auto PPMADictionary::getTotalWordsCnt() const -> Count {
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMADictionary::getDecodeProbabilityStats_(Ord ord) -> ProbabilityStats {
-  auto currCtx = getInitSearchCtx_();
-  skipNewCtxs_(currCtx, [this](const auto& searchCtx) {
-    return ctxInfo_.contains(searchCtx);
-  });
+  auto currCtx = getSearchCtxEmptySkipped_();
   if (getEscDecoded_() >= currCtx.size()) {
     if (isEsc(ord)) {
       assert(

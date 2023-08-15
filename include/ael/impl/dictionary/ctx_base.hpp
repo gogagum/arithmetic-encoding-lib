@@ -11,7 +11,7 @@ namespace ael::impl::dict {
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief The CtxBase<OrdT> - context base class.
 ///
-template <typename OrdT, std::uint16_t maxCtxLength>
+template <class DictT, typename OrdT, std::uint16_t maxCtxLength>
 class CtxBase {
  protected:
   using Ord = OrdT;
@@ -31,12 +31,9 @@ class CtxBase {
     return SearchCtx_(ctx_.rbegin(), ctx_.rend());
   }
 
-  template <class CtxWasFound>
-  void skipNewCtxs_(SearchCtx_& currCtx, const CtxWasFound& ctxWasFound) const;
+  void skipNewCtxs_(SearchCtx_& currCtx) const;
 
-  template <class CtxWasFound>
-  [[nodiscard]] SearchCtx_ getSearchCtxEmptySkipped_(
-      const CtxWasFound& ctxWasFound) const;
+  [[nodiscard]] SearchCtx_ getSearchCtxEmptySkipped_() const;
 
  private:
   const std::size_t ctxLength_;
@@ -44,8 +41,8 @@ class CtxBase {
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-template <typename OrdT, std::uint16_t maxCtxLength>
-void CtxBase<OrdT, maxCtxLength>::updateCtx_(Ord ord) {
+template <class DictT, typename OrdT, std::uint16_t maxCtxLength>
+void CtxBase<DictT, OrdT, maxCtxLength>::updateCtx_(Ord ord) {
   ctx_.push_back(ord);
   if (ctx_.size() > ctxLength_) {
     ctx_.pop_front();
@@ -53,22 +50,21 @@ void CtxBase<OrdT, maxCtxLength>::updateCtx_(Ord ord) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-template <typename OrdT, std::uint16_t maxCtxLength>
-template <class CtxWasFound>
-void CtxBase<OrdT, maxCtxLength>::skipNewCtxs_(
-    SearchCtx_& currCtx, const CtxWasFound& ctxWasFound) const {
-  for (; !currCtx.empty() && !ctxWasFound(currCtx); currCtx.pop_back()) {
+template <class DictT, typename OrdT, std::uint16_t maxCtxLength>
+void CtxBase<DictT, OrdT, maxCtxLength>::skipNewCtxs_(SearchCtx_& currCtx) const {
+  for (; !currCtx.empty() &&
+         !static_cast<const DictT*>(this)->ctxInfo_.contains(currCtx);
+       currCtx.pop_back()) {
     // Skip all empty contexts.
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-template <typename OrdT, std::uint16_t maxCtxLength>
-template <class CtxWasFound>
-auto CtxBase<OrdT, maxCtxLength>::getSearchCtxEmptySkipped_(
-    const CtxWasFound& ctxWasFound) const -> SearchCtx_ {
+template <class DictT, typename OrdT, std::uint16_t maxCtxLength>
+auto CtxBase<DictT, OrdT, maxCtxLength>::getSearchCtxEmptySkipped_() const
+    -> SearchCtx_ {
   auto ret = getInitSearchCtx_();
-  skipNewCtxs_(ret, ctxWasFound);
+  skipNewCtxs_(ret);
   return ret;
 }
 

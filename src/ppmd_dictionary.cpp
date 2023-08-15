@@ -25,29 +25,24 @@ PPMDDictionary::PPMDDictionary(ConstructInfo constructInfo)
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMDDictionary::getWordOrd(const Count& cumulativeNumFound) const -> Ord {
-  const auto idxs = rng::iota_view(Ord{0}, getMaxOrd_());
-  const auto getLowerCumulCnt_ = [this](Ord ord) {
+  const auto getLowerCumulCnt = [this](Ord ord) {
     return getLowerCumulativeCnt_(ord + 1);
   };
   return *rng::upper_bound(getOrdRng_(), cumulativeNumFound, {},
-                           getLowerCumulCnt_);
+                           getLowerCumulCnt);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMDDictionary::getProbabilityStats(Ord ord) -> ProbabilityStats {
-  assert(ord < getMaxOrd_());
   auto ret = getProbabilityStats_(ord);
   updateWordCnt_(ord, 1);
-  return std::move(ret);
+  return ret;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMDDictionary::getTotalWordsCnt() const -> Count {
   Count total = 1;
-  for (auto ctx = getSearchCtxEmptySkipped_([this](const SearchCtx_& ctx) {
-         return ctxInfo_.contains(ctx);
-       });
-       !ctx.empty(); ctx.pop_back()) {
+  for (auto ctx = getSearchCtxEmptySkipped_(); !ctx.empty(); ctx.pop_back()) {
     const auto totalCnt = ctxInfo_.at(ctx).cnt.getTotalWordsCnt();
     total *= totalCnt * 2;
   }
@@ -67,9 +62,7 @@ auto PPMDDictionary::getLowerCumulativeCnt_(Ord ord) const -> Count {
   assert(ord <= getMaxOrd_());
   Count lower = 0;
   Count uniqueCountsProd = 1;
-  for (auto ctx = getSearchCtxEmptySkipped_([this](const SearchCtx_& ctx) {
-         return ctxInfo_.contains(ctx);
-       }); !ctx.empty(); ctx.pop_back()) {
+  for (auto ctx = getSearchCtxEmptySkipped_(); !ctx.empty(); ctx.pop_back()) {
     const auto& ctxCell = ctxInfo_.at(ctx);
     const auto ctxTotalCnt = ctxCell.cnt.getTotalWordsCnt();
     lower *= ctxTotalCnt * 2;
@@ -103,9 +96,7 @@ auto PPMDDictionary::getProbabilityStats_(Ord ord) const -> ProbabilityStats {
   Count count = 0;
   Count total = 1;
   Count uniqueCountsProd = 1;
-  for (auto ctx = getSearchCtxEmptySkipped_([this](const SearchCtx_& ctx) {
-         return ctxInfo_.contains(ctx);
-       }); !ctx.empty(); ctx.pop_back()) {
+  for (auto ctx = getSearchCtxEmptySkipped_(); !ctx.empty(); ctx.pop_back()) {
     const auto& ctxInfo = ctxInfo_.at(ctx).cnt;
     const auto& ctxUniqueInfo = ctxInfo_.at(ctx).uniqueCnt;
     const auto ctxTotalCnt = ctxInfo.getTotalWordsCnt();
