@@ -13,6 +13,7 @@ add_executable(ael-tests
     bytes_iterator.cpp
     byte_data_constructor.cpp
     data_parser.cpp
+    context_buffer.cpp
     no_esc/adaptive_dictionary.cpp
     no_esc/static_dictionary.cpp
     no_esc/uniform_dictionary.cpp
