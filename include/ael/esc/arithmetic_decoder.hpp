@@ -100,8 +100,8 @@ void ArithmeticDecoder::decode(auto& source, Dict& dict, OutIter outIter,
         value = value * 2 + takeBitLimited();
       } else if (currRange.low >= RC::half) {
         value = value * 2 - RC::total + takeBitLimited();
-      } else if (currRange.low >= RC::quater &&
-                 currRange.high <= RC::threeQuaters) {
+      } else if (currRange.low >= RC::quarter &&
+                 currRange.high <= RC::threeQuarters) {
         value = value * 2 - RC::half + takeBitLimited();
       } else {
         break;

@@ -21,8 +21,8 @@ class RangesCalc {
 
   constexpr static const Count total = Count{1} << numBits;
   constexpr static const Count half = Count{1} << (numBits - 1);
-  constexpr static const Count quater = Count{1} << (numBits - 2);
-  constexpr static const Count threeQuaters = 3 * quater;
+  constexpr static const Count quarter = Count{1} << (numBits - 2);
+  constexpr static const Count threeQuarters = 3 * quarter;
 
   static Range recalcRange(Range rng);
 
@@ -47,7 +47,7 @@ auto RangesCalc<CountT, numBits>::recalcRange(Range rng) -> Range {
   if (rng.low >= half) {
     return {rng.low * 2 - total, rng.high * 2 - total};
   }
-  if (rng.low >= quater && rng.high <= threeQuaters) {
+  if (rng.low >= quarter && rng.high <= threeQuarters) {
     return {rng.low * 2 - half, rng.high * 2 - half};
   }
   return rng;

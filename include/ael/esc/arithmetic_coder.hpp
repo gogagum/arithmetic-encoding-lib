@@ -77,8 +77,8 @@ auto ArithmeticCoder::encode(auto ordFlow, ByteDataConstructor& dataConstructor,
           ret.bitsEncoded += btf + 1;
           dataConstructor.putBit(true);
           dataConstructor.putBitsRepeatWithReset(false, btf);
-        } else if (currRange.low >= RC::quater &&
-                   currRange.high <= RC::threeQuaters) {
+        } else if (currRange.low >= RC::quarter &&
+                   currRange.high <= RC::threeQuarters) {
           ++btf;
         } else {
           break;
@@ -91,7 +91,7 @@ auto ArithmeticCoder::encode(auto ordFlow, ByteDataConstructor& dataConstructor,
   }
 
   ret.bitsEncoded += btf + 2;
-  if (currRange.low < RC::quater) {
+  if (currRange.low < RC::quarter) {
     dataConstructor.putBit(false);
     dataConstructor.putBitsRepeat(true, btf + 1);
   } else {
