@@ -55,8 +55,8 @@ auto ContextBuffer<OrdT, size>::getCtx() const -> std::span<const OrdT> {
 template <std::integral OrdT, std::size_t size>
 void ContextBuffer<OrdT, size>::add(OrdT ord) {
   if (0 != ctxLength_) [[unlikely]] {
-    buffer_[offset_ % ctxLength_] = ord;
-    buffer_[offset_ % ctxLength_ + ctxLength_] = ord;
+    buffer_.at(offset_ % ctxLength_) = ord;
+    buffer_.at(offset_ % ctxLength_ + ctxLength_) = ord;
     ++offset_;
   }
 }
