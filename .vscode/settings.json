@@ -104,5 +104,8 @@
         "-DAEL_TESTS:BOOL=1",
         "-DAEL_BENCHMARK:BOOL=1"
     ],
-    "C_Cpp.errorSquiggles": "disabled"
+    "C_Cpp.errorSquiggles": "disabled",
+    "cSpell.words": [
+        "recalc"
+    ]
 }
