@@ -22,6 +22,7 @@ set(benchmark_lib_public_headers lib/include/two_parts_source.hpp)
 target_sources(benchmark_lib
     PRIVATE
         lib/src/two_parts_source.cpp
+        lib/src/two_parts_source_with_conditions.cpp
 )
 
 set_target_properties(benchmark_lib PROPERTIES PUBLIC_HEADER "${benchmark_lib_public_headers}")

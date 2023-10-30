@@ -10,7 +10,7 @@ TEST(TwoPartsSource, Construct) {
   auto src = TwoPartsSource::getGeneration({64, 6, 5.7, 34});
 }
 
-TEST(TwoPartsSource, InvalidEnthropy) {
+TEST(TwoPartsSource, InvalidEntropy) {
   EXPECT_THROW(auto src = TwoPartsSource::getGeneration({64, 6, 6.1, 42}),
                std::logic_error);
 }
@@ -46,7 +46,7 @@ TEST(TwoPartsSource, IterateGenerationInstanceLengthRanges) {
   EXPECT_EQ(generated.size(), 5);
 }
 
-TEST(TwoPartsSource, ResultingEnthropy) {
+TEST(TwoPartsSource, ResultingEntropy) {
   std::map<std::uint64_t, std::size_t> counts;
   std::size_t totalCount = 0;
 
@@ -64,9 +64,9 @@ TEST(TwoPartsSource, ResultingEnthropy) {
         return -p * std::log2(p);
       });
   
-  double enthropeEstimation = std::accumulate(pLogPs.begin(), pLogPs.end(), 0.);
+  double entropyEstimation = std::accumulate(pLogPs.begin(), pLogPs.end(), 0.);
 
-  EXPECT_TRUE((enthropeEstimation - 7.1) / 7.1 < 0.1);
+  EXPECT_TRUE((entropyEstimation - 7.1) / 7.1 < 0.1);
 }
 
 // NOLINTEND(cppcoreguidelines-owning-memory,

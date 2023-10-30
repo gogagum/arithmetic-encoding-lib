@@ -1,8 +1,6 @@
 #ifndef TWO_PARTS_SOURCE_HPP
 #define TWO_PARTS_SOURCE_HPP
 
-#include <fmt/format.h>
-
 #include <cstdint>
 #include <iterator>
 #include <random>
@@ -19,12 +17,12 @@ class TwoPartsSource {
     ////////////////////////////////////////////////////////////////////////////
     /// \brief The GenerationInstance::Iterator_ class.
     ///
-    class Iterator_ : std::input_iterator_tag {
+    class Iterator_ {
      public:
       /**
        * @brief Construct a new Iterator_ object
        */
-      Iterator_() = default;
+      Iterator_() = default;  // TODO(gogagum): why not to delete?
 
       /**
        * @brief Construct a new Iterator_ object from copy.
@@ -46,7 +44,7 @@ class TwoPartsSource {
        * @param ownerPtr pointer to instance.
        * @param offset offset of the iterator.
        */
-      Iterator_(GenerationInstance* ownerPtr, std::size_t offset);
+      Iterator_(GenerationInstance& ownerPtr, std::size_t offset);
 
       /**
        * @brief Copy assign operator.
@@ -191,13 +189,12 @@ class TwoPartsSource {
  private:
   static double calcP_(double h, std::uint64_t maxOrd, std::uint64_t m);
 
-  [[nodiscard]] static double enthropy_(double p, std::uint64_t maxOrd,
+  [[nodiscard]] static double entropy_(double p, std::uint64_t maxOrd,
                                         std::uint64_t m);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \brief The
-/// std::iterator_traits<TwoPartsSource::GenerationInstance::Iterator_>
+/// \brief iterator_traits for generation iterator.
 template <>
 struct std::iterator_traits<TwoPartsSource::GenerationInstance::Iterator_> {
   using iterator_category = std::input_iterator_tag;
