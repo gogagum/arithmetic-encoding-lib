@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
 #include <array>
-#include <boost/range/combine.hpp>
 #include <ranges>
 #include <two_parts_source_with_conditions.hpp>
 
@@ -88,35 +87,29 @@ TEST(TwoPartsSourceWithConditions, ResultingEntropy) {
   EXPECT_TRUE((entropyEstimation - 7.1) / 7.1 < 0.1);
 }
 
-template <class I, class S, std::ranges::subrange_kind K>
-struct boost::range_iterator<std::ranges::subrange<I, S, K>> {
-  using type = I;
-};
-
 TEST(TwoPartsSourceWithConditions, ResultingConditionalEntropy) {
-  std::size_t totalCount = 0;
+  constexpr std::size_t totalCount = 100000;
 
   auto src = TwoPartsSourceWithConditions::getGeneration(
-      {256, 16, 7.1, 6.9, 100000, 23});
+      {256, 16, 7.1, 6.9, totalCount, 23});
 
-  auto values = std::array<std::uint64_t, 100000>();
+  auto values = std::array<std::uint64_t, totalCount>();
   std::ranges::copy(src, values.begin());
 
-  auto firsts = std::ranges::subrange(values.begin(), values.end() - 1);
-  auto seconds = std::ranges::subrange(values.begin() + 1, values.end());
+  auto firsts = std::ranges::views::take(values, values.size() - 1);
+  auto seconds = std::ranges::views::drop(values, 1);
 
   std::map<std::pair<std::uint64_t, std::uint64_t>, std::size_t> counts;
 
-  for (auto&& [v0, v1] : boost::range::combine(firsts, seconds)) {
-    ++totalCount;
-    ++counts[std::make_pair(v0, v1)];
+  for (auto i : std::ranges::iota_view(0, 99999)) {
+    ++counts[std::make_pair(firsts[i], seconds[i])];
   }
 
   const auto pLogPs =
-      counts | std::views::transform([totalCount](const auto& entry) {
+      counts | std::views::transform([](const auto& entry) {
         auto [ord, count] = entry;
         const double countDouble = static_cast<double>(count);
-        const double p = countDouble / totalCount;
+        const double p = countDouble / (static_cast<double>(totalCount) - 1.0);
         return -p * std::log2(p);
       });
 
