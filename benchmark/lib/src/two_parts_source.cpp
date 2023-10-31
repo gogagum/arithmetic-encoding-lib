@@ -3,43 +3,6 @@
 #include <two_parts_source.hpp>
 
 ////////////////////////////////////////////////////////////////////////////////
-TwoPartsSource::GenerationInstance::Iterator_::Iterator_(
-    GenerationInstance& ownerPtr, std::size_t offset)
-    : offset_{offset}, ownerPtr_{&ownerPtr} {};
-
-////////////////////////////////////////////////////////////////////////////////
-auto TwoPartsSource::GenerationInstance::Iterator_::operator*() const
-    -> std::uint64_t {
-  return ownerPtr_->get_();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-bool TwoPartsSource::GenerationInstance::Iterator_::operator!=(
-    const Iterator_& other) const {
-  return offset_ != other.offset_ || ownerPtr_ != other.ownerPtr_;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-bool TwoPartsSource::GenerationInstance::Iterator_::operator==(
-    const Iterator_& other) const {
-  return offset_ == other.offset_ && ownerPtr_ == other.ownerPtr_;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-auto TwoPartsSource::GenerationInstance::Iterator_::operator++() -> Iterator_& {
-  ++offset_;
-  return *this;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-auto TwoPartsSource::GenerationInstance::Iterator_::operator++(int)
-    -> Iterator_ {
-  const auto ret = *this;
-  ++offset_;
-  return ret;
-}
-
-////////////////////////////////////////////////////////////////////////////////
 double TwoPartsSource::getMinH(std::uint64_t maxOrd, std::uint64_t m) {
   return entropy_(0, maxOrd, m);
 }
@@ -88,26 +51,14 @@ double TwoPartsSource::entropy_(     // NOLINT
 ////////////////////////////////////////////////////////////////////////////////
 TwoPartsSource::GenerationInstance::GenerationInstance(
     ConstructInfo constructInfo)
-    : m_(constructInfo.m),
+    : SubrangeBase_(std::counted_iterator(
+                        Iterator_(*this),
+                        static_cast<std::ptrdiff_t>(constructInfo.length)),
+                    std::default_sentinel),
+      m_(constructInfo.m),
       maxOrd_(constructInfo.maxOrd),
-      length_(constructInfo.length),
       p_(calcP_(constructInfo.h, maxOrd_, m_)),
       generator_(constructInfo.seed) {
-}
-
-////////////////////////////////////////////////////////////////////////////////
-auto TwoPartsSource::GenerationInstance::begin() -> Iterator_ {
-  return {*this, 0};
-}
-
-////////////////////////////////////////////////////////////////////////////////
-auto TwoPartsSource::GenerationInstance::end() -> Iterator_ {
-  return {*this, length_};
-}
-
-////////////////////////////////////////////////////////////////////////////////
-std::size_t TwoPartsSource::GenerationInstance::size() const {
-  return length_;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

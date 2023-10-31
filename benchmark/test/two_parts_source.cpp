@@ -28,7 +28,7 @@ TEST(TwoPartsSource, IterateGenerationInstance) {
 TEST(TwoPartsSource, IterateGenerationInstanceLength) {
   auto src = TwoPartsSource::getGeneration({64, 8, 5.5, 5, 75});
   std::vector<std::uint32_t> generated;
-  std::copy(src.begin(), src.end(), std::back_inserter(generated));
+  std::ranges::copy(src.begin(), src.end(), std::back_inserter(generated));
   EXPECT_EQ(generated.size(), 5);
 }
 

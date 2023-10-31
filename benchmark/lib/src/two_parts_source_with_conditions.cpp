@@ -1,45 +1,9 @@
 #include <fmt/format.h>
 
+#include <iterator>
 #include <limits>
 #include <stdexcept>
 #include <two_parts_source_with_conditions.hpp>
-
-////////////////////////////////////////////////////////////////////////////////
-TwoPartsSourceWithConditions::GenerationInstance::Iterator_::Iterator_(
-    GenerationInstance& ownerPtr, std::size_t offset)
-    : offset_{offset}, ownerPtr_{&ownerPtr} {};
-
-////////////////////////////////////////////////////////////////////////////////
-auto TwoPartsSourceWithConditions::GenerationInstance::Iterator_::operator*() const
-    -> std::uint64_t {
-  return ownerPtr_->get_();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-bool TwoPartsSourceWithConditions::GenerationInstance::Iterator_::operator!=(
-    const Iterator_& other) const {
-  return offset_ != other.offset_ || ownerPtr_ != other.ownerPtr_;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-bool TwoPartsSourceWithConditions::GenerationInstance::Iterator_::operator==(
-    const Iterator_& other) const {
-  return offset_ == other.offset_ && ownerPtr_ == other.ownerPtr_;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-auto TwoPartsSourceWithConditions::GenerationInstance::Iterator_::operator++() -> Iterator_& {
-  ++offset_;
-  return *this;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-auto TwoPartsSourceWithConditions::GenerationInstance::Iterator_::operator++(int)
-    -> Iterator_ {
-  const auto ret = *this;
-  ++offset_;
-  return ret;
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 double TwoPartsSourceWithConditions::getMinH(std::uint64_t maxOrd,
@@ -64,13 +28,13 @@ auto TwoPartsSourceWithConditions::getMinMaxH(std::uint64_t maxOrd,
 ////////////////////////////////////////////////////////////////////////////////
 double TwoPartsSourceWithConditions::getMinHXX(std::uint64_t maxOrd,
                                                std::uint64_t m) {
-  return 0; // TODO(gogagum)
+  return 0;  // TODO(gogagum)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 double TwoPartsSourceWithConditions::getMaxHXX(std::uint64_t maxOrd,
                                                std::uint64_t m) {
-  return 0; // TODO(gogagum)
+  return 0;  // TODO(gogagum)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -121,27 +85,15 @@ double TwoPartsSourceWithConditions::entropyWithCondition_(double p,
 ////////////////////////////////////////////////////////////////////////////////
 TwoPartsSourceWithConditions::GenerationInstance::GenerationInstance(
     ConstructInfo constructInfo)
-    : m_(constructInfo.m),
+    : SubrangeBase_(std::counted_iterator(
+                        Iterator_(*this),
+                        static_cast<std::ptrdiff_t>(constructInfo.length)),
+                    std::default_sentinel),
+      m_(constructInfo.m),
       maxOrd_(constructInfo.maxOrd),
-      length_(constructInfo.length),
       p_(calcP_(constructInfo.h, maxOrd_, m_)),
       delta_(calcDelta_(constructInfo.hxx, maxOrd_, m_, p_, constructInfo.h)),
       generator_(constructInfo.seed) {
-}
-
-////////////////////////////////////////////////////////////////////////////////
-auto TwoPartsSourceWithConditions::GenerationInstance::begin() -> Iterator_ {
-  return {*this, 0};
-}
-
-////////////////////////////////////////////////////////////////////////////////
-auto TwoPartsSourceWithConditions::GenerationInstance::end() -> Iterator_ {
-  return {*this, length_};
-}
-
-////////////////////////////////////////////////////////////////////////////////
-std::size_t TwoPartsSourceWithConditions::GenerationInstance::size() const {
-  return length_;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
