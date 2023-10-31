@@ -104,7 +104,7 @@ struct std::iterator_traits<ael::impl::BytesIterator<T>> {
   using value_type = std::byte;
   using pointer = void;
   using reference = void;
-  using iterator_category = std::input_iterator_tag;
+  using iterator_category = std::bidirectional_iterator_tag;
   using difference_type = std::ptrdiff_t;
 };
 
