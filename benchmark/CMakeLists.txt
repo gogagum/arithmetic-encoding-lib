@@ -23,6 +23,7 @@ target_sources(benchmark_lib
     PRIVATE
         lib/src/two_parts_source.cpp
         lib/src/two_parts_source_with_conditions.cpp
+        lib/src/source_entropy_base.cpp
 )
 
 set_target_properties(benchmark_lib PROPERTIES PUBLIC_HEADER "${benchmark_lib_public_headers}")

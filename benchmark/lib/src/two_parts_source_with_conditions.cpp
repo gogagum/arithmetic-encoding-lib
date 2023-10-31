@@ -6,42 +6,24 @@
 #include <two_parts_source_with_conditions.hpp>
 
 ////////////////////////////////////////////////////////////////////////////////
-double TwoPartsSourceWithConditions::getMinH(std::uint64_t maxOrd,
-                                             std::uint64_t m) {
-  return std::min(entropy_(0, maxOrd, m), entropy_(1, maxOrd, m));
-}
-
-////////////////////////////////////////////////////////////////////////////////
-double TwoPartsSourceWithConditions::getMaxH(std::uint64_t maxOrd,
-                                             std::uint64_t m) {
-  const auto pMax = static_cast<double>(m) / static_cast<double>(maxOrd);
-  return entropy_(pMax, maxOrd, m);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-auto TwoPartsSourceWithConditions::getMinMaxH(std::uint64_t maxOrd,
-                                              std::uint64_t m)
-    -> GenerationInstance::HRange {
-  return {getMinH(maxOrd, m), getMaxH(maxOrd, m)};
-}
-
-////////////////////////////////////////////////////////////////////////////////
-double TwoPartsSourceWithConditions::getMinHXX(std::uint64_t maxOrd,
+double TwoPartsSourceWithConditions::getMinHXX(double p, std::uint64_t maxOrd,
                                                std::uint64_t m) {
-  return 0;  // TODO(gogagum)
+  constexpr auto half = double{0.5};
+  return (p < half) ? entropyWithCondition_(p, -p * p, maxOrd, m)
+                    : entropyWithCondition_(p, p * (1 - p), maxOrd, m);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-double TwoPartsSourceWithConditions::getMaxHXX(std::uint64_t maxOrd,
+double TwoPartsSourceWithConditions::getMaxHXX(double p, std::uint64_t maxOrd,
                                                std::uint64_t m) {
-  return 0;  // TODO(gogagum)
+  return entropy_(p, maxOrd, m);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto TwoPartsSourceWithConditions::getMinMaxHXX(std::uint64_t maxOrd,
+auto TwoPartsSourceWithConditions::getMinMaxHXX(double p, std::uint64_t maxOrd,
                                                 std::uint64_t m)
     -> GenerationInstance::HRange {
-  return {getMinHXX(maxOrd, m), getMaxHXX(maxOrd, m)};
+  return {getMinHXX(p, maxOrd, m), getMaxHXX(p, maxOrd, m)};
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -58,28 +40,33 @@ auto TwoPartsSourceWithConditions::getGeneration(
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-double TwoPartsSourceWithConditions::entropy_(  // NOLINT
-    double p, std::uint64_t maxOrd,             // NOLINT
-    std::uint64_t m) {                          // NOLINT
-  const auto mDouble = static_cast<double>(m);
-  const auto maxOrdDouble = static_cast<double>(maxOrd);
-  if (std::abs(p - 1) < std::numeric_limits<double>::epsilon()) {
-    return -p * std::log2(p / mDouble);
-  }
-  if (p < std::numeric_limits<double>::epsilon()) {
-    return -(1 - p) * std::log2((1 - p) / (maxOrdDouble - mDouble));
-  }
-  return -p * std::log2(p / mDouble) -
-         (1 - p) * std::log2((1 - p) / (maxOrdDouble - mDouble));
-}
-
-////////////////////////////////////////////////////////////////////////////////
 double TwoPartsSourceWithConditions::entropyWithCondition_(double p,
                                                            double delta,
                                                            std::uint64_t maxOrd,
                                                            std::uint64_t m) {
-  // TODO(gogagum)
-  return 0;
+  const double q = 1 - p;
+  const auto mD = static_cast<double>(m);
+  const double mu = static_cast<double>(maxOrd) - mD;
+  const double pSquared = p * p;
+  const double qSquared = q * q;
+  const auto mSquared = static_cast<double>(m * m);
+  const auto muSquared = static_cast<double>(mu * mu);
+  if (std::abs(pSquared + delta) < std::numeric_limits<double>::epsilon()) {
+    return p * std::log2(mu) + q * std::log2(mD);
+  }
+  if (std::abs(qSquared + delta) < std::numeric_limits<double>::epsilon()) {
+    return -p * std::log2((p - q) / (mD * p)) -
+           q * std::log2(q / (mu * (p - q)));
+  }
+  if (std::abs(p * q - delta) < std::numeric_limits<double>::epsilon()) {
+    return p * std::log2(mD) + q * std::log2(mu);
+  }
+  return -pSquared * std::log2((pSquared + delta) / mSquared) -
+         2 * p * q * std::log2((p * q - delta) / (mD * mu)) -
+         qSquared * std::log2((qSquared + delta) / muSquared) -
+         delta * std::log2((pSquared + delta) * (qSquared + delta)) +
+         2 * delta * std::log2(p * q - delta) +
+         p * std::log2(p / mD) + q * std::log2(q / mu);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -98,61 +85,27 @@ TwoPartsSourceWithConditions::GenerationInstance::GenerationInstance(
 
 ////////////////////////////////////////////////////////////////////////////////
 std::uint64_t TwoPartsSourceWithConditions::GenerationInstance::get_() {
-  constexpr auto ticks = std::uint64_t{1 << 16};
+  using UniformDistr = std::uniform_int_distribution<std::uint64_t>;
   if (!prevGenerated_.has_value()) [[unlikely]] {
-    if (const auto part = static_cast<double>(generator_() % ticks);
-        part / static_cast<double>(ticks) < p_) {
-      return generator_() % m_;
-    }
-    prevGenerated_ = m_ + generator_() % (maxOrd_ - m_);
+    auto partChoice = std::bernoulli_distribution(p_);
+    auto finalDistr = partChoice(generator_) ? UniformDistr(0, m_ - 1)
+                                             : UniformDistr(m_, maxOrd_ - 1);
+    prevGenerated_ = finalDistr(generator_);
     return *prevGenerated_;
   }
   if (*prevGenerated_ < m_) {
-    if (const auto part = static_cast<double>(generator_() % ticks);
-        part / static_cast<double>(ticks) < p_ + delta_ / p_) {
-      prevGenerated_ = generator_() % m_;
-      return *prevGenerated_;
-    }
-    prevGenerated_ = m_ + generator_() % (maxOrd_ - m_);
+    auto partChoice = std::bernoulli_distribution(p_ + delta_ / p_);
+    auto finalDistr = partChoice(generator_) ? UniformDistr(0, m_ - 1)
+                                             : UniformDistr(m_, maxOrd_ - 1);
+    prevGenerated_ = finalDistr(generator_);
     return *prevGenerated_;
   } else {
-    if (const auto part = static_cast<double>(generator_() % ticks);
-        part / static_cast<double>(ticks) >= (1 - p_) - delta_ / (1 - p_)) {
-      prevGenerated_ = generator_() % m_;
-      return *prevGenerated_;
-    }
-    prevGenerated_ = m_ + generator_() % (maxOrd_ - m_);
+    auto partChoice = std::bernoulli_distribution(p_ - delta_ / (1.0 - p_));
+    auto finalDistr = partChoice(generator_) ? UniformDistr(0, m_ - 1)
+                                             : UniformDistr(m_, maxOrd_ - 1);
+    prevGenerated_ = finalDistr(generator_);
     return *prevGenerated_;
   }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-double TwoPartsSourceWithConditions::calcP_(double h, std::uint64_t maxOrd,
-                                            std::uint64_t m) {
-  const auto pMax = static_cast<double>(m) / static_cast<double>(maxOrd);
-  const auto maxEntropy = entropy_(pMax, maxOrd, m);
-  const auto minEntropy =
-      std::min(entropy_(0, maxOrd, m), entropy_(0, maxOrd, maxOrd - m));
-  if (h < minEntropy || h > maxEntropy) {
-    throw std::invalid_argument(
-        fmt::format("H = {} is not reachable with m = {}, M = {}. "
-                    "Minimal H is {}, maximal H is {}",
-                    h, m, maxOrd, minEntropy, maxEntropy));
-  }
-  constexpr auto half = double{0.5};
-  double pL = (pMax < half) ? 1 : 0;
-  auto pR = pMax;
-  const auto entropy = [maxOrd, m](double p) -> double {
-    return entropy_(p, maxOrd, m);
-  };
-  while (std::abs(pR - pL) > std::numeric_limits<double>::epsilon()) {
-    if (const double pM = (pL + pR) / 2; entropy(pM) > h) {
-      pR = pM;
-    } else {
-      pL = pM;
-    }
-  }
-  return pL;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -160,12 +113,9 @@ double TwoPartsSourceWithConditions::calcDelta_(double hxx,
                                                 std::uint64_t maxOrd,
                                                 std::uint64_t m, double p,
                                                 double h) {
-  const auto pMax = static_cast<double>(m) / static_cast<double>(maxOrd);
   const auto deltaMax = double{0};
   const auto maxEntropyWithCondition = h;
-  const auto minEntropyWithCondition =
-      std::min(entropyWithCondition_(p, -p * p, maxOrd, m),
-               entropyWithCondition_(p, -(1 - p) * (1 - p), maxOrd, m));
+  const auto minEntropyWithCondition = getMinHXX(p, maxOrd, m);
   if (hxx < minEntropyWithCondition || hxx > maxEntropyWithCondition) {
     throw std::invalid_argument(fmt::format(
         "H(X|X) = {} is not reachable with m = {}, M = {}. Minimal "
@@ -173,7 +123,7 @@ double TwoPartsSourceWithConditions::calcDelta_(double hxx,
         hxx, m, maxOrd, minEntropyWithCondition, maxEntropyWithCondition));
   }
   constexpr auto half = double{0.5};
-  double deltaL = (pMax < half) ? -(1 - p) * (1 - p) : -p * p;
+  double deltaL = (p < half) ? -p * p : p * (1 - p);
   double deltaR = deltaMax;
   const auto entropyWithCondition = [p, maxOrd, m](double delta) -> double {
     return entropyWithCondition_(p, delta, maxOrd, m);

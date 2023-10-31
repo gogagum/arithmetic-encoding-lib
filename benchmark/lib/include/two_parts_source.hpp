@@ -2,13 +2,14 @@
 #define TWO_PARTS_SOURCE_HPP
 
 #include <cstdint>
+#include <impl/source_entropy_base.hpp>
 #include <impl/source_iterator.hpp>
 #include <iterator>
 #include <random>
 #include <stdexcept>
 #include <string_view>
 
-class TwoPartsSource {
+class TwoPartsSource : public SourceEntropyBase {
  public:
   //////////////////////////////////////////////////////////////////////////////
   /// \brief The GenerationInstance class.
@@ -55,6 +56,7 @@ class TwoPartsSource {
     std::uint64_t m_{1};
     double p_{half_};
     std::mt19937 generator_{0};  // NOLINT
+    std::bernoulli_distribution partChoice_;
 
    private:
     friend class SourceIterator<GenerationInstance>;
@@ -69,21 +71,7 @@ class TwoPartsSource {
     std::uint64_t seed{0};
   };
 
- public:
-  static double getMinH(std::uint64_t maxOrd, std::uint64_t m);
-
-  static double getMaxH(std::uint64_t maxOrd, std::uint64_t m);
-
-  static GenerationInstance::HRange getMinMaxH(std::uint64_t maxOrd,
-                                               std::uint64_t m);
-
   static GenerationInstance getGeneration(GenerationConfig generationConfig);
-
- private:
-  static double calcP_(double h, std::uint64_t maxOrd, std::uint64_t m);
-
-  [[nodiscard]] static double entropy_(double p, std::uint64_t maxOrd,
-                                       std::uint64_t m);
 };
 
 #endif  // TWO_PARTS_SOURCE_HPP

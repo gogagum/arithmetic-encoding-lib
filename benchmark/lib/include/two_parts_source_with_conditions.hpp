@@ -3,12 +3,13 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <impl/source_entropy_base.hpp>
 #include <impl/source_iterator.hpp>
 #include <optional>
 #include <random>
 #include <ranges>
 
-class TwoPartsSourceWithConditions {
+class TwoPartsSourceWithConditions : public SourceEntropyBase {
  public:
   class GenerationInstance
       : public std::ranges::subrange<
@@ -66,29 +67,17 @@ class TwoPartsSourceWithConditions {
   };
 
  public:
-  static double getMinH(std::uint64_t maxOrd, std::uint64_t m);
+  static double getMinHXX(double p, std::uint64_t maxOrd, std::uint64_t m);
+  static double getMaxHXX(double p, std::uint64_t maxOrd, std::uint64_t m);
 
-  static double getMaxH(std::uint64_t maxOrd, std::uint64_t m);
-
-  static GenerationInstance::HRange getMinMaxH(std::uint64_t maxOrd,
-                                               std::uint64_t m);
-
-  static double getMinHXX(std::uint64_t maxOrd, std::uint64_t m);
-  static double getMaxHXX(std::uint64_t maxOrd, std::uint64_t m);
-
-  static GenerationInstance::HRange getMinMaxHXX(std::uint64_t maxOrd,
+  static GenerationInstance::HRange getMinMaxHXX(double p, std::uint64_t maxOrd,
                                                  std::uint64_t m);
 
   static GenerationInstance getGeneration(GenerationConfig GenerationConfig);
 
  private:
-  static double calcP_(double h, std::uint64_t maxOrd, std::uint64_t m);
-
   static double calcDelta_(double hxx, std::uint64_t maxOrd, std::uint64_t m,
                            double p, double h);
-
-  [[nodiscard]] static double entropy_(double p, std::uint64_t maxOrd,
-                                       std::uint64_t m);
 
   [[nodiscard]] static double entropyWithCondition_(double p, double delta,
                                                     std::uint64_t maxOrd,
