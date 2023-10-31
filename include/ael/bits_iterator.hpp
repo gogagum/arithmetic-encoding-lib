@@ -122,7 +122,7 @@ struct std::iterator_traits<ael::impl::BitsIterator<T>> {
   using reference = void;
   using pointer = void;
   using difference_type = std::ptrdiff_t;
-  using iterator_category = std::input_iterator_tag;
+  using iterator_category = std::bidirectional_iterator_tag;
 };
 
 #endif  // AEL_IMPL_BITS_ITERATOR_HPP
