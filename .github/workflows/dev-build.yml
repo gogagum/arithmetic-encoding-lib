@@ -23,7 +23,7 @@ jobs:
             - run: valgrind ./build-valgrind/test/ael-tests
 
     linux-clang-16-libstdcpp:
-        name: Linux Clang
+        name: Linux Clang (libstdc++)
         runs-on: ubuntu-22.04
         env:
             CC: clang-16
@@ -38,14 +38,14 @@ jobs:
                   wget https://apt.llvm.org/llvm.sh
                   chmod +x llvm.sh
                   sudo ./llvm.sh 16
-                  sudo apt-get install -y ninja-build build-essential valgrind libicu-dev
+                  sudo apt-get install -y ninja-build build-essential libstdc++-13-dev valgrind libicu-dev
             - run: /bin/bash .ci/build-project.sh build-simple
             - run: ./build-simple/test/ael-tests
             - run: /bin/bash .ci/build-project-valgrind.sh build-valgrind
             - run: valgrind ./build-valgrind/test/ael-tests
 
     linux-clang-16-libcpp:
-        name: Linux Clang
+        name: Linux Clang (libc++)
         runs-on: ubuntu-22.04
         env:
             CC: clang-16
