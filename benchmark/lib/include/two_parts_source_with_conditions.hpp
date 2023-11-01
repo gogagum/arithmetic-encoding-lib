@@ -3,85 +3,71 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <impl/source_entropy_base.hpp>
-#include <impl/source_iterator.hpp>
 #include <optional>
 #include <random>
 #include <ranges>
 
-class TwoPartsSourceWithConditions : public SourceEntropyBase {
- public:
-  class GenerationInstance
-      : public std::ranges::subrange<
-            std::counted_iterator<SourceIterator<GenerationInstance>>,
-            std::default_sentinel_t> {
-   public:
-    struct ConstructInfo {
-      std::uint64_t maxOrd{2};
-      std::uint64_t m{1};
-      double h{1};
-      double hxx{1};
-      std::size_t length{0};
-      std::uint64_t seed{0};
-    };
+#include "impl/source_iterator.hpp"
+#include "impl/two_parts_source_conditional_entropy_base.hpp"
+#include "impl/two_parts_source_entropy_base.hpp"
 
-    struct HRange {
-      double min;
-      double max;
-    };
-
-   public:
-    explicit GenerationInstance(ConstructInfo constructInfo);
-
-   private:
-    std::uint64_t get_();
-
-   private:
-    using Iterator_ = SourceIterator<GenerationInstance>;
-    using SubrangeBase_ =
-        std::ranges::subrange<std::counted_iterator<Iterator_>,
-                              std::default_sentinel_t>;
-
-   private:
-    constexpr static auto half_ = double{0.5};
-
-    std::uint64_t maxOrd_{2};
-    std::uint64_t m_{1};
-    double p_{half_};
-    double delta_{0};
-    std::mt19937 generator_{0};  // NOLINT
-    std::optional<std::uint64_t> prevGenerated_{};
-
-   private:
-    friend class SourceIterator<GenerationInstance>;
-  };
+////////////////////////////////////////////////////////////////////////////////
+/// \brief The TwoPartsSourceWithConditions class. Creates a range of generated
+/// values with given required parameters and has a set of static methods for
+/// entropy and conditional entropy calculation.
+class TwoPartsSourceWithConditions : public TwoPartsSourceEntropyBase,
+                                     public SourceConditionalEntropyBase {
+ private:
+  //////////////////////////////////////////////////////////////////////////////
+  /// \brief The GenerationInstance class.
+  class GenerationInstance;
 
  public:
-  struct GenerationConfig {
-    std::size_t maxOrd{2};
-    std::size_t m{1};
-    double h{1};
-    double hxx{1};
-    std::size_t length{0};
-    std::uint64_t seed{0};
-  };
+  /**
+   * @brief Get generated values as a range.
+   *
+   * @param maxOrd - alphabet size.
+   * @param m - separation parameter.
+   * @param h - entropy.
+   * @param hxx - conditional entropy.
+   * @param length - length of the sequence.
+   * @param seed - generator seed.
+   * @return GenerationInstance
+   */
+  static GenerationInstance getGeneration(std::size_t maxOrd, std::size_t m,
+                                          double h, double hxx,
+                                          std::size_t length,
+                                          std::uint64_t seed = 0);
+};
 
- public:
-  static double getMinHXX(double p, std::uint64_t maxOrd, std::uint64_t m);
-  static double getMaxHXX(double p, std::uint64_t maxOrd, std::uint64_t m);
-
-  static GenerationInstance::HRange getMinMaxHXX(double p, std::uint64_t maxOrd,
-                                                 std::uint64_t m);
-
-  static GenerationInstance getGeneration(GenerationConfig GenerationConfig);
+////////////////////////////////////////////////////////////////////////////////
+class TwoPartsSourceWithConditions::GenerationInstance
+    : public std::ranges::subrange<
+          std::counted_iterator<SourceIterator<GenerationInstance>>,
+          std::default_sentinel_t> {
+ private:
+  GenerationInstance(std::size_t maxOrd, std::size_t m, double h, double hxx,
+                     std::size_t length, std::uint64_t seed);
 
  private:
-  static double calcDelta_(double hxx, std::uint64_t maxOrd, std::uint64_t m,
-                           double p, double h);
+  std::uint64_t get_();
 
-  [[nodiscard]] static double entropyWithCondition_(double p, double delta,
-                                                    std::uint64_t maxOrd,
-                                                    std::uint64_t m);
+ private:
+  using Iterator_ = SourceIterator<GenerationInstance>;
+  using SubrangeBase_ = std::ranges::subrange<std::counted_iterator<Iterator_>,
+                                              std::default_sentinel_t>;
+
+ private:
+  std::uint64_t maxOrd_;
+  std::uint64_t m_;
+  double p_;
+  double delta_;
+  std::mt19937 generator_;
+  std::optional<std::uint64_t> prevGenerated_{};
+
+ private:
+  friend class SourceIterator<GenerationInstance>;
+  friend class TwoPartsSourceWithConditions;
 };
 
 #endif  // TWO_PARTS_SOURCE_WITH_CONDITION_HPP

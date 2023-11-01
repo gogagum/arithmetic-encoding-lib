@@ -29,8 +29,8 @@ static void setInputSizesAndMParameters(benchmark::internal::Benchmark* b) {
       constexpr auto stepLog = 17LL;
       auto step = (1LL << stepLog);
       const std::int64_t inputSize = step * static_cast<std::int64_t>(i) / 11;
-      const auto hQuater = static_cast<std::int64_t>(j);  // 0, 1, 2, 3, 4
-      b->Args({inputSize, hQuater});
+      const auto hQuarter = static_cast<std::int64_t>(j);  // 0, 1, 2, 3, 4
+      b->Args({inputSize, hQuarter});
     }
   }
 }
@@ -38,16 +38,13 @@ static void setInputSizesAndMParameters(benchmark::internal::Benchmark* b) {
 template <class DictInitializer>
 static void runTests(benchmark::State& state, DictInitializer dictInitializer,
                      std::uint64_t maxOrd, std::uint64_t m,
-                     std::size_t seqLength, std::uint8_t hQuater) {
-  const auto [minH, maxH] = TwoPartsSource::getMinMaxH(maxOrd, m);
-  const auto h = minH + (maxH - minH) * hQuater / 4;
+                     std::size_t seqLength, std::uint8_t hQuarter) {
+  const auto [minH, maxH] = TwoPartsSource::getMinMaxEntropy(maxOrd, m);
+  const auto h = minH + (maxH - minH) * hQuarter / 4;
 
   constexpr auto seed = std::uint64_t{42};
 
-  auto generationParams =
-      TwoPartsSource::GenerationConfig{maxOrd, m, h, seqLength, seed};
-
-  auto src = TwoPartsSource::getGeneration(generationParams);
+  auto src = TwoPartsSource::getGeneration(maxOrd, m, h, seqLength, seed);
   auto dataConstructor = ael::ByteDataConstructor();
 
   auto encodeDict = dictInitializer();
@@ -71,16 +68,13 @@ template <class DictInitializer>
 static void runEscTests(benchmark::State& state,
                         DictInitializer dictInitializer, std::uint64_t maxOrd,
                         std::uint64_t m, std::size_t seqLength,
-                        std::uint8_t hQuater) {
-  const auto [minH, maxH] = TwoPartsSource::getMinMaxH(maxOrd, m);
-  const auto h = minH + (maxH - minH) * hQuater / 4;
+                        std::uint8_t hQuarter) {
+  const auto [minH, maxH] = TwoPartsSource::getMinMaxEntropy(maxOrd, m);
+  const auto h = minH + (maxH - minH) * hQuarter / 4;
 
   constexpr auto seed = std::uint64_t{42};
 
-  auto generationParams =
-      TwoPartsSource::GenerationConfig{maxOrd, m, h, seqLength, seed};
-
-  auto src = TwoPartsSource::getGeneration(generationParams);
+  auto src = TwoPartsSource::getGeneration(maxOrd, m, h, seqLength, seed);
   auto dataConstructor = ael::ByteDataConstructor();
 
   auto encodeDict = dictInitializer();
@@ -103,7 +97,7 @@ static void runEscTests(benchmark::State& state,
 ////////////////////////////////////////////////////////////////////////////////
 static void BM_benchmark_adaptive_decoder(benchmark::State& state) {
   const auto seqLength = static_cast<std::size_t>(state.range(0));
-  const auto hQuater = static_cast<std::uint8_t>(state.range(1));
+  const auto hQuarter = static_cast<std::uint8_t>(state.range(1));
 
   constexpr auto ratio = std::size_t{10};
 
@@ -111,37 +105,37 @@ static void BM_benchmark_adaptive_decoder(benchmark::State& state) {
     return ael::dict::AdaptiveDictionary({maxOrd, ratio});
   };
 
-  runTests(state, dictInitializer, maxOrd, m, seqLength, hQuater);
+  runTests(state, dictInitializer, maxOrd, m, seqLength, hQuarter);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 static void BM_benchmark_adaptive_a_decoder(benchmark::State& state) {
   const auto seqLength = static_cast<std::size_t>(state.range(0));
-  const auto hQuater = static_cast<std::uint8_t>(state.range(1));
+  const auto hQuarter = static_cast<std::uint8_t>(state.range(1));
 
   const auto dictInitializer = []() {
     return ael::dict::AdaptiveADictionary(maxOrd);
   };
 
-  runTests(state, dictInitializer, maxOrd, m, seqLength, hQuater);
+  runTests(state, dictInitializer, maxOrd, m, seqLength, hQuarter);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 static void BM_benchmark_adaptive_d_decoder(benchmark::State& state) {
   const auto seqLength = static_cast<std::size_t>(state.range(0));
-  const auto hQuater = static_cast<std::uint8_t>(state.range(1));
+  const auto hQuarter = static_cast<std::uint8_t>(state.range(1));
 
   const auto dictInitializer = []() {
     return ael::dict::AdaptiveDDictionary(maxOrd);
   };
 
-  runTests(state, dictInitializer, maxOrd, m, seqLength, hQuater);
+  runTests(state, dictInitializer, maxOrd, m, seqLength, hQuarter);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 static void BM_benchmark_adaptive_a_contextual_decoder(benchmark::State& state) {
   const auto seqLength = static_cast<std::size_t>(state.range(0));
-  const auto hQuater = static_cast<std::uint8_t>(state.range(1));
+  const auto hQuarter = static_cast<std::uint8_t>(state.range(1));
 
   constexpr auto dictNumBits = std::uint8_t{8};
 
@@ -149,13 +143,13 @@ static void BM_benchmark_adaptive_a_contextual_decoder(benchmark::State& state) 
     return ael::dict::AdaptiveAContextualDictionary({dictNumBits, 4, 4});
   };
 
-  runTests(state, dictInitializer, maxOrd, m, seqLength, hQuater);
+  runTests(state, dictInitializer, maxOrd, m, seqLength, hQuarter);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 static void BM_benchmark_adaptive_d_contextual_decoder(benchmark::State& state) {
   const auto seqLength = static_cast<std::size_t>(state.range(0));
-  const auto hQuater = static_cast<std::uint8_t>(state.range(1));
+  const auto hQuarter = static_cast<std::uint8_t>(state.range(1));
 
   constexpr auto dictNumBits = std::uint8_t{8};
 
@@ -163,14 +157,14 @@ static void BM_benchmark_adaptive_d_contextual_decoder(benchmark::State& state) 
     return ael::dict::AdaptiveDContextualDictionary({dictNumBits, 4, 4});
   };
 
-  runTests(state, dictInitializer, maxOrd, m, seqLength, hQuater);
+  runTests(state, dictInitializer, maxOrd, m, seqLength, hQuarter);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 static void BM_benchmark_adaptive_a_contextual_improved_decoder(
     benchmark::State& state) {
   const auto seqLength = static_cast<std::size_t>(state.range(0));
-  const auto hQuater = static_cast<std::uint8_t>(state.range(1));
+  const auto hQuarter = static_cast<std::uint8_t>(state.range(1));
 
   constexpr auto dictNumBits = std::uint8_t{8};
 
@@ -179,14 +173,14 @@ static void BM_benchmark_adaptive_a_contextual_improved_decoder(
         {dictNumBits, 4, 4});
   };
 
-  runTests(state, dictInitializer, maxOrd, m, seqLength, hQuater);
+  runTests(state, dictInitializer, maxOrd, m, seqLength, hQuarter);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 static void BM_benchmark_adaptive_d_contextual_improved_decoder(
     benchmark::State& state) {
   const auto seqLength = static_cast<std::size_t>(state.range(0));
-  const auto hQuater = static_cast<std::uint8_t>(state.range(1));
+  const auto hQuarter = static_cast<std::uint8_t>(state.range(1));
 
   constexpr auto dictNumBits = std::uint8_t{8};
 
@@ -195,13 +189,13 @@ static void BM_benchmark_adaptive_d_contextual_improved_decoder(
         {dictNumBits, 4, 4});
   };
 
-  runTests(state, dictInitializer, maxOrd, m, seqLength, hQuater);
+  runTests(state, dictInitializer, maxOrd, m, seqLength, hQuarter);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 static void BM_benchmark_ppma_decoder(benchmark::State& state) {
   const auto seqLength = static_cast<std::size_t>(state.range(0));
-  const auto hQuater = static_cast<std::uint8_t>(state.range(1));
+  const auto hQuarter = static_cast<std::uint8_t>(state.range(1));
 
   constexpr auto ctxLength = std::uint8_t{2};
 
@@ -209,13 +203,13 @@ static void BM_benchmark_ppma_decoder(benchmark::State& state) {
     return ael::dict::PPMADictionary({maxOrd, ctxLength});
   };
 
-  runTests(state, dictInitializer, maxOrd, m, seqLength, hQuater);
+  runTests(state, dictInitializer, maxOrd, m, seqLength, hQuarter);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 static void BM_benchmark_ppmd_decoder(benchmark::State& state) {
   const auto seqLength = static_cast<std::size_t>(state.range(0));
-  const auto hQuater = static_cast<std::uint8_t>(state.range(1));
+  const auto hQuarter = static_cast<std::uint8_t>(state.range(1));
 
   constexpr auto ctxLength = std::uint8_t{2};
 
@@ -223,13 +217,13 @@ static void BM_benchmark_ppmd_decoder(benchmark::State& state) {
     return ael::dict::PPMDDictionary({maxOrd, ctxLength});
   };
 
-  runTests(state, dictInitializer, maxOrd, m, seqLength, hQuater);
+  runTests(state, dictInitializer, maxOrd, m, seqLength, hQuarter);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 static void BM_benchmark_esc_adaptive_a_decoder(benchmark::State& state) {
   const auto seqLength = static_cast<std::size_t>(state.range(0));
-  const auto hQuater = static_cast<std::uint8_t>(state.range(1));
+  const auto hQuarter = static_cast<std::uint8_t>(state.range(1));
 
   constexpr auto ctxLength = std::uint8_t{2};
 
@@ -237,13 +231,13 @@ static void BM_benchmark_esc_adaptive_a_decoder(benchmark::State& state) {
     return ael::esc::dict::AdaptiveADictionary(maxOrd);
   };
 
-  runEscTests(state, dictInitializer, maxOrd, m, seqLength, hQuater);
+  runEscTests(state, dictInitializer, maxOrd, m, seqLength, hQuarter);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 static void BM_benchmark_esc_adaptive_d_decoder(benchmark::State& state) {
   const auto seqLength = static_cast<std::size_t>(state.range(0));
-  const auto hQuater = static_cast<std::uint8_t>(state.range(1));
+  const auto hQuarter = static_cast<std::uint8_t>(state.range(1));
 
   constexpr auto ctxLength = std::uint8_t{2};
 
@@ -251,13 +245,13 @@ static void BM_benchmark_esc_adaptive_d_decoder(benchmark::State& state) {
     return ael::esc::dict::AdaptiveDDictionary(maxOrd);
   };
 
-  runEscTests(state, dictInitializer, maxOrd, m, seqLength, hQuater);
+  runEscTests(state, dictInitializer, maxOrd, m, seqLength, hQuarter);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 static void BM_benchmark_esc_ppma_decoder(benchmark::State& state) {
   const auto seqLength = static_cast<std::size_t>(state.range(0));
-  const auto hQuater = static_cast<std::uint8_t>(state.range(1));
+  const auto hQuarter = static_cast<std::uint8_t>(state.range(1));
 
   constexpr auto ctxLength = std::uint8_t{2};
 
@@ -265,13 +259,13 @@ static void BM_benchmark_esc_ppma_decoder(benchmark::State& state) {
     return ael::esc::dict::PPMADictionary({maxOrd, ctxLength});
   };
 
-  runEscTests(state, dictInitializer, maxOrd, m, seqLength, hQuater);
+  runEscTests(state, dictInitializer, maxOrd, m, seqLength, hQuarter);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 static void BM_benchmark_esc_ppmd_decoder(benchmark::State& state) {
   const auto seqLength = static_cast<std::size_t>(state.range(0));
-  const auto hQuater = static_cast<std::uint8_t>(state.range(1));
+  const auto hQuarter = static_cast<std::uint8_t>(state.range(1));
 
   constexpr auto ctxLength = std::uint8_t{2};
 
@@ -279,7 +273,7 @@ static void BM_benchmark_esc_ppmd_decoder(benchmark::State& state) {
     return ael::esc::dict::PPMDDictionary({maxOrd, ctxLength});
   };
 
-  runEscTests(state, dictInitializer, maxOrd, m, seqLength, hQuater);
+  runEscTests(state, dictInitializer, maxOrd, m, seqLength, hQuarter);
 }
 
 // NOLINTBEGIN(modernize-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays,

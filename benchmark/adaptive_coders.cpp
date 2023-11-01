@@ -34,15 +34,12 @@ template <class DictInitializer>
 static void runTests(benchmark::State& state, DictInitializer dictInitializer,
                      std::uint64_t maxOrd, std::uint64_t m,
                      std::size_t seqLength, std::uint8_t hQuarter) {
-  const auto [minH, maxH] = TwoPartsSource::getMinMaxH(maxOrd, m);
+  const auto [minH, maxH] = TwoPartsSource::getMinMaxEntropy(maxOrd, m);
   const auto h = minH + (maxH - minH) * hQuarter / 4;
 
   constexpr auto seed = std::uint64_t{42};
 
-  auto generationParams =
-      TwoPartsSource::GenerationConfig{maxOrd, m, h, seqLength, seed};
-
-  auto src = TwoPartsSource::getGeneration(generationParams);
+  auto src = TwoPartsSource::getGeneration(maxOrd, m, h, seqLength, seed);
 
   for ([[maybe_unused]] const auto st : state) {
     auto dict = dictInitializer();
@@ -61,15 +58,12 @@ static void runEscTests(benchmark::State& state,
                         DictInitializer dictInitializer, std::uint64_t maxOrd,
                         std::uint64_t m, std::size_t seqLength,
                         std::uint8_t hQuarter) {
-  const auto [minH, maxH] = TwoPartsSource::getMinMaxH(maxOrd, m);
+  const auto [minH, maxH] = TwoPartsSource::getMinMaxEntropy(maxOrd, m);
   const auto h = minH + (maxH - minH) * hQuarter / 4;
 
   constexpr auto seed = std::uint64_t{42};
 
-  auto generationParams =
-      TwoPartsSource::GenerationConfig{maxOrd, m, h, seqLength, seed};
-
-  auto src = TwoPartsSource::getGeneration(generationParams);
+  auto src = TwoPartsSource::getGeneration(maxOrd, m, h, seqLength, seed);
 
   for ([[maybe_unused]] const auto st : state) {
     auto dict = dictInitializer();

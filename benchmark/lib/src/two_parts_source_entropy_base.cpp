@@ -1,28 +1,28 @@
-#include <impl/source_entropy_base.hpp>
+#include <impl/two_parts_source_entropy_base.hpp>
 #include <cmath>
 #include <limits>
 #include <stdexcept>
 #include <fmt/format.h>
 
 ////////////////////////////////////////////////////////////////////////////////
-double SourceEntropyBase::getMinH(std::uint64_t maxOrd, std::uint64_t m) {
-  return (2 * m > maxOrd) ? entropy_(0, maxOrd, m) : entropy_(1, maxOrd, m);
+double TwoPartsSourceEntropyBase::getMinEntropy(std::uint64_t maxOrd, std::uint64_t m) {
+  return (2 * m > maxOrd) ? entropy(0, maxOrd, m) : entropy(1, maxOrd, m);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-double SourceEntropyBase::getMaxH(std::uint64_t maxOrd, std::uint64_t m) {
+double TwoPartsSourceEntropyBase::getMaxEntropy(std::uint64_t maxOrd, std::uint64_t m) {
   const auto pMax = static_cast<double>(m) / static_cast<double>(maxOrd);
-  return entropy_(pMax, maxOrd, m);
+  return entropy(pMax, maxOrd, m);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto SourceEntropyBase::getMinMaxH(std::uint64_t maxOrd, std::uint64_t m)
-    -> HRange {
-  return {getMinH(maxOrd, m), getMaxH(maxOrd, m)};
+auto TwoPartsSourceEntropyBase::getMinMaxEntropy(std::uint64_t maxOrd, std::uint64_t m)
+    -> EntropyRange {
+  return {getMinEntropy(maxOrd, m), getMaxEntropy(maxOrd, m)};
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-double SourceEntropyBase::entropy_(     // NOLINT
+double TwoPartsSourceEntropyBase::entropy(     // NOLINT
     double p, std::uint64_t maxOrd,  // NOLINT
     std::uint64_t m) {               // NOLINT
   const auto mDouble = static_cast<double>(m);
@@ -38,9 +38,9 @@ double SourceEntropyBase::entropy_(     // NOLINT
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-double SourceEntropyBase::calcP_(double h, std::uint64_t maxOrd, std::uint64_t m) {
-  const auto maxEntropy = getMaxH(maxOrd, m);
-  const auto minEntropy = getMinH(maxOrd, m);
+double TwoPartsSourceEntropyBase::calcP_(double h, std::uint64_t maxOrd, std::uint64_t m) {
+  const auto maxEntropy = getMaxEntropy(maxOrd, m);
+  const auto minEntropy = getMinEntropy(maxOrd, m);
   if (h < minEntropy || h > maxEntropy) {
     throw std::invalid_argument(
         fmt::format("H(X) = {} is not reachable with m = {}, M = {}. "
@@ -49,11 +49,11 @@ double SourceEntropyBase::calcP_(double h, std::uint64_t maxOrd, std::uint64_t m
   }
   auto pL = (2 * m > maxOrd) ? double{0} : double{1};
   auto pR = static_cast<double>(m) / static_cast<double>(maxOrd);
-  const auto entropy = [maxOrd, m](double p) -> double {
-    return entropy_(p, maxOrd, m);
+  const auto entropy0 = [maxOrd, m](double p) -> double {
+    return entropy(p, maxOrd, m);
   };
   while (std::abs(pR - pL) > std::numeric_limits<double>::epsilon()) {
-    if (const double pM = (pL + pR) / 2; entropy(pM) > h) {
+    if (const double pM = (pL + pR) / 2; entropy0(pM) > h) {
       pR = pM;
     } else {
       pL = pM;

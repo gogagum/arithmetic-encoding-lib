@@ -8,14 +8,12 @@
 template <class GenerationInstance>
 class SourceIterator {
  public:
-  SourceIterator() = default;  // TODO(gogagum): why not to delete?
+  SourceIterator() = delete;
   SourceIterator(const SourceIterator&) = default;
   SourceIterator(SourceIterator&&) noexcept = default;
   explicit SourceIterator(GenerationInstance& owner);
-  SourceIterator& operator=(const SourceIterator<GenerationInstance>&) =
-      default;
-  SourceIterator& operator=(SourceIterator<GenerationInstance>&&) noexcept =
-      default;
+  SourceIterator& operator=(const SourceIterator&) = default;
+  SourceIterator& operator=(SourceIterator&&) noexcept = default;
   std::uint64_t operator*() const;
   SourceIterator<GenerationInstance>& operator++();
   SourceIterator<GenerationInstance> operator++(int);

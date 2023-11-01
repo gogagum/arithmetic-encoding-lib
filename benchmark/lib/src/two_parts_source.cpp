@@ -4,29 +4,27 @@
 #include <two_parts_source.hpp>
 
 ////////////////////////////////////////////////////////////////////////////////
-auto TwoPartsSource::getGeneration(GenerationConfig generationConfig)
+auto TwoPartsSource::getGeneration(std::size_t maxOrd, std::size_t m, double h,
+                                   std::size_t length, std::uint64_t seed)
     -> GenerationInstance {
-  if (generationConfig.m == 0 ||
-      generationConfig.m >= generationConfig.maxOrd) {
-    throw std::invalid_argument(
-        fmt::format("m = {} has no logic.", generationConfig.m));
+  if (m == 0 || m >= maxOrd) {
+    throw std::invalid_argument(fmt::format("m = {} has no logic.", m));
   }
-  return GenerationInstance({generationConfig.maxOrd, generationConfig.m,
-                             generationConfig.h, generationConfig.length,
-                             generationConfig.seed});
+  return GenerationInstance(maxOrd, m, h, length, seed);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-TwoPartsSource::GenerationInstance::GenerationInstance(
-    ConstructInfo constructInfo)
-    : SubrangeBase_(std::counted_iterator(
-                        Iterator_(*this),
-                        static_cast<std::ptrdiff_t>(constructInfo.length)),
+TwoPartsSource::GenerationInstance::GenerationInstance(std::size_t maxOrd,
+                                                       std::size_t m, double h,
+                                                       std::size_t length,
+                                                       std::uint64_t seed)
+    : SubrangeBase_(std::counted_iterator(Iterator_(*this),
+                                          static_cast<std::ptrdiff_t>(length)),
                     std::default_sentinel),
-      m_(constructInfo.m),
-      maxOrd_(constructInfo.maxOrd),
-      p_(calcP_(constructInfo.h, maxOrd_, m_)),
-      generator_(constructInfo.seed),
+      m_(m),
+      maxOrd_(maxOrd),
+      p_(calcP_(h, maxOrd_, m_)),
+      generator_(seed),
       partChoice_(p_) {
 }
 

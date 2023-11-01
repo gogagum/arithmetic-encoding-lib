@@ -8,39 +8,36 @@
 // cppcoreguidelines-avoid-magic-numbers)
 
 TEST(TwoPartsSourceWithConditions, Construct) {
-  auto cfg =
-      TwoPartsSourceWithConditions::GenerationConfig{64, 6, 5.7, 5.1, 42, 57};
-  auto src = TwoPartsSourceWithConditions::getGeneration(cfg);
+  auto src =
+      TwoPartsSourceWithConditions::getGeneration(64, 6, 5.7, 5.1, 42, 57);
 }
 
 TEST(TwoPartsSourceWithConditions, InvalidEntropy) {
-  auto cfg =
-      TwoPartsSourceWithConditions::GenerationConfig{64, 6, 6.1, 5.1, 42, 57};
-  EXPECT_THROW(auto src = TwoPartsSourceWithConditions::getGeneration(cfg),
+  EXPECT_THROW(auto src = TwoPartsSourceWithConditions::getGeneration(
+                   64, 6, 6.1, 5.1, 42, 57),
                std::logic_error);
 }
 
 TEST(TwoPartsSourceWithConditions, InvalidConditionalEntropy) {
-  auto cfg =
-      TwoPartsSourceWithConditions::GenerationConfig{64, 6, 5.7, 5.8, 42, 57};
-  EXPECT_THROW(auto src = TwoPartsSourceWithConditions::getGeneration(cfg),
+  EXPECT_THROW(auto src = TwoPartsSourceWithConditions::getGeneration(
+                   64, 6, 5.7, 5.8, 42, 57),
                std::logic_error);
 }
 
 TEST(TwoPartsSourceWithConditions, ConstructGenerationInstance) {
   auto src =
-      TwoPartsSourceWithConditions::getGeneration({64, 6, 5.7, 5.1, 42, 57});
+      TwoPartsSourceWithConditions::getGeneration(64, 6, 5.7, 5.1, 42, 57);
 }
 
 TEST(TwoPartsSourceWithConditions, IterateGenerationInstance) {
-  auto src = TwoPartsSourceWithConditions::getGeneration({64, 8, 5.5, 5.4, 75});
+  auto src = TwoPartsSourceWithConditions::getGeneration(64, 8, 5.5, 5.4, 75);
   for (auto ord : src) {
   }
 }
 
 TEST(TwoPartsSourceWithConditions, IterateGenerationInstanceLength) {
   auto src =
-      TwoPartsSourceWithConditions::getGeneration({64, 8, 5.5, 5.4, 5, 75});
+      TwoPartsSourceWithConditions::getGeneration(64, 8, 5.5, 5.4, 5, 75);
   std::vector<std::uint32_t> generated;
   std::ranges::copy(src.begin(), src.end(), std::back_inserter(generated));
   EXPECT_EQ(generated.size(), 5);
@@ -49,7 +46,7 @@ TEST(TwoPartsSourceWithConditions, IterateGenerationInstanceLength) {
 TEST(TwoPartsSourceWithConditions,
      IterateGenerationInstanceLengthRangesLibCopy) {
   auto src =
-      TwoPartsSourceWithConditions::getGeneration({64, 8, 5.5, 5.4, 5, 75});
+      TwoPartsSourceWithConditions::getGeneration(64, 8, 5.5, 5.4, 5, 75);
   std::vector<std::uint32_t> generated;
   std::ranges::copy(src.begin(), src.end(), std::back_inserter(generated));
   EXPECT_EQ(generated.size(), 5);
@@ -57,7 +54,7 @@ TEST(TwoPartsSourceWithConditions,
 
 TEST(TwoPartsSourceWithConditions, IterateGenerationInstanceLengthRanges) {
   auto src =
-      TwoPartsSourceWithConditions::getGeneration({64, 8, 5.5, 5.4, 5, 75});
+      TwoPartsSourceWithConditions::getGeneration(64, 8, 5.5, 5.4, 5, 75);
   std::vector<std::uint32_t> generated;
   std::ranges::copy(std::move(src), std::back_inserter(generated));
   EXPECT_EQ(generated.size(), 5);
@@ -67,8 +64,8 @@ TEST(TwoPartsSourceWithConditions, ResultingEntropy) {
   std::map<std::uint64_t, std::size_t> counts;
   std::size_t totalCount = 0;
 
-  auto src = TwoPartsSourceWithConditions::getGeneration(
-      {256, 16, 7.1, 6.9, 100000, 23});
+  auto src = TwoPartsSourceWithConditions::getGeneration(256, 16, 7.1, 6.9,
+                                                         100000, 23);
   for (auto ord : src) {
     ++totalCount;
     ++counts[ord];
@@ -90,8 +87,8 @@ TEST(TwoPartsSourceWithConditions, ResultingEntropy) {
 TEST(TwoPartsSourceWithConditions, ResultingConditionalEntropy) {
   constexpr std::size_t totalCount = 100000;
 
-  auto src = TwoPartsSourceWithConditions::getGeneration(
-      {256, 16, 7.1, 6.9, totalCount, 23});
+  auto src = TwoPartsSourceWithConditions::getGeneration(256, 16, 7.1, 6.9,
+                                                         totalCount, 23);
 
   auto values = std::array<std::uint64_t, totalCount>();
   std::ranges::copy(src, values.begin());
