@@ -19,8 +19,10 @@ jobs:
                   sudo apt-get install -y ninja-build g++-13 libstdc++-13-dev build-essential valgrind libicu-dev
             - run: /bin/bash .ci/build-project.sh build-simple
             - run: ./build-simple/test/ael-tests
+            - run: ./build-simple/benchmark/test/benchmark-lib-tests
             - run: /bin/bash .ci/build-project-valgrind.sh build-valgrind
             - run: valgrind ./build-valgrind/test/ael-tests
+            - run: valgrind ./build-valgrind/benchmark/test/benchmark-lib-tests
 
     linux-clang-16-libstdcpp:
         name: Linux Clang (libstdc++)
@@ -41,8 +43,10 @@ jobs:
                   sudo apt-get install -y ninja-build build-essential libstdc++-13-dev valgrind libicu-dev
             - run: /bin/bash .ci/build-project.sh build-simple
             - run: ./build-simple/test/ael-tests
+            - run: ./build-simple/benchmark/test/benchmark-lib-tests
             - run: /bin/bash .ci/build-project-valgrind.sh build-valgrind
             - run: valgrind ./build-valgrind/test/ael-tests
+            - run: valgrind ./build-valgrind/benchmark/test/benchmark-lib-tests
 
     linux-clang-16-libcpp:
         name: Linux Clang (libc++)
@@ -63,5 +67,7 @@ jobs:
                   sudo apt-get install -y libc++-16-dev libc++abi-16-dev ninja-build build-essential valgrind libicu-dev
             - run: /bin/bash .ci/build-project.sh build-simple
             - run: ./build-simple/test/ael-tests
+            - run: ./build-simple/benchmark/test/benchmark-lib-tests
             - run: /bin/bash .ci/build-project-valgrind.sh build-valgrind
             - run: valgrind ./build-valgrind/test/ael-tests
+            - run: valgrind ./build-valgrind/benchmark/test/benchmark-lib-tests
