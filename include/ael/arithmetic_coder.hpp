@@ -3,8 +3,9 @@
 
 #include <ael/byte_data_constructor.hpp>
 #include <ael/impl/ranges_calc.hpp>
-#include <cstdint>
 #include <boost/container/static_vector.hpp>
+#include <cstdint>
+#include <memory>
 
 namespace ael {
 
@@ -14,11 +15,16 @@ namespace ael {
 class ArithmeticCoder {
  public:
   struct EncodeRet {
+    std::unique_ptr<ByteDataConstructor> encoded;
     std::size_t wordsCount;
     std::size_t bitsEncoded;
   };
 
  public:
+  explicit ArithmeticCoder(
+      std::unique_ptr<ByteDataConstructor>&& dataConstructor =
+          std::make_unique<ByteDataConstructor>());
+
   /**
    * @brief encode - encode byte flow.
    * @param ordFlow orders range.
@@ -27,9 +33,7 @@ class ArithmeticCoder {
    * @return [wordsCount, bitsEncoded]
    */
   template <class DictT>
-  [[nodiscard]] static EncodeRet encode(auto ordFlow,
-                                        ByteDataConstructor& dataConstructor,
-                                        DictT& dict);
+  ArithmeticCoder&& encode(auto ordFlow, DictT& dict);
 
   /**
    * @brief encode - encode byte flow.
@@ -41,27 +45,38 @@ class ArithmeticCoder {
    * @return [wordsCount, bitsEncoded]
    */
   template <class DictT>
-  [[nodiscard]] static EncodeRet encode(auto ordFlow,
-                                        ByteDataConstructor& dataConstructor,
-                                        DictT& dict, auto tick);
+  ArithmeticCoder&& encode(
+      auto ordFlow, DictT& dict, auto tick = [] {});
+
+  EncodeRet finalize() &&;
+
+ private:
+  [[nodiscard]] ByteDataConstructor& getEncoded_() const;
+
+ private:
+  EncodeRet ret_;
+  std::size_t btf_{0};
+  bool finalizeChoice_{false};
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-template <class DictT>
-auto ArithmeticCoder::encode(auto ordFlow, ByteDataConstructor& dataConstructor,
-                             DictT& dict) -> EncodeRet {
-  return encode(ordFlow, dataConstructor, dict, [] {});
+inline ArithmeticCoder::ArithmeticCoder(
+    std::unique_ptr<ByteDataConstructor>&& dataConstructor)
+    : ret_{std::move(dataConstructor), 0, 0} {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 template <class DictT>
-auto ArithmeticCoder::encode(auto ordFlow, ByteDataConstructor& dataConstructor,
-                             DictT& dict, auto tick) -> EncodeRet {
-  auto ret = EncodeRet();
+ArithmeticCoder&& ArithmeticCoder::encode(auto ordFlow, DictT& dict) {
+  return encode(ordFlow, dict, [] {});
+}
+
+////////////////////////////////////////////////////////////////////////////////
+template <class DictT>
+ArithmeticCoder&& ArithmeticCoder::encode(auto ordFlow, DictT& dict,
+                                          auto tick) {
   using RC = impl::RangesCalc<typename DictT::Count, DictT::countNumBits>;
   auto currRange = typename RC::Range{0, RC::total};
-
-  std::size_t btf = 0;
 
   for (auto ord : ordFlow) {
     const auto [low, high, total] = dict.getProbabilityStats(ord);
@@ -69,35 +84,32 @@ auto ArithmeticCoder::encode(auto ordFlow, ByteDataConstructor& dataConstructor,
 
     while (true) {
       if (currRange.high <= RC::half) {
-        ret.bitsEncoded += btf + 1;
-        dataConstructor.putBit(false);
-        dataConstructor.putBitsRepeatWithReset(true, btf);
+        ret_.bitsEncoded += btf_ + 1;
+        getEncoded_().putBit(false);
+        getEncoded_().putBitsRepeatWithReset(true, btf_);
       } else if (currRange.low >= RC::half) {
-        ret.bitsEncoded += btf + 1;
-        dataConstructor.putBit(true);
-        dataConstructor.putBitsRepeatWithReset(false, btf);
+        ret_.bitsEncoded += btf_ + 1;
+        getEncoded_().putBit(true);
+        getEncoded_().putBitsRepeatWithReset(false, btf_);
       } else if (currRange.low >= RC::quarter &&
                  currRange.high <= RC::threeQuarters) {
-        ++btf;
+        ++btf_;
       } else {
         break;
       }
       currRange = RC::recalcRange(currRange);
     }
-    ++ret.wordsCount;
+    ++ret_.wordsCount;
     tick();
   }
 
-  ret.bitsEncoded += btf + 2;
-  if (currRange.low < RC::quarter) {
-    dataConstructor.putBit(false);
-    dataConstructor.putBitsRepeat(true, btf + 1);
-  } else {
-    dataConstructor.putBit(true);
-    dataConstructor.putBitsRepeat(false, btf + 1);
-  }
+  finalizeChoice_ = currRange.low < RC::quarter;
+  return std::move(*this);
+}
 
-  return ret;
+////////////////////////////////////////////////////////////////////////////////
+inline ByteDataConstructor& ArithmeticCoder::getEncoded_() const {
+  return *ret_.encoded;
 }
 
 }  // namespace ael

@@ -14,13 +14,12 @@
 TEST(AdaptiveEncodeDecode, EncodeEmpty) {
   const auto encoded = std::vector<std::uint64_t>();
   auto dict = ael::dict::AdaptiveDictionary({6, 10});
-  auto dataConstructor = ael::ByteDataConstructor();
-  auto [wordsCount, bitsCount] =
-      ael::ArithmeticCoder::encode(encoded, dataConstructor, dict);
+  auto [dataConstructor, wordsCount, bitsCount] =
+      ael::ArithmeticCoder().encode(encoded, dict).finalize();
 
   EXPECT_EQ(wordsCount, 0);
   EXPECT_EQ(bitsCount, 2);
-  EXPECT_EQ(dataConstructor.size(), 1);
+  EXPECT_EQ(dataConstructor->size(), 1);
 }
 
 TEST(AdaptiveEncodeDecode, DecodeEmpty) {
@@ -36,19 +35,16 @@ TEST(AdaptiveEncodeDecode, DecodeEmpty) {
 
 TEST(AdaptiveEncodeDecode, EncodeDecodeEmptySequence) {
   const auto encoded = std::vector<std::uint64_t>();
-  auto dataConstructor = ael::ByteDataConstructor();
   auto decoded = std::vector<std::uint64_t>();
 
-  {
-    auto dict = ael::dict::AdaptiveDictionary({6, 7});
-    auto [wordsCount, bitsCount] =
-        ael::ArithmeticCoder::encode(encoded, dataConstructor, dict);
-  }
+  auto dict = ael::dict::AdaptiveDictionary({6, 7});
+  auto [dataConstructor, wordsCount, bitsCount] =
+      ael::ArithmeticCoder().encode(encoded, dict).finalize();
 
   {
     auto dict = ael::dict::AdaptiveDictionary({6, 7});
     auto dataParser = ael::DataParser(
-        std::span(dataConstructor.data<std::byte>(), dataConstructor.size()));
+        std::span(dataConstructor->data<std::byte>(), dataConstructor->size()));
     ael::ArithmeticDecoder::decode(
         dataParser, dict, std::back_inserter(decoded),
         {encoded.size(), std::numeric_limits<std::size_t>::max()});
@@ -60,29 +56,25 @@ TEST(AdaptiveEncodeDecode, EncodeDecodeEmptySequence) {
 TEST(AdaptiveEncodeDecode, EncodeSmall) {
   const auto encoded = std::vector<std::uint64_t>{5, 3, 4, 5, 2};
   auto dict = ael::dict::AdaptiveDictionary({6, 7});
-  auto dataConstructor = ael::ByteDataConstructor();
-  auto [wordsCount, bitsCount] =
-      ael::ArithmeticCoder::encode(encoded, dataConstructor, dict);
+  auto [dataConstructor, wordsCount, bitsCount] =
+      ael::ArithmeticCoder().encode(encoded, dict).finalize();
 
   EXPECT_EQ(wordsCount, 5);
-  EXPECT_GE(dataConstructor.size(), 0);
+  EXPECT_GE(dataConstructor->size(), 0);
 }
 
 TEST(AdaptiveEncodeDecode, EncodeDecodeSmallSequence) {
   const auto encoded = std::vector<std::uint64_t>{5, 3, 5, 7, 2};
-  auto dataConstructor = ael::ByteDataConstructor();
   auto decoded = std::vector<std::uint64_t>();
 
-  {
-    auto dict = ael::dict::AdaptiveDictionary({8, 5});
-    const auto [wordsCount, bitsCount] =
-        ael::ArithmeticCoder::encode(encoded, dataConstructor, dict);
-  }
+  auto dict = ael::dict::AdaptiveDictionary({8, 5});
+  const auto [dataConstructor, wordsCount, bitsCount] =
+      ael::ArithmeticCoder().encode(encoded, dict).finalize();
 
   {
     auto dict = ael::dict::AdaptiveDictionary({8, 5});
     auto dataParser = ael::DataParser(
-        std::span(dataConstructor.data<std::byte>(), dataConstructor.size()));
+        std::span(dataConstructor->data<std::byte>(), dataConstructor->size()));
     ael::ArithmeticDecoder::decode(
         dataParser, dict, std::back_inserter(decoded),
         {encoded.size(), std::numeric_limits<std::size_t>::max()});
@@ -95,17 +87,16 @@ TEST(AdaptiveEncodeDecode, EncodeDecodeSmallSequence) {
 
 TEST(AdaptiveEncodeDecode, EncodeDecodeSmallSequenceBitsLimit) {
   const auto encoded = std::vector<std::uint64_t>{5, 3, 5, 7, 2};
-  auto dataConstructor = ael::ByteDataConstructor();
   auto decoded = std::vector<std::uint64_t>();
 
   auto dict0 = ael::dict::AdaptiveDictionary({8, 5});
-  const auto [wordsCount, bitsCount] =
-      ael::ArithmeticCoder::encode(encoded, dataConstructor, dict0);
+  const auto [dataConstructor, wordsCount, bitsCount] =
+      ael::ArithmeticCoder().encode(encoded, dict0).finalize();
 
   {
     auto dict1 = ael::dict::AdaptiveDictionary({8, 5});
     auto dataParser = ael::DataParser(
-        std::span(dataConstructor.data<std::byte>(), dataConstructor.size()));
+        std::span(dataConstructor->data<std::byte>(), dataConstructor->size()));
     ael::ArithmeticDecoder::decode(dataParser, dict1,
                                    std::back_inserter(decoded),
                                    {wordsCount, bitsCount});
@@ -127,21 +118,18 @@ TEST(AdaptiveEncodeDecode, EncodeDecodeFuzz) {
     std::generate_n(std::back_inserter(encoded), length,
                     ael::test::OrdGenerator(gen, rng));
 
-    auto dataConstructor = ael::ByteDataConstructor();
     auto decoded = std::vector<std::uint64_t>();
 
     const std::size_t ratio = gen() % 10 + 5;  // [5..15)
 
-    {
-      auto dict = ael::dict::AdaptiveDictionary({rng, ratio});
-      const auto [wordsCount, bitsCount] =
-          ael::ArithmeticCoder::encode(encoded, dataConstructor, dict);
-    }
+    auto dict = ael::dict::AdaptiveDictionary({rng, ratio});
+    const auto [dataConstructor, wordsCount, bitsCount] =
+        ael::ArithmeticCoder().encode(encoded, dict).finalize();
 
     {
       auto dict = ael::dict::AdaptiveDictionary({rng, ratio});
-      auto dataParser = ael::DataParser(
-          std::span(dataConstructor.data<std::byte>(), dataConstructor.size()));
+      auto dataParser = ael::DataParser(std::span(
+          dataConstructor->data<std::byte>(), dataConstructor->size()));
       ael::ArithmeticDecoder::decode(
           dataParser, dict, std::back_inserter(decoded),
           {encoded.size(), std::numeric_limits<std::size_t>::max()});
@@ -164,19 +152,18 @@ TEST(AdaptiveEncodeDecode, EncodeDecodeFuzzBitsLimit) {
     std::generate_n(std::back_inserter(encoded), length,
                     ael::test::OrdGenerator(gen, rng));
 
-    auto dataConstructor = ael::ByteDataConstructor();
     auto decoded = std::vector<std::uint64_t>();
 
     const std::size_t ratio = gen() % 10 + 5;  // [5..15)
 
     auto dict1 = ael::dict::AdaptiveDictionary({rng, ratio});
-    const auto [wordsCount, bitsCount] =
-        ael::ArithmeticCoder::encode(encoded, dataConstructor, dict1);
+    const auto [dataConstructor, wordsCount, bitsCount] =
+        ael::ArithmeticCoder().encode(encoded, dict1).finalize();
 
     {
       auto dict2 = ael::dict::AdaptiveDictionary({rng, ratio});
-      auto dataParser = ael::DataParser(
-          std::span(dataConstructor.data<std::byte>(), dataConstructor.size()));
+      auto dataParser = ael::DataParser(std::span(
+          dataConstructor->data<std::byte>(), dataConstructor->size()));
       ael::ArithmeticDecoder::decode(dataParser, dict2,
                                      std::back_inserter(decoded),
                                      {wordsCount, bitsCount});

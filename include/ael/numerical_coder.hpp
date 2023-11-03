@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <map>
+#include <memory>
 #include <ranges>
 
 #include "arithmetic_coder.hpp"
@@ -17,11 +18,11 @@ namespace ael {
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief The Numerical coder class.
 ///
+template <class OrdFlow>
 class NumericalCoder {
  public:
   struct EncodeRet {
-    std::uint64_t dictSize{};
-    std::uint64_t wordsBitsCnt{};
+    std::unique_ptr<ByteDataConstructor> dataConstructor;
     std::uint64_t wordsCountsBitsCnt{};
     std::uint64_t contentWordsEncoded{};
     std::uint64_t contentBitsCnt{};
@@ -33,22 +34,20 @@ class NumericalCoder {
   };
 
  public:
+  NumericalCoder(const OrdFlow& ordFlow,
+                 std::unique_ptr<ByteDataConstructor>&& dataConstructor =
+                     std::make_unique<ByteDataConstructor>());
+
   static std::vector<CountEntry> countWords(const auto& ordFlow);
 
-  static EncodeRet encode(auto& ordFlow,
-                          const std::vector<CountEntry>& countsMapping,
-                          ByteDataConstructor& dataConstructor);
+  EncodeRet encode(const std::vector<CountEntry>& countsMapping) &&;
 
-  static EncodeRet encode(auto& ordFlow,
-                          const std::vector<CountEntry>& countsMapping,
-                          ByteDataConstructor& dataConstructor, auto wordTick,
-                          auto wordCntTick, auto contentTick);
+  EncodeRet encode(const std::vector<CountEntry>& countsMapping, auto wordTick,
+                   auto wordCntTick, auto contentTick) &&;
 
  private:
-  static EncodeRet encode_(auto& ordFlow,
-                           const std::vector<CountEntry>& countsMapping,
-                           ByteDataConstructor& dataConstructor, auto wordTick,
-                           auto wordCntTick, auto contentTick);
+  EncodeRet encode_(const std::vector<CountEntry>& countsMapping, auto wordTick,
+                    auto wordCntTick, auto contentTick) &&;
 
  private:
   struct BitsCountsPositions_ {
@@ -56,33 +55,43 @@ class NumericalCoder {
     std::size_t wordsBitsPos{};
     std::size_t contentBitsPos{};
   };
+
+ private:
+  const OrdFlow* ordFlow_;
+  std::unique_ptr<ByteDataConstructor> dataConstructor_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-auto NumericalCoder::encode(auto& ordFlow,
-                            const std::vector<CountEntry>& countsMapping,
-                            ByteDataConstructor& dataConstructor) -> EncodeRet {
-  return encode_(
-      ordFlow, countsMapping, dataConstructor, [] {}, [] {}, [] {});
+template <class OrdFlow>
+NumericalCoder<OrdFlow>::NumericalCoder(
+    const OrdFlow& ordFlow,
+    std::unique_ptr<ByteDataConstructor>&& dataConstructor)
+    : ordFlow_{&ordFlow}, dataConstructor_{std::move(dataConstructor)} {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto NumericalCoder::encode(auto& ordFlow,
-                            const std::vector<CountEntry>& countsMapping,
-                            ByteDataConstructor& dataConstructor, auto wordTick,
-                            auto wordCntTick, auto contentTick) -> EncodeRet {
-  return encode_(ordFlow, countsMapping, dataConstructor, wordTick, wordCntTick,
-                 contentTick);
+template <class OrdFlow>
+auto NumericalCoder<OrdFlow>::encode(
+    const std::vector<CountEntry>& countsMapping) && -> EncodeRet {
+  return std::move(*this).encode_(
+      countsMapping, [] {}, [] {}, [] {});
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto NumericalCoder::encode_(auto& ordFlow,
-                             const std::vector<CountEntry>& countsMapping,
-                             ByteDataConstructor& dataConstructor,
-                             auto wordTick, auto wordCntTick, auto contentTick)
-    -> EncodeRet {
-  if (ordFlow.size() == 0) {
-    return {0, 0, 0, 0, 0};
+template <class OrdFlow>
+auto NumericalCoder<OrdFlow>::encode(
+    const std::vector<CountEntry>& countsMapping, auto wordTick,
+    auto wordCntTick, auto contentTick) && -> EncodeRet {
+  return encode_(countsMapping, wordTick, wordCntTick, contentTick);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+template <class OrdFlow>
+auto NumericalCoder<OrdFlow>::encode_(
+    const std::vector<CountEntry>& countsMapping, auto wordTick,
+    auto wordCntTick, auto contentTick) && -> EncodeRet {
+  if (ordFlow_->size() == 0) {
+    return {std::move(dataConstructor_), 0, 0, 0};
   }
 
   auto counts = std::vector<std::uint64_t>{};
@@ -93,33 +102,33 @@ auto NumericalCoder::encode_(auto& ordFlow,
     dictWordsOrds.push_back(ord);
   }
 
-  const auto maxOrd = *std::ranges::max_element(ordFlow) + 1;
+  const auto maxOrd = *std::ranges::max_element(*ordFlow_) + 1;
+  auto arithmeticCoder = ArithmeticCoder(std::move(dataConstructor_));
 
   // Encode words
   auto wordsDict = dict::DecreasingOnUpdateDictionary(maxOrd, 1);
-  auto [dictWordsEncoded, wordsBitsCnt] = ArithmeticCoder::encode(
-      dictWordsOrds, dataConstructor, wordsDict, wordTick);
-  assert(dictWordsEncoded == countsMapping.size());
+  arithmeticCoder.encode(dictWordsOrds, wordsDict, wordTick);
 
   // Encode counts
   auto countsDict =
-      dict::DecreasingCountDictionary<std::uint64_t>(ordFlow.size());
-  auto [dictWordsCountsEncoded, countsBitsCnt] =
-      ArithmeticCoder::encode(counts, dataConstructor, countsDict, wordCntTick);
-  assert(dictWordsCountsEncoded == countsMapping.size());
+      dict::DecreasingCountDictionary<std::uint64_t>(ordFlow_->size());
+      arithmeticCoder.encode(counts, countsDict, wordCntTick);
 
   // Encode content
   auto contentDict = dict::DecreasingOnUpdateDictionary(maxOrd, countsMapping);
-  auto [contentWordsEncoded, contentBitsCnt] = ArithmeticCoder::encode(
-      ordFlow, dataConstructor, contentDict, contentTick);
-  assert(contentWordsEncoded == ordFlow.size());
+  auto [dataConstructor, contentWordsEncoded, contentBitsCnt] =
+      arithmeticCoder.encode(*ordFlow_, contentDict, contentTick).finalize();
+  assert(contentWordsEncoded == ordFlow_->size());
 
-  return {countsMapping.size(), wordsBitsCnt, countsBitsCnt, ordFlow.size(),
+  return {std::move(dataConstructor),
+          countsMapping.size(),
+          ordFlow_->size(),
           contentBitsCnt};
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto NumericalCoder::countWords(const auto& ordFlow)
+template <class OrdFlow>
+auto NumericalCoder<OrdFlow>::countWords(const auto& ordFlow)
     -> std::vector<CountEntry> {
   auto countsMap = std::map<std::uint64_t, std::uint64_t>();
   for (auto ord : ordFlow) {
@@ -132,7 +141,7 @@ auto NumericalCoder::countWords(const auto& ordFlow)
                  });
   std::sort(ret.begin(), ret.end(), [](const auto& entry0, const auto& entry1) {
     return entry0.count > entry1.count;
-  });
+  });  // TODO(gogagum):  do with ranges::sort
   return ret;
 }
 

@@ -45,19 +45,17 @@ static void runTests(benchmark::State& state, DictInitializer dictInitializer,
   constexpr auto seed = std::uint64_t{42};
 
   auto src = TwoPartsSource::getGeneration(maxOrd, m, h, seqLength, seed);
-  auto dataConstructor = ael::ByteDataConstructor();
-
   auto encodeDict = dictInitializer();
 
-  const auto [wordsCount, bitsCount] =
-      ael::ArithmeticCoder::encode(src, dataConstructor, encodeDict);
+  auto [dataConstructor, wordsCount, bitsCount] =
+      ael::ArithmeticCoder().encode(src, encodeDict).finalize();
 
   for ([[maybe_unused]] const auto st : state) {
     auto decodeDict = dictInitializer();
     auto decoded = std::vector<std::uint64_t>();
 
     auto dataParser = ael::DataParser(
-        std::span(dataConstructor.data<std::byte>(), dataConstructor.size()));
+        std::span(dataConstructor->template data<std::byte>(), dataConstructor->size()));
     ael::ArithmeticDecoder::decode(dataParser, decodeDict,
                                    std::back_inserter(decoded),
                                    {wordsCount, bitsCount});
