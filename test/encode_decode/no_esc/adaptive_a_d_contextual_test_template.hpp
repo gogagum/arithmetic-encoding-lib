@@ -36,8 +36,8 @@ TEST(TEST_SUIT_NAME, DecodeEmpty) {
   auto dict = TESTED_CLASS({6, 3, 3});
   auto dataParser = ael::DataParser(data);
   auto retOrds = std::vector<std::uint32_t>();
-  ael::ArithmeticDecoder::decode(dataParser, dict, std::back_inserter(retOrds),
-                                 {0, 0});
+  ael::ArithmeticDecoder(dataParser, 0)
+      .decode(dict, std::back_inserter(retOrds), 0);
 
   EXPECT_EQ(retOrds.size(), 0);
 }
@@ -53,9 +53,8 @@ TEST(TEST_SUIT_NAME, EncodeDecodeEmptySequence) {
   {
     auto dict = TESTED_CLASS({6, 3, 3});
     auto dataParser = ael::DataParser(dataConstructor->getDataSpan());
-    ael::ArithmeticDecoder::decode(
-        dataParser, dict, std::back_inserter(decoded),
-        {encoded.size(), std::numeric_limits<std::size_t>::max()});
+    ael::ArithmeticDecoder(dataParser)
+        .decode(dict, std::back_inserter(decoded), encoded.size());
   }
 
   EXPECT_EQ(encoded.size(), decoded.size());
@@ -82,9 +81,8 @@ TEST(TEST_SUIT_NAME, EncodeDecodeSmallSequence) {
   {
     auto dict = TESTED_CLASS({8, 4, 4});
     auto dataParser = ael::DataParser(dataConstructor->getDataSpan());
-    ael::ArithmeticDecoder::decode(
-        dataParser, dict, std::back_inserter(decoded),
-        {encoded.size(), std::numeric_limits<std::size_t>::max()});
+    ael::ArithmeticDecoder(dataParser)
+        .decode(dict, std::back_inserter(decoded), encoded.size());
   }
 
   EXPECT_EQ(encoded.size(), decoded.size());
@@ -103,9 +101,8 @@ TEST(TEST_SUIT_NAME, EncodeDecodeSmallSequenceBitsLimit) {
   {
     auto dict1 = TESTED_CLASS({8, 4, 4});
     auto dataParser = ael::DataParser(dataConstructor->getDataSpan());
-    ael::ArithmeticDecoder::decode(dataParser, dict1,
-                                   std::back_inserter(decoded),
-                                   {wordsCount, bitsCount});
+    ael::ArithmeticDecoder(dataParser, bitsCount)
+        .decode(dict1, std::back_inserter(decoded), wordsCount);
   }
 
   EXPECT_EQ(encoded.size(), decoded.size());
@@ -136,9 +133,8 @@ TEST(TEST_SUIT_NAME, EncodeDecodeFuzz) {
     {
       auto dict = TESTED_CLASS({8, ctxLength, ctxBitsLength});
       auto dataParser = ael::DataParser(dataConstructor->getDataSpan());
-      ael::ArithmeticDecoder::decode(
-          dataParser, dict, std::back_inserter(decoded),
-          {encoded.size(), std::numeric_limits<std::size_t>::max()});
+      ael::ArithmeticDecoder(dataParser)
+          .decode(dict, std::back_inserter(decoded), encoded.size());
     }
 
     EXPECT_EQ(encoded.size(), decoded.size());
@@ -165,14 +161,13 @@ TEST(TEST_SUIT_NAME, EncodeDecodeFuzzBitsLimit) {
 
     auto dict1 = TESTED_CLASS({8, ctxLength, ctxBitsLength});
     auto [dataConstructor, wordsCount, bitsCount] =
-      ael::ArithmeticCoder().encode(encoded, dict1).finalize();
+        ael::ArithmeticCoder().encode(encoded, dict1).finalize();
 
     {
       auto dict2 = TESTED_CLASS({8, ctxLength, ctxBitsLength});
       auto dataParser = ael::DataParser(dataConstructor->getDataSpan());
-      ael::ArithmeticDecoder::decode(dataParser, dict2,
-                                     std::back_inserter(decoded),
-                                     {wordsCount, bitsCount});
+      ael::ArithmeticDecoder(dataParser, bitsCount)
+          .decode(dict2, std::back_inserter(decoded), wordsCount);
     }
 
     EXPECT_EQ(encoded.size(), decoded.size());

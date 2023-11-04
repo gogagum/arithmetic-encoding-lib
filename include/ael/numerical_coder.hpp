@@ -24,8 +24,6 @@ class NumericalCoder {
   struct EncodeRet {
     std::unique_ptr<ByteDataConstructor> dataConstructor;
     std::uint64_t dictionarySize{};
-    std::uint64_t dictionaryWordsBitsCnt{};
-    std::uint64_t wordsCountsBitsCnt{};
     std::uint64_t contentWordsEncoded{};
     std::uint64_t contentBitsCnt{};
   };
@@ -134,8 +132,6 @@ auto NumericalCoder<OrdFlow>::encode_(
 
   return {std::move(dataConstructor),
           countsMapping.size(),
-          wordsBitsCnt,
-          countsBitsCnt,
           ordFlow_->size(),
           contentBitsCnt};
 }
