@@ -23,6 +23,8 @@ class NumericalCoder {
  public:
   struct EncodeRet {
     std::unique_ptr<ByteDataConstructor> dataConstructor;
+    std::uint64_t dictionarySize{};
+    std::uint64_t dictionaryWordsBitsCnt{};
     std::uint64_t wordsCountsBitsCnt{};
     std::uint64_t contentWordsEncoded{};
     std::uint64_t contentBitsCnt{};
@@ -34,9 +36,10 @@ class NumericalCoder {
   };
 
  public:
-  NumericalCoder(const OrdFlow& ordFlow,
-                 std::unique_ptr<ByteDataConstructor>&& dataConstructor =
-                     std::make_unique<ByteDataConstructor>());
+  explicit NumericalCoder(
+      const OrdFlow& ordFlow,
+      std::unique_ptr<ByteDataConstructor>&& dataConstructor =
+          std::make_unique<ByteDataConstructor>());
 
   static std::vector<CountEntry> countWords(const auto& ordFlow);
 
@@ -107,21 +110,32 @@ auto NumericalCoder<OrdFlow>::encode_(
 
   // Encode words
   auto wordsDict = dict::DecreasingOnUpdateDictionary(maxOrd, 1);
-  arithmeticCoder.encode(dictWordsOrds, wordsDict, wordTick);
+  auto [wordsEncoded, wordsBitsCnt] =
+      arithmeticCoder.encode(dictWordsOrds, wordsDict, wordTick)
+          .getStatsChange();
+  assert(wordsEncoded == dictWordsOrds.size());
 
   // Encode counts
   auto countsDict =
       dict::DecreasingCountDictionary<std::uint64_t>(ordFlow_->size());
-      arithmeticCoder.encode(counts, countsDict, wordCntTick);
+  auto [countsEncoded, countsBitsCnt] =
+      arithmeticCoder.encode(counts, countsDict, wordCntTick).getStatsChange();
+  assert(countsEncoded == counts.size());
 
   // Encode content
   auto contentDict = dict::DecreasingOnUpdateDictionary(maxOrd, countsMapping);
-  auto [dataConstructor, contentWordsEncoded, contentBitsCnt] =
-      arithmeticCoder.encode(*ordFlow_, contentDict, contentTick).finalize();
+  auto [contentWordsEncoded, contentBitsCnt] =
+      arithmeticCoder.encode(*ordFlow_, contentDict, contentTick)
+          .getStatsChange();
   assert(contentWordsEncoded == ordFlow_->size());
+
+  auto [dataConstructor, totalWordsEncoded, totalBitsEncoded] =
+      std::move(arithmeticCoder).finalize();
 
   return {std::move(dataConstructor),
           countsMapping.size(),
+          wordsBitsCnt,
+          countsBitsCnt,
           ordFlow_->size(),
           contentBitsCnt};
 }

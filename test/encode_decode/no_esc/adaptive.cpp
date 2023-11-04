@@ -43,8 +43,7 @@ TEST(AdaptiveEncodeDecode, EncodeDecodeEmptySequence) {
 
   {
     auto dict = ael::dict::AdaptiveDictionary({6, 7});
-    auto dataParser = ael::DataParser(
-        std::span(dataConstructor->data<std::byte>(), dataConstructor->size()));
+    auto dataParser = ael::DataParser(dataConstructor->getDataSpan());
     ael::ArithmeticDecoder::decode(
         dataParser, dict, std::back_inserter(decoded),
         {encoded.size(), std::numeric_limits<std::size_t>::max()});
@@ -73,8 +72,7 @@ TEST(AdaptiveEncodeDecode, EncodeDecodeSmallSequence) {
 
   {
     auto dict = ael::dict::AdaptiveDictionary({8, 5});
-    auto dataParser = ael::DataParser(
-        std::span(dataConstructor->data<std::byte>(), dataConstructor->size()));
+    auto dataParser = ael::DataParser(dataConstructor->getDataSpan());
     ael::ArithmeticDecoder::decode(
         dataParser, dict, std::back_inserter(decoded),
         {encoded.size(), std::numeric_limits<std::size_t>::max()});
@@ -95,8 +93,7 @@ TEST(AdaptiveEncodeDecode, EncodeDecodeSmallSequenceBitsLimit) {
 
   {
     auto dict1 = ael::dict::AdaptiveDictionary({8, 5});
-    auto dataParser = ael::DataParser(
-        std::span(dataConstructor->data<std::byte>(), dataConstructor->size()));
+    auto dataParser = ael::DataParser(dataConstructor->getDataSpan());
     ael::ArithmeticDecoder::decode(dataParser, dict1,
                                    std::back_inserter(decoded),
                                    {wordsCount, bitsCount});
@@ -128,8 +125,7 @@ TEST(AdaptiveEncodeDecode, EncodeDecodeFuzz) {
 
     {
       auto dict = ael::dict::AdaptiveDictionary({rng, ratio});
-      auto dataParser = ael::DataParser(std::span(
-          dataConstructor->data<std::byte>(), dataConstructor->size()));
+      auto dataParser = ael::DataParser(dataConstructor->getDataSpan());
       ael::ArithmeticDecoder::decode(
           dataParser, dict, std::back_inserter(decoded),
           {encoded.size(), std::numeric_limits<std::size_t>::max()});
@@ -162,8 +158,7 @@ TEST(AdaptiveEncodeDecode, EncodeDecodeFuzzBitsLimit) {
 
     {
       auto dict2 = ael::dict::AdaptiveDictionary({rng, ratio});
-      auto dataParser = ael::DataParser(std::span(
-          dataConstructor->data<std::byte>(), dataConstructor->size()));
+      auto dataParser = ael::DataParser(dataConstructor->getDataSpan());
       ael::ArithmeticDecoder::decode(dataParser, dict2,
                                      std::back_inserter(decoded),
                                      {wordsCount, bitsCount});

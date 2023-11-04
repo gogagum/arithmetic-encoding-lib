@@ -50,8 +50,7 @@ TEST(TEST_SUIT_NAME, EncodeDecodeEmptySequence) {
 
   {
     auto dict = TESTED_CLASS({6, 6});
-    auto dataParser = ael::DataParser(
-        std::span(dataConstructor->data<std::byte>(), dataConstructor->size()));
+    auto dataParser = ael::DataParser(dataConstructor->getDataSpan());
     ael::ArithmeticDecoder::decode(
         dataParser, dict, std::back_inserter(decoded),
         {encoded.size(), std::numeric_limits<std::size_t>::max()});
@@ -80,8 +79,7 @@ TEST(TEST_SUIT_NAME, EncodeDecodeSmallSequence) {
 
   {
     auto dict = TESTED_CLASS({8, 5});
-    auto dataParser = ael::DataParser(
-        std::span(dataConstructor->data<std::byte>(), dataConstructor->size()));
+    auto dataParser = ael::DataParser(dataConstructor->getDataSpan());
     ael::ArithmeticDecoder::decode(
         dataParser, dict, std::back_inserter(decoded),
         {encoded.size(), std::numeric_limits<std::size_t>::max()});
@@ -102,8 +100,7 @@ TEST(TEST_SUIT_NAME, EncodeDecodeSmallSequenceBitsLimit) {
 
   {
     auto dict1 = TESTED_CLASS({8, 5});
-    auto dataParser = ael::DataParser(
-        std::span(dataConstructor->data<std::byte>(), dataConstructor->size()));
+    auto dataParser = ael::DataParser(dataConstructor->getDataSpan());
     ael::ArithmeticDecoder::decode(dataParser, dict1,
                                    std::back_inserter(decoded),
                                    {wordsCount, bitsCount});
@@ -134,8 +131,7 @@ TEST(TEST_SUIT_NAME, EncodeDecodeFuzz) {
 
     {
       auto dict = TESTED_CLASS({rng, ctxLen});
-      auto dataParser = ael::DataParser(std::span(
-          dataConstructor->data<std::byte>(), dataConstructor->size()));
+      auto dataParser = ael::DataParser(dataConstructor->getDataSpan());
       ael::ArithmeticDecoder::decode(
           dataParser, dict, std::back_inserter(decoded),
           {encoded.size(), std::numeric_limits<std::size_t>::max()});
@@ -168,8 +164,7 @@ TEST(TEST_SUIT_NAME, EncodeDecodeFuzzBitsLimit) {
 
     {
       auto dict2 = TESTED_CLASS({rng, ctxLen});
-      auto dataParser = ael::DataParser(std::span(
-          dataConstructor->data<std::byte>(), dataConstructor->size()));
+      auto dataParser = ael::DataParser(dataConstructor->getDataSpan());
       ael::ArithmeticDecoder::decode(dataParser, dict2,
                                      std::back_inserter(decoded),
                                      {wordsCount, bitsCount});

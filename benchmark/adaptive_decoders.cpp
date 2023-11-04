@@ -54,8 +54,7 @@ static void runTests(benchmark::State& state, DictInitializer dictInitializer,
     auto decodeDict = dictInitializer();
     auto decoded = std::vector<std::uint64_t>();
 
-    auto dataParser = ael::DataParser(
-        std::span(dataConstructor->template data<std::byte>(), dataConstructor->size()));
+    auto dataParser = ael::DataParser(dataConstructor->getDataSpan());
     ael::ArithmeticDecoder::decode(dataParser, decodeDict,
                                    std::back_inserter(decoded),
                                    {wordsCount, bitsCount});
@@ -84,8 +83,7 @@ static void runEscTests(benchmark::State& state,
     auto decodeDict = dictInitializer();
     auto decoded = std::vector<std::uint64_t>();
 
-    auto dataParser = ael::DataParser(
-        std::span(dataConstructor.data<std::byte>(), dataConstructor.size()));
+    auto dataParser = ael::DataParser(dataConstructor.getDataSpan());
     ael::esc::ArithmeticDecoder::decode(dataParser, decodeDict,
                                    std::back_inserter(decoded),
                                    {wordsCount, bitsCount});

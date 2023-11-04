@@ -14,8 +14,13 @@ namespace ael {
 ///
 class ArithmeticCoder {
  public:
-  struct EncodeRet {
-    std::unique_ptr<ByteDataConstructor> encoded;
+  struct Stats {
+    std::size_t wordsCount;
+    std::size_t bitsEncoded;
+  };
+
+  struct FinalRet {
+    std::unique_ptr<ByteDataConstructor> dataConstructor;
     std::size_t wordsCount;
     std::size_t bitsEncoded;
   };
@@ -48,13 +53,23 @@ class ArithmeticCoder {
   ArithmeticCoder&& encode(
       auto ordFlow, DictT& dict, auto tick = [] {});
 
-  EncodeRet finalize() &&;
+  /**
+   * @brief Get encoded orders and encoded bits counts change since last 
+   * `getStatsChange()` call. On a first call returns just encoded orders and
+   * encoded bits counts.
+   * 
+   * @return [encodedOrdersChange, encodedBitsChange]
+   */
+  Stats getStatsChange();
+
+  FinalRet finalize() &&;
 
  private:
-  [[nodiscard]] ByteDataConstructor& getEncoded_() const;
-
- private:
-  EncodeRet ret_;
+  std::unique_ptr<ByteDataConstructor> dataConstructor_;
+  std::size_t bitsEncoded_{0};
+  std::size_t wordsCnt_{0};
+  std::size_t prevBitsEncoded_{0};
+  std::size_t prevWordsCnt_{0};
   std::size_t btf_{0};
   bool finalizeChoice_{false};
 };
@@ -62,7 +77,7 @@ class ArithmeticCoder {
 ////////////////////////////////////////////////////////////////////////////////
 inline ArithmeticCoder::ArithmeticCoder(
     std::unique_ptr<ByteDataConstructor>&& dataConstructor)
-    : ret_{std::move(dataConstructor), 0, 0} {
+    : dataConstructor_{std::move(dataConstructor)} {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -84,13 +99,13 @@ ArithmeticCoder&& ArithmeticCoder::encode(auto ordFlow, DictT& dict,
 
     while (true) {
       if (currRange.high <= RC::half) {
-        ret_.bitsEncoded += btf_ + 1;
-        getEncoded_().putBit(false);
-        getEncoded_().putBitsRepeatWithReset(true, btf_);
+        bitsEncoded_ += btf_ + 1;
+        dataConstructor_->putBit(false);
+        dataConstructor_->putBitsRepeatWithReset(true, btf_);
       } else if (currRange.low >= RC::half) {
-        ret_.bitsEncoded += btf_ + 1;
-        getEncoded_().putBit(true);
-        getEncoded_().putBitsRepeatWithReset(false, btf_);
+        bitsEncoded_ += btf_ + 1;
+        dataConstructor_->putBit(true);
+        dataConstructor_->putBitsRepeatWithReset(false, btf_);
       } else if (currRange.low >= RC::quarter &&
                  currRange.high <= RC::threeQuarters) {
         ++btf_;
@@ -99,17 +114,12 @@ ArithmeticCoder&& ArithmeticCoder::encode(auto ordFlow, DictT& dict,
       }
       currRange = RC::recalcRange(currRange);
     }
-    ++ret_.wordsCount;
+    ++wordsCnt_;
     tick();
   }
 
   finalizeChoice_ = currRange.low < RC::quarter;
   return std::move(*this);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-inline ByteDataConstructor& ArithmeticCoder::getEncoded_() const {
-  return *ret_.encoded;
 }
 
 }  // namespace ael

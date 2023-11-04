@@ -81,8 +81,9 @@ class ByteDataConstructor {
    * @brief data - get data pointer
    * @return data pointer
    */
-  template <class T>
-  const T* data() const;
+  [[nodiscard]] const std::byte* data() const {
+    return data_.data();
+  }
 
   /**
    * @brief size - number of bytes in a file.
@@ -90,6 +91,14 @@ class ByteDataConstructor {
    */
   [[nodiscard]] std::size_t size() const {
     return data_.size();
+  }
+
+  /**
+   * @brief get data as byte scan.
+   * @return data span.
+   */
+  [[nodiscard]] std::span<const std::byte> getDataSpan() const {
+    return {data(), size()};
   }
 
   /**
@@ -207,12 +216,6 @@ void ByteDataConstructor::putTToPosition(auto element, std::size_t position) {
   auto* bytes = static_cast<TBytes<decltype(element)>*>(elPtr);
   std::copy(bytes->begin(), bytes->end(),
             data_.begin() + static_cast<std::ptrdiff_t>(position));
-}
-
-////////////////////////////////////////////////////////////////////////////////
-template <class T>
-const T* ByteDataConstructor::data() const {
-  return data_.data();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
