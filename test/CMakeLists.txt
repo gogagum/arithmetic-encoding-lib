@@ -47,6 +47,7 @@ add_executable(ael-tests
     encode_decode/esc/adaptive_d.cpp
     encode_decode/esc/ppma.cpp
     encode_decode/esc/ppmd.cpp
+    encode_decode/numerical.cpp
 )
 
 target_include_directories(ael-tests PRIVATE lib)
@@ -57,7 +58,7 @@ if (CMAKE_CROSSCOMPILING)
 elseif()
     message("Not cross compiling. Use dynamic libraries.")
 endif()
-target_link_libraries(ael-tests LINK_PUBLIC gtest_main arithmetic-encoding-lib)
+target_link_libraries(ael-tests LINK_PUBLIC gtest_main fmt::fmt arithmetic-encoding-lib)
 
 include(GoogleTest)
 gtest_discover_tests(ael-tests)

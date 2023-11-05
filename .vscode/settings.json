@@ -98,7 +98,8 @@
         "codecvt": "cpp",
         "future": "cpp",
         "regex": "cpp",
-        "strstream": "cpp"
+        "strstream": "cpp",
+        "source_location": "cpp"
     },
     "cmake.configureArgs": [
         "-DAEL_TESTS:BOOL=1",
@@ -106,6 +107,8 @@
     ],
     "C_Cpp.errorSquiggles": "disabled",
     "cSpell.words": [
+        "multiprecision",
+        "Ords",
         "PPMA",
         "PPMD",
         "recalc"

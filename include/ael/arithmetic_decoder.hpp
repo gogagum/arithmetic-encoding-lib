@@ -16,71 +16,87 @@ namespace ael {
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief The ArithmeticDecoder class.
 ///
+template <class SourceT>
 class ArithmeticDecoder {
  public:
-  ////////////////////////////////////////////////////////////////////////////
-  /// \brief The ArithmeticDecoder::DecodeLimits class.
-  struct DecodeLimits {
-    std::size_t wordsLimit;
-    std::size_t bitsLimit;
-  };
+  explicit ArithmeticDecoder(
+      SourceT& source,  // TODO(gogagum): maybe take by unique_ptr
+      std::size_t bitsLimit = std::numeric_limits<std::size_t>::max());
 
- public:
   /**
-   * @param source - source of bits.
    * @param dict - dictionary (probability model).
    * @param outIter - output iterator for decoded sequence.
-   * @param deocdeLimits - number of decoded words and number of decoded bits.
+   * @param wordsLimit - number of words to decode.
    */
   template <std::output_iterator<std::uint64_t> OutIter, class Dict>
-  static void decode(auto& source, Dict& dict, OutIter outIter,
-                     DecodeLimits decodeLimits);
+  void decode(Dict& dict, OutIter outIter, std::size_t wordsLimit);
 
   /**
-   * @param source - source of bits.
    * @param dict - dictionary (probability model).
    * @param outIter - output iterator for decoded sequence.
-   * @param wordsCount - number of decoded words.
-   * @param bitsLimit - number of bits to decode.
+   * @param wordsLimit - number of words to decode.
    * @param tick - lambda to do a tick (for example, for logging).
    */
   template <std::output_iterator<std::uint64_t> OutIter, class Dict>
-  static void decode(auto& source, Dict& dict, OutIter outIter,
-                     DecodeLimits decodeLimits, auto tick);
+  void decode(Dict& dict, OutIter outIter, std::size_t wordsLimit, auto tick);
+
+ private:
+  template <class RC>
+  RC::Range calcRange_();
+
+  template <typename RC>
+  RC::Count calcValue_();
+
+ private:
+  using WideNum_ = boost::multiprecision::uint256_t;
+
+  struct TmpRange_ {
+    WideNum_ low;
+    WideNum_ high;
+    WideNum_ total;
+  };
+
+ private:
+  template <typename CountT>
+  CountT takeBit_();
+
+ private:
+  SourceT* source_;
+  const std::size_t bitsLimit_;
+  std::size_t bitsDecoded_{};
+  TmpRange_ prevRange_{0, 1, 1};
+  WideNum_ prevValue_;
+  bool firstDecode_{true};
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-template <std::output_iterator<std::uint64_t> OutIter, class Dict>
-void ArithmeticDecoder::decode(auto& source, Dict& dict, OutIter outIter,
-                               DecodeLimits decodeLimits) {
-  return decode(source, dict, outIter, decodeLimits, [] {});
+template <class SourceT>
+inline ArithmeticDecoder<SourceT>::ArithmeticDecoder(SourceT& source,
+                                                     std::size_t bitsLimit)
+    : source_{&source}, bitsLimit_{bitsLimit} {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+template <class SourceT>
 template <std::output_iterator<std::uint64_t> OutIter, class Dict>
-void ArithmeticDecoder::decode(auto& source, Dict& dict, OutIter outIter,
-                               DecodeLimits decodeLimits, auto tick) {
+void ArithmeticDecoder<SourceT>::decode(Dict& dict, OutIter outIter,
+                                        std::size_t wordsLimit) {
+  return decode(dict, outIter, wordsLimit, [] {});
+}
+
+////////////////////////////////////////////////////////////////////////////////
+template <class SourceT>
+template <std::output_iterator<std::uint64_t> OutIter, class Dict>
+void ArithmeticDecoder<SourceT>::decode(Dict& dict, OutIter outIter,
+                                        std::size_t wordsLimit, auto tick) {
   using RC = impl::RangesCalc<typename Dict::Count, Dict::countNumBits>;
-  const auto takeBitLimited = [&source, &decodeLimits]() -> typename RC::Count {
-    if (decodeLimits.bitsLimit == 0) {
-      return false;
-    }
-    --decodeLimits.bitsLimit;
-    return source.takeBit() ? 1 : 0;
-  };
+  auto currRange = calcRange_<RC>();
+  auto value = calcValue_<RC>();
 
-  typename RC::Range currRange;
-  typename RC::Count value = 0;
-
-  for (auto _ : std::ranges::iota_view(std::size_t{0}, Dict::countNumBits)) {
-    value = (value << 1) + takeBitLimited();
-  }
-
-  for (auto i :
-       std::ranges::iota_view(std::size_t{0}, decodeLimits.wordsLimit)) {
+  for (auto i : std::ranges::iota_view(std::size_t{0}, wordsLimit)) {
     const auto range = typename Dict::Count{currRange.high - currRange.low};
     const auto dictTotalWords = dict.getTotalWordsCnt();
-    const auto offset = value - currRange.low + 1;
+    const auto offset = value - currRange.low;
     assert(offset < range);
     const auto aux =
         impl::multiply_decrease_and_divide(offset, dictTotalWords, range);
@@ -93,12 +109,12 @@ void ArithmeticDecoder::decode(auto& source, Dict& dict, OutIter outIter,
 
     while (true) {
       if (currRange.high <= RC::half) {
-        value = value * 2 + takeBitLimited();
+        value = value * 2 + takeBit_<typename RC::Count>();
       } else if (currRange.low >= RC::half) {
-        value = value * 2 - RC::total + takeBitLimited();
+        value = value * 2 - RC::total + takeBit_<typename RC::Count>();
       } else if (currRange.low >= RC::quarter &&
                  currRange.high <= RC::threeQuarters) {
-        value = value * 2 - RC::half + takeBitLimited();
+        value = value * 2 - RC::half + takeBit_<typename RC::Count>();
       } else {
         break;
       }
@@ -106,6 +122,51 @@ void ArithmeticDecoder::decode(auto& source, Dict& dict, OutIter outIter,
     }
     tick();
   }
+
+  prevRange_.low = currRange.low;
+  prevRange_.high = currRange.high;
+  prevRange_.total = RC::total;
+  prevValue_ = value;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+template <class SourceT>
+template <class CountT>
+CountT ArithmeticDecoder<SourceT>::takeBit_() {
+  if (bitsDecoded_ == bitsLimit_) {
+    return 0;
+  }
+  ++bitsDecoded_;
+  return source_->takeBit() ? 1 : 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+template <class SourceT>
+template <class RC>
+auto ArithmeticDecoder<SourceT>::calcRange_() -> RC::Range {
+  auto retLow = impl::multiply_and_divide(prevRange_.low, WideNum_{RC::total},
+                                          prevRange_.total);
+  auto retHigh = impl::multiply_decrease_and_divide(
+                     prevRange_.high, WideNum_{RC::total}, prevRange_.total) +
+                 1;
+  return {static_cast<RC::Count>(retLow), static_cast<RC::Count>(retHigh)};
+}
+
+////////////////////////////////////////////////////////////////////////////////
+template <class SourceT>
+template <class RC>
+auto ArithmeticDecoder<SourceT>::calcValue_() -> RC::Count {
+  if (firstDecode_) {
+    auto ret = typename RC::Count{0};
+    for (auto _ : std::ranges::iota_view(std::size_t{0}, RC::numBits)) {
+      ret = (ret << 1) + takeBit_<typename RC::Count>();
+    }
+    firstDecode_ = false;
+    return ret;
+  }
+  auto ret = impl::multiply_and_divide(prevValue_, WideNum_{RC::total},
+                                       prevRange_.total);
+  return static_cast<RC::Count>(ret);
 }
 
 }  // namespace ael

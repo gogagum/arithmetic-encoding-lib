@@ -45,22 +45,18 @@ static void runTests(benchmark::State& state, DictInitializer dictInitializer,
   constexpr auto seed = std::uint64_t{42};
 
   auto src = TwoPartsSource::getGeneration(maxOrd, m, h, seqLength, seed);
-  auto dataConstructor = ael::ByteDataConstructor();
-
   auto encodeDict = dictInitializer();
 
-  const auto [wordsCount, bitsCount] =
-      ael::ArithmeticCoder::encode(src, dataConstructor, encodeDict);
+  auto [dataConstructor, wordsCount, bitsCount] =
+      ael::ArithmeticCoder().encode(src, encodeDict).finalize();
 
   for ([[maybe_unused]] const auto st : state) {
     auto decodeDict = dictInitializer();
     auto decoded = std::vector<std::uint64_t>();
 
-    auto dataParser = ael::DataParser(
-        std::span(dataConstructor.data<std::byte>(), dataConstructor.size()));
-    ael::ArithmeticDecoder::decode(dataParser, decodeDict,
-                                   std::back_inserter(decoded),
-                                   {wordsCount, bitsCount});
+    auto dataParser = ael::DataParser(dataConstructor->getDataSpan());
+    ael::ArithmeticDecoder(dataParser, bitsCount).decode(
+        decodeDict, std::back_inserter(decoded), wordsCount);
   }
 }
 
@@ -86,11 +82,10 @@ static void runEscTests(benchmark::State& state,
     auto decodeDict = dictInitializer();
     auto decoded = std::vector<std::uint64_t>();
 
-    auto dataParser = ael::DataParser(
-        std::span(dataConstructor.data<std::byte>(), dataConstructor.size()));
+    auto dataParser = ael::DataParser(dataConstructor.getDataSpan());
     ael::esc::ArithmeticDecoder::decode(dataParser, decodeDict,
-                                   std::back_inserter(decoded),
-                                   {wordsCount, bitsCount});
+                                        std::back_inserter(decoded),
+                                        {wordsCount, bitsCount});
   }
 }
 
@@ -133,7 +128,8 @@ static void BM_benchmark_adaptive_d_decoder(benchmark::State& state) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-static void BM_benchmark_adaptive_a_contextual_decoder(benchmark::State& state) {
+static void BM_benchmark_adaptive_a_contextual_decoder(
+    benchmark::State& state) {
   const auto seqLength = static_cast<std::size_t>(state.range(0));
   const auto hQuarter = static_cast<std::uint8_t>(state.range(1));
 
@@ -147,7 +143,8 @@ static void BM_benchmark_adaptive_a_contextual_decoder(benchmark::State& state) 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-static void BM_benchmark_adaptive_d_contextual_decoder(benchmark::State& state) {
+static void BM_benchmark_adaptive_d_contextual_decoder(
+    benchmark::State& state) {
   const auto seqLength = static_cast<std::size_t>(state.range(0));
   const auto hQuarter = static_cast<std::uint8_t>(state.range(1));
 
