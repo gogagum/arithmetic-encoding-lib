@@ -45,7 +45,7 @@ void DecreasingOnUpdateDictionary::updateWordCnt_(Ord ord, Count cnt) {
 auto DecreasingOnUpdateDictionary::getProbabilityStats_(Ord ord) const
     -> ProbabilityStats {
   assert(getRealWordCnt_(ord) != Count{0} &&
-         "Get probability stats for a word woth zero real count.");
+         "Get probability stats for a word with zero real count.");
   const auto low = getLowerCumulativeCnt_(ord);
   const auto high = low + getRealWordCnt_(ord);
   const auto total = getTotalWordsCnt();

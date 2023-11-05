@@ -107,6 +107,7 @@
     ],
     "C_Cpp.errorSquiggles": "disabled",
     "cSpell.words": [
+        "multiprecision",
         "Ords",
         "PPMA",
         "PPMD",

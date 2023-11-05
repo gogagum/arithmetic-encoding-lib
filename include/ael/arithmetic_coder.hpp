@@ -54,15 +54,27 @@ class ArithmeticCoder {
       auto ordFlow, DictT& dict, auto tick = [] {});
 
   /**
-   * @brief Get encoded orders and encoded bits counts change since last 
+   * @brief Get encoded orders and encoded bits counts change since last
    * `getStatsChange()` call. On a first call returns just encoded orders and
    * encoded bits counts.
-   * 
+   *
    * @return [encodedOrdersChange, encodedBitsChange]
    */
   Stats getStatsChange();
 
   FinalRet finalize() &&;
+
+ private:
+  template <class RC>
+  RC::Range calcRange_();
+
+ private:
+  struct TmpRange_ {
+    using WideNum = boost::multiprecision::uint256_t;
+    WideNum low;
+    WideNum high;
+    WideNum total;
+  };
 
  private:
   std::unique_ptr<ByteDataConstructor> dataConstructor_;
@@ -72,6 +84,7 @@ class ArithmeticCoder {
   std::size_t prevWordsCnt_{0};
   std::size_t btf_{0};
   bool finalizeChoice_{false};
+  TmpRange_ prevRange_{0, 1, 1};
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -91,7 +104,7 @@ template <class DictT>
 ArithmeticCoder&& ArithmeticCoder::encode(auto ordFlow, DictT& dict,
                                           auto tick) {
   using RC = impl::RangesCalc<typename DictT::Count, DictT::countNumBits>;
-  auto currRange = typename RC::Range{0, RC::total};
+  auto currRange = calcRange_<RC>();
 
   for (auto ord : ordFlow) {
     const auto [low, high, total] = dict.getProbabilityStats(ord);
@@ -119,7 +132,23 @@ ArithmeticCoder&& ArithmeticCoder::encode(auto ordFlow, DictT& dict,
   }
 
   finalizeChoice_ = currRange.low < RC::quarter;
+  prevRange_.low = currRange.low;
+  prevRange_.high = currRange.high;
+  prevRange_.total = RC::total;
+
   return std::move(*this);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+template <class RC>
+auto ArithmeticCoder::calcRange_() -> RC::Range {
+  auto retLow = impl::multiply_and_divide(
+      prevRange_.low, TmpRange_::WideNum{RC::total}, prevRange_.total);
+  auto retHigh =
+      impl::multiply_decrease_and_divide(
+          prevRange_.high, TmpRange_::WideNum{RC::total}, prevRange_.total) +
+      1;
+  return {static_cast<RC::Count>(retLow), static_cast<RC::Count>(retHigh)};
 }
 
 }  // namespace ael

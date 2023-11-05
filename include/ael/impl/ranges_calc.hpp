@@ -12,13 +12,14 @@ namespace ael::impl {
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief The RangesCalc class
 ///
-template <class CountT, std::uint16_t numBits>
+template <class CountT, std::uint16_t numBits_>
 class RangesCalc {
  public:
   using Count = CountT;
   struct Range;
   using ProbabilityStats = ael::impl::dict::WordProbabilityStats<Count>;
 
+  constexpr static const std::uint16_t numBits = numBits_;
   constexpr static const Count total = Count{1} << numBits;
   constexpr static const Count half = Count{1} << (numBits - 1);
   constexpr static const Count quarter = Count{1} << (numBits - 2);

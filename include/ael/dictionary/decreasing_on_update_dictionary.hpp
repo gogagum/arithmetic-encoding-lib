@@ -57,7 +57,7 @@ class DecreasingOnUpdateDictionary
 
  protected:
   [[nodiscard]] Count getLowerCumulativeCnt_(Ord ord) const {
-    return getRealCumulativeCnt_(ord - 1);
+    return (ord == Ord{0}) ? Count{0} : getRealCumulativeCnt_(ord - 1);
   }
 
   void updateWordCnt_(Ord ord, Count cnt);

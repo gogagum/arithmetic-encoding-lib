@@ -105,7 +105,7 @@ template <class SourceT>
 std::vector<std::uint64_t> NumericalDecoder<SourceT>::decodeCounts_(
     auto&& tick) {
   auto countsDictionary =
-      dict::DecreasingCountDictionary<std::uint64_t>(dictSize_);
+      dict::DecreasingCountDictionary<std::uint64_t>(wordsCnt_);
   auto counts = std::vector<std::uint64_t>();
   decoder_.decode(countsDictionary, std::back_inserter(counts), dictSize_,
                   tick);
