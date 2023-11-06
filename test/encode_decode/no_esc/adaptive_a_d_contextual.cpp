@@ -25,10 +25,9 @@ using AdaptiveADContextualEncodeDecodeTest = EncodeDecodeTest<DictT>;
 TYPED_TEST_SUITE_P(AdaptiveADContextualEncodeDecodeTest);
 
 TYPED_TEST_P(AdaptiveADContextualEncodeDecodeTest, EncodeEmpty) {
-  const auto encoded = std::vector<std::uint64_t>{};
   auto dict = TypeParam({6, 3, 3});
   auto [dataConstructor, wordsCnt, bitsCnt] =
-      ArithmeticCoder().encode(encoded, dict).finalize();
+      ArithmeticCoder().encode(this->encoded, dict).finalize();
 
   EXPECT_EQ(wordsCnt, 0);
   EXPECT_EQ(bitsCnt, 2);
@@ -45,17 +44,15 @@ TYPED_TEST_P(AdaptiveADContextualEncodeDecodeTest, DecodeEmpty) {
 }
 
 TYPED_TEST_P(AdaptiveADContextualEncodeDecodeTest, EncodeDecodeEmptySequence) {
-  const auto encoded = std::vector<std::uint64_t>();
-
   auto dict0 = TypeParam({6, 3, 3});
   auto [dataConstructor, wordsCnt, _] =
-      ArithmeticCoder().encode(encoded, dict0).finalize();
+      ArithmeticCoder().encode(this->encoded, dict0).finalize();
 
   auto dict1 = TypeParam({6, 3, 3});
   auto dataParser = ael::DataParser(dataConstructor->getDataSpan());
   ArithmeticDecoder(dataParser).decode(dict1, this->outIter, wordsCnt);
 
-  EXPECT_EQ(encoded.size(), this->decoded.size());
+  EXPECT_EQ(this->encoded.size(), this->decoded.size());
 }
 
 TYPED_TEST_P(AdaptiveADContextualEncodeDecodeTest, EncodeSmall) {
@@ -94,45 +91,39 @@ TYPED_TEST_P(AdaptiveADContextualEncodeDecodeTest,
 
 TYPED_TEST_P(AdaptiveADContextualEncodeDecodeTest, EncodeDecodeFuzz) {
   for (auto iteration : rng::iota_view(0, 15)) {
-    const std::uint32_t rng = this->gen() % 255 + 1;
-    const auto encoded =
-        this->generateEncoded(this->gen() % 250 /*length*/, rng);
+    this->refreshForFuzzTest();
 
     const std::uint16_t ctxLength = this->gen() % 5;      // [0..5)
     const std::uint16_t ctxBitsLength = this->gen() % 5;  // [0..5)
 
     auto dict0 = TypeParam({8, ctxLength, ctxBitsLength});
     auto [dataConstructor, wordsCnt, _] =
-        ArithmeticCoder().encode(encoded, dict0).finalize();
+        ArithmeticCoder().encode(this->encoded, dict0).finalize();
 
     auto dict1 = TypeParam({8, ctxLength, ctxBitsLength});
     auto parser = ael::DataParser(dataConstructor->getDataSpan());
     ArithmeticDecoder(parser).decode(dict1, this->outIter, wordsCnt);
 
-    EXPECT_TRUE(rng::equal(encoded, this->decoded));
-    this->decoded.clear();
+    EXPECT_TRUE(rng::equal(this->encoded, this->decoded));
   }
 }
 
 TYPED_TEST_P(AdaptiveADContextualEncodeDecodeTest, EncodeDecodeFuzzBitsLimit) {
   for (auto iteration : rng::iota_view(0, 15)) {
-    const std::uint32_t rng = this->gen() % 255 + 1;
-    const auto encoded =
-        this->generateEncoded(this->gen() % 250 /*length*/, rng);
+    this->refreshForFuzzTest();
 
     const std::uint16_t ctxLength = this->gen() % 5;      // [0..5)
     const std::uint16_t ctxBitsLength = this->gen() % 5;  // [0..5)
 
     auto dict0 = TypeParam({8, ctxLength, ctxBitsLength});
     auto [dataConstructor, wordsCnt, bitsCnt] =
-        ArithmeticCoder().encode(encoded, dict0).finalize();
+        ArithmeticCoder().encode(this->encoded, dict0).finalize();
 
     auto dict1 = TypeParam({8, ctxLength, ctxBitsLength});
     auto parser = ael::DataParser(dataConstructor->getDataSpan());
     ArithmeticDecoder(parser, bitsCnt).decode(dict1, this->outIter, wordsCnt);
 
-    EXPECT_TRUE(rng::equal(encoded, this->decoded));
-    this->decoded.clear();
+    EXPECT_TRUE(rng::equal(this->encoded, this->decoded));
   }
 }
 

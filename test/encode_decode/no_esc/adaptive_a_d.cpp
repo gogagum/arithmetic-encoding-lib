@@ -23,10 +23,9 @@ using AdaptiveADEncodeDecodeTest = EncodeDecodeTest<DictT>;
 TYPED_TEST_SUITE_P(AdaptiveADEncodeDecodeTest);
 
 TYPED_TEST_P(AdaptiveADEncodeDecodeTest, EncodeEmpty) {
-  const auto encoded = std::vector<std::uint64_t>{};
   auto dict = TypeParam(6);
   auto [dataConstructor, wordsCnt, bitsCnt] =
-      ArithmeticCoder().encode(encoded, dict).finalize();
+      ArithmeticCoder().encode(this->encoded, dict).finalize();
 
   EXPECT_EQ(wordsCnt, 0);
   EXPECT_EQ(bitsCnt, 2);
@@ -43,11 +42,9 @@ TYPED_TEST_P(AdaptiveADEncodeDecodeTest, DecodeEmpty) {
 }
 
 TYPED_TEST_P(AdaptiveADEncodeDecodeTest, EncodeDecodeEmptySequence) {
-  const auto encoded = std::vector<std::uint64_t>{};
-
   auto dict0 = TypeParam(6);
   auto [dataConstructor, wordsCnt, _] =
-      ArithmeticCoder().encode(encoded, dict0).finalize();
+      ArithmeticCoder().encode(this->encoded, dict0).finalize();
 
   auto dict1 = TypeParam(6);
   auto dataParser = ael::DataParser(dataConstructor->getDataSpan());
@@ -91,39 +88,33 @@ TYPED_TEST_P(AdaptiveADEncodeDecodeTest, EncodeDecodeSmallSequenceBitsLimit) {
 
 TYPED_TEST_P(AdaptiveADEncodeDecodeTest, EncodeDecodeFuzz) {
   for (auto iteration : rng::iota_view(0, 15)) {
-    const std::uint32_t rng = this->gen() % 256;
-    const auto encoded =
-        this->generateEncoded(this->gen() % 250 /*length*/, rng);
+    this->refreshForFuzzTest();
 
-    auto dict0 = TypeParam(rng);
+    auto dict0 = TypeParam(this->maxOrd);
     const auto [dataConstructor, wordsCnt, _] =
-        ArithmeticCoder().encode(encoded, dict0).finalize();
+        ArithmeticCoder().encode(this->encoded, dict0).finalize();
 
-    auto dict1 = TypeParam(rng);
+    auto dict1 = TypeParam(this->maxOrd);
     auto dataParser = ael::DataParser(dataConstructor->getDataSpan());
     ArithmeticDecoder(dataParser).decode(dict1, this->outIter, wordsCnt);
 
-    EXPECT_TRUE(rng::equal(encoded, this->decoded));
-    this->decoded.clear();
+    EXPECT_TRUE(rng::equal(this->encoded, this->decoded));
   }
 }
 
 TYPED_TEST_P(AdaptiveADEncodeDecodeTest, EncodesAndDecodesBitsLimit) {
   for (auto iteration : rng::iota_view(0, 15)) {
-    const std::uint32_t rng = this->gen() % 256;
-    const auto encoded =
-        this->generateEncoded(this->gen() % 250 /*length*/, rng);
+    this->refreshForFuzzTest();
 
-    auto dict0 = TypeParam(rng);
+    auto dict0 = TypeParam(this->maxOrd);
     const auto [dataConstructor, wordsCnt, bitsCnt] =
-        ArithmeticCoder().encode(encoded, dict0).finalize();
+        ArithmeticCoder().encode(this->encoded, dict0).finalize();
 
-    auto dict1 = TypeParam(rng);
+    auto dict1 = TypeParam(this->maxOrd);
     auto parser = ael::DataParser(dataConstructor->getDataSpan());
     ArithmeticDecoder(parser, bitsCnt).decode(dict1, this->outIter, wordsCnt);
 
-    EXPECT_TRUE(rng::equal(encoded, this->decoded));
-    this->decoded.clear();
+    EXPECT_TRUE(rng::equal(this->encoded, this->decoded));
   }
 }
 

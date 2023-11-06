@@ -38,8 +38,8 @@ TYPED_TEST_P(EscPPMADEncodeDecodeTest, EncodeEmpty) {
 TYPED_TEST_P(EscPPMADEncodeDecodeTest, DecodeEmpty) {
   const auto data = std::array<std::byte, 0>{};
   auto dict = TypeParam({6, 3});
-  auto dataParser = ael::DataParser(data);
-  ArithmeticDecoder::decode(dataParser, dict, this->outIter, {0, 0});
+  auto parser = ael::DataParser(data);
+  ArithmeticDecoder(parser, 0).decode(dict, this->outIter, 0);
 
   EXPECT_EQ(this->decoded.size(), 0);
 }
@@ -54,17 +54,15 @@ TYPED_TEST_P(EscPPMADEncodeDecodeTest, EncodeSmall) {
 }
 
 TYPED_TEST_P(EscPPMADEncodeDecodeTest, EncodeDecodeEmptySequence) {
-  const auto encoded = std::vector<std::uint64_t>();
-
   auto dict0 = TypeParam({6, 3});
   auto [dataConstructor, wordsCnt, bitsCnt] =
-      ArithmeticCoder().encode(encoded, dict0).finalize();
+      ArithmeticCoder().encode(this->encoded, dict0).finalize();
 
   auto dict1 = TypeParam({6, 3});
-  auto dataParser = ael::DataParser(dataConstructor->getDataSpan());
-  ArithmeticDecoder::decode(dataParser, dict1, this->outIter, {wordsCnt});
+  auto parser = ael::DataParser(dataConstructor->getDataSpan());
+  ArithmeticDecoder(parser).decode(dict1, this->outIter, {wordsCnt});
 
-  EXPECT_EQ(encoded.size(), this->decoded.size());
+  EXPECT_EQ(this->encoded.size(), this->decoded.size());
 }
 
 TYPED_TEST_P(EscPPMADEncodeDecodeTest, EncodeDecodeSmallSequence) {
@@ -73,61 +71,53 @@ TYPED_TEST_P(EscPPMADEncodeDecodeTest, EncodeDecodeSmallSequence) {
       ArithmeticCoder().encode(this->smallSequence, dict0).finalize();
 
   auto dict1 = TypeParam({8, 5});
-  auto dataParser = ael::DataParser(dataConstructor->getDataSpan());
-  ArithmeticDecoder::decode(dataParser, dict1, this->outIter, {wordsCnt});
+  auto parser = ael::DataParser(dataConstructor->getDataSpan());
+  ArithmeticDecoder(parser).decode(dict1, this->outIter, wordsCnt);
 
   EXPECT_TRUE(rng::equal(this->smallSequence, this->decoded));
 }
 
 TYPED_TEST_P(EscPPMADEncodeDecodeTest, EncodeDecodeSmallSequenceBitsLimit) {
   auto dict0 = TypeParam({8, 5});
-  const auto [dataConstructor, wordsCount, bitsCount] =
+  const auto [dataConstructor, wordsCnt, bitsCnt] =
       ArithmeticCoder().encode(this->smallSequence, dict0).finalize();
 
   auto dict1 = TypeParam({8, 5});
-  auto dataParser = ael::DataParser(dataConstructor->getDataSpan());
-  ArithmeticDecoder::decode(dataParser, dict1, this->outIter,
-                            {wordsCount, bitsCount});
+  auto parser = ael::DataParser(dataConstructor->getDataSpan());
+  ArithmeticDecoder(parser, bitsCnt).decode(dict1, this->outIter, wordsCnt);
 
   EXPECT_TRUE(rng::equal(this->smallSequence, this->decoded));
 }
 
 TYPED_TEST_P(EscPPMADEncodeDecodeTest, EncodesAndDecodesWithNoBitsLimit) {
   for (auto iteration : rng::iota_view(0, 15)) {
-    const std::uint32_t rng = this->gen() % 256;
-    const auto encoded =
-        this->generateEncoded(this->gen() % 250 /*length*/, rng);
+    this->refreshForFuzzTest();
 
-    auto dict0 = TypeParam({rng, 5});
+    auto dict0 = TypeParam({this->maxOrd, 5});
     const auto [dataConstructor, wordsCnt, _] =
-        ArithmeticCoder().encode(encoded, dict0).finalize();
+        ArithmeticCoder().encode(this->encoded, dict0).finalize();
 
-    auto dict1 = TypeParam({rng, 5});
-    auto dataParser = ael::DataParser(dataConstructor->getDataSpan());
-    ArithmeticDecoder::decode(dataParser, dict1, this->outIter, {wordsCnt});
+    auto dict1 = TypeParam({this->maxOrd, 5});
+    auto parser = ael::DataParser(dataConstructor->getDataSpan());
+    ArithmeticDecoder(parser).decode(dict1, this->outIter, wordsCnt);
 
-    EXPECT_TRUE(rng::equal(encoded, this->decoded));
-    this->decoded.clear();
+    EXPECT_TRUE(rng::equal(this->encoded, this->decoded));
   }
 };
 
 TYPED_TEST_P(EscPPMADEncodeDecodeTest, EncodesAndDecodesWithBitsLimit) {
   for (auto iteration : rng::iota_view(0, 15)) {
-    const std::uint32_t rng = this->gen() % 256;
-    const auto encoded =
-        this->generateEncoded(this->gen() % 250 /*length*/, rng);
+    this->refreshForFuzzTest();
 
-    auto dict0 = TypeParam({rng, 5});
-    const auto [dataConstructor, wordsCount, bitsCount] =
-        ArithmeticCoder().encode(encoded, dict0).finalize();
+    auto dict0 = TypeParam({this->maxOrd, 5});
+    const auto [dataConstructor, wordsCnt, bitsCnt] =
+        ArithmeticCoder().encode(this->encoded, dict0).finalize();
 
-    auto dict1 = TypeParam({rng, 5});
-    auto dataParser = ael::DataParser(dataConstructor->getDataSpan());
-    ArithmeticDecoder::decode(dataParser, dict1, this->outIter,
-                              {wordsCount, bitsCount});
+    auto dict1 = TypeParam({this->maxOrd, 5});
+    auto parser = ael::DataParser(dataConstructor->getDataSpan());
+    ArithmeticDecoder(parser, bitsCnt).decode(dict1, this->outIter, wordsCnt);
 
-    EXPECT_TRUE(rng::equal(encoded, this->decoded));
-    this->decoded.clear();
+    EXPECT_TRUE(rng::equal(this->encoded, this->decoded)); 
   }
 };
 

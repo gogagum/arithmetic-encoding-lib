@@ -24,10 +24,9 @@ using PPMADEncodeDecodeTest = EncodeDecodeTest<DictT>;
 TYPED_TEST_SUITE_P(PPMADEncodeDecodeTest);
 
 TYPED_TEST_P(PPMADEncodeDecodeTest, EncodeEmpty) {
-  const auto encoded = std::vector<std::uint64_t>();
   auto dict = TypeParam({6, 4});
   auto [dataConstructor, wordsCnt, bitsCnt] =
-      ArithmeticCoder().encode(encoded, dict).finalize();
+      ArithmeticCoder().encode(this->encoded, dict).finalize();
 
   EXPECT_EQ(wordsCnt, 0);
   EXPECT_EQ(bitsCnt, 2);
@@ -44,17 +43,15 @@ TYPED_TEST_P(PPMADEncodeDecodeTest, DecodeEmpty) {
 }
 
 TYPED_TEST_P(PPMADEncodeDecodeTest, EncodeDecodeEmptySequence) {
-  const auto encoded = std::vector<std::uint64_t>{};
-
   auto dict0 = TypeParam({6, 6});
-  auto [dataConstructor, _0, _1] =
-      ArithmeticCoder().encode(encoded, dict0).finalize();
+  auto [dataConstructor, wordsCnt, _1] =
+      ArithmeticCoder().encode(this->encoded, dict0).finalize();
 
   auto dict1 = TypeParam({6, 6});
   auto parser = ael::DataParser(dataConstructor->getDataSpan());
-  ArithmeticDecoder(parser).decode(dict1, this->outIter, encoded.size());
+  ArithmeticDecoder(parser).decode(dict1, this->outIter, wordsCnt);
 
-  EXPECT_EQ(encoded.size(), this->decoded.size());
+  EXPECT_EQ(this->encoded.size(), this->decoded.size());
 }
 
 TYPED_TEST_P(PPMADEncodeDecodeTest, EncodeSmall) {
@@ -92,43 +89,35 @@ TYPED_TEST_P(PPMADEncodeDecodeTest, EncodeDecodeSmallSequenceBitsLimit) {
 
 TYPED_TEST_P(PPMADEncodeDecodeTest, EncodesAndDecodes) {
   for (auto iteration : rng::iota_view(0, 15)) {
-    const std::uint32_t rng = this->gen() % 256;
-    const auto encoded =
-        this->generateEncoded(this->gen() % 250 /*length*/, rng);
-
+    this->refreshForFuzzTest();
     const std::size_t ctxLen = this->gen() % 6;  // [0..6)
 
-    auto dict0 = TypeParam({rng, ctxLen});
-    auto [dataConstructor, wordsCount, bitsCount] =
-        ael::ArithmeticCoder().encode(encoded, dict0).finalize();
+    auto dict0 = TypeParam({this->maxOrd, ctxLen});
+    auto [dataConstructor, wordsCnt, _] =
+        ArithmeticCoder().encode(this->encoded, dict0).finalize();
 
-    auto dict1 = TypeParam({rng, ctxLen});
+    auto dict1 = TypeParam({this->maxOrd, ctxLen});
     auto parser = ael::DataParser(dataConstructor->getDataSpan());
-    ArithmeticDecoder(parser).decode(dict1, this->outIter, encoded.size());
+    ArithmeticDecoder(parser).decode(dict1, this->outIter, wordsCnt);
 
-    EXPECT_TRUE(rng::equal(encoded, this->decoded));
-    this->decoded.clear();
+    EXPECT_TRUE(rng::equal(this->encoded, this->decoded));
   }
 }
 
 TYPED_TEST_P(PPMADEncodeDecodeTest, EncodesAndDecodesBitsLimit) {
   for (auto iteration : rng::iota_view(0, 15)) {
-    const std::uint32_t rng = this->gen() % 256;
-    const auto encoded =
-        this->generateEncoded(this->gen() % 250 /*length*/, rng);
-
+    this->refreshForFuzzTest();
     const std::size_t ctxLen = this->gen() % 6;  // [0..6)
 
-    auto dict1 = TypeParam({rng, ctxLen});
+    auto dict0 = TypeParam({this->maxOrd, ctxLen});
     auto [dataConstructor, wordsCnt, bitsCnt] =
-        ArithmeticCoder().encode(encoded, dict1).finalize();
+        ArithmeticCoder().encode(this->encoded, dict0).finalize();
 
-    auto dict2 = TypeParam({rng, ctxLen});
+    auto dict1 = TypeParam({this->maxOrd, ctxLen});
     auto parser = ael::DataParser(dataConstructor->getDataSpan());
-    ArithmeticDecoder(parser, bitsCnt).decode(dict2, this->outIter, wordsCnt);
+    ArithmeticDecoder(parser, bitsCnt).decode(dict1, this->outIter, wordsCnt);
 
-    EXPECT_TRUE(rng::equal(encoded, this->decoded));
-    this->decoded.clear();
+    EXPECT_TRUE(rng::equal(this->encoded, this->decoded));
   }
 }
 
