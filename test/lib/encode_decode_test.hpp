@@ -14,14 +14,15 @@ class EncodeDecodeTest : public testing::Test {
  public:
   const static std::vector<std::uint64_t> smallSequence;
   static std::mt19937 gen;  // NOLINT
-  const static std::size_t fuzzTestIterationsCnt;
 
   static auto generateEncoded(std::size_t length, std::uint32_t rng);
 
+  // NOLINTBEGIN
   template <std::uint64_t minAlphabetSize = 10,
             std::uint64_t maxAlphabetSize = 256, std::size_t minLength = 0,
             std::uint64_t maxLength = 500>
   void refreshForFuzzTest();
+  // NOLINTEND
 
   std::uint64_t maxOrd;
   std::vector<std::uint64_t> encoded{};
@@ -39,9 +40,6 @@ const std::vector<std::uint64_t> EncodeDecodeTest<DictT>::smallSequence{5, 3, 5,
 ////////////////////////////////////////////////////////////////////////////////
 template <class DictT>
 std::mt19937 EncodeDecodeTest<DictT>::gen{42};  // NOLINT
-
-template <class DictT>
-const std::size_t EncodeDecodeTest<DictT>::fuzzTestIterationsCnt = 15;
 
 ////////////////////////////////////////////////////////////////////////////////
 template <class DictT>
