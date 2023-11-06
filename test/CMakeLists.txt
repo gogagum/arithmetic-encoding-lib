@@ -45,9 +45,8 @@ add_executable(ael-tests
     encode_decode/no_esc/adaptive_d_contextual_improved.cpp
     encode_decode/esc/adaptive_a.cpp
     encode_decode/esc/adaptive_d.cpp
-    encode_decode/esc/ppma.cpp
-    encode_decode/esc/ppmd.cpp
     encode_decode/numerical.cpp
+    encode_decode/esc/ppm_a_d.cpp
 )
 
 target_include_directories(ael-tests PRIVATE lib)
