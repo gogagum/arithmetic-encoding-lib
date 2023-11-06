@@ -25,14 +25,14 @@ using EscPPMADEncodeDecodeTest = EncodeDecodeTest<DictT>;
 TYPED_TEST_SUITE_P(EscPPMADEncodeDecodeTest);
 
 TYPED_TEST_P(EscPPMADEncodeDecodeTest, EncodeEmpty) {
-  const auto encoded = std::vector<std::uint64_t>();
+  const auto encoded = std::vector<std::uint64_t>{};
   auto dict = TypeParam({6, 2});
   auto dataConstructor = ael::ByteDataConstructor();
-  auto [wordsCount, bitsCount] =
+  auto [wordsCnt, bitsCnt] =
       ArithmeticCoder::encode(encoded, dataConstructor, dict);
 
-  EXPECT_EQ(wordsCount, 0);
-  EXPECT_EQ(bitsCount, 2);
+  EXPECT_EQ(wordsCnt, 0);
+  EXPECT_EQ(bitsCnt, 2);
   EXPECT_EQ(dataConstructor.size(), 1);
 }
 
@@ -40,8 +40,7 @@ TYPED_TEST_P(EscPPMADEncodeDecodeTest, DecodeEmpty) {
   const auto data = std::array<std::byte, 0>{};
   auto dict = TypeParam({6, 3});
   auto dataParser = ael::DataParser(data);
-  ArithmeticDecoder::decode(dataParser, dict, this->outIter,
-                            {0, 0});
+  ArithmeticDecoder::decode(dataParser, dict, this->outIter, {0, 0});
 
   EXPECT_EQ(this->decoded.size(), 0);
 }
@@ -49,8 +48,8 @@ TYPED_TEST_P(EscPPMADEncodeDecodeTest, DecodeEmpty) {
 TYPED_TEST_P(EscPPMADEncodeDecodeTest, EncodeSmall) {
   auto dict = TypeParam({8, 3});
   auto dataConstructor = ael::ByteDataConstructor();
-  auto [wordsCount, bitsCount] = ArithmeticCoder::encode(
-      this->smallSequence, dataConstructor, dict);
+  auto [wordsCount, bitsCount] =
+      ArithmeticCoder::encode(this->smallSequence, dataConstructor, dict);
 
   EXPECT_EQ(wordsCount, 10);
   EXPECT_GE(dataConstructor.size(), 0);
@@ -100,11 +99,11 @@ TYPED_TEST_P(EscPPMADEncodeDecodeTest, EncodeDecodeSmallSequenceBitsLimit) {
 }
 
 TYPED_TEST_P(EscPPMADEncodeDecodeTest, EncodesAndDecodesWithNoBitsLimit) {
-  for (auto iteration : std::ranges::iota_view(0, 15)) {
-    const std::size_t length = this->gen() % 250;
+  for (auto iteration : rng::iota_view(0, 15)) {
     const std::uint32_t rng = this->gen() % 256;
+    const auto encoded =
+        this->generateEncoded(this->gen() % 250 /*length*/, rng);
 
-    auto encoded = this->generateEncoded(length, rng);
     auto dataConstructor = ael::ByteDataConstructor();
 
     auto dict0 = TypeParam({rng, 5});
@@ -121,11 +120,11 @@ TYPED_TEST_P(EscPPMADEncodeDecodeTest, EncodesAndDecodesWithNoBitsLimit) {
 };
 
 TYPED_TEST_P(EscPPMADEncodeDecodeTest, EncodesAndDecodesWithBitsLimit) {
-  for (auto iteration : std::ranges::iota_view(0, 15)) {
-    const std::size_t length = this->gen() % 250;
+  for (auto iteration : rng::iota_view(0, 15)) {
     const std::uint32_t rng = this->gen() % 256;
+    const auto encoded =
+        this->generateEncoded(this->gen() % 250 /*length*/, rng);
 
-    auto encoded = this->generateEncoded(length, rng);
     auto dataConstructor = ael::ByteDataConstructor();
 
     auto dict0 = TypeParam({rng, 5});

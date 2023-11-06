@@ -26,11 +26,11 @@ TYPED_TEST_SUITE_P(PPMADEncodeDecodeTest);
 TYPED_TEST_P(PPMADEncodeDecodeTest, EncodeEmpty) {
   const auto encoded = std::vector<std::uint64_t>();
   auto dict = TypeParam({6, 4});
-  auto [dataConstructor, wordsCount, bitsCount] =
-      ael::ArithmeticCoder().encode(encoded, dict).finalize();
+  auto [dataConstructor, wordsCnt, bitsCnt] =
+      ArithmeticCoder().encode(encoded, dict).finalize();
 
-  EXPECT_EQ(wordsCount, 0);
-  EXPECT_EQ(bitsCount, 2);
+  EXPECT_EQ(wordsCnt, 0);
+  EXPECT_EQ(bitsCnt, 2);
   EXPECT_EQ(dataConstructor->size(), 1);
 }
 
@@ -38,19 +38,17 @@ TYPED_TEST_P(PPMADEncodeDecodeTest, DecodeEmpty) {
   const auto data = std::array<std::byte, 0>{};
   auto dict = TypeParam({6, 3});
   auto dataParser = ael::DataParser(data);
-  auto retOrds = std::vector<std::uint32_t>();
-  ael::ArithmeticDecoder(dataParser, 0)
-      .decode(dict, std::back_inserter(retOrds), 0);
+  ArithmeticDecoder(dataParser, 0).decode(dict, this->outIter, 0);
 
-  EXPECT_EQ(retOrds.size(), 0);
+  EXPECT_EQ(this->decoded.size(), 0);
 }
 
 TYPED_TEST_P(PPMADEncodeDecodeTest, EncodeDecodeEmptySequence) {
-  const auto encoded = std::vector<std::uint64_t>();
+  const auto encoded = std::vector<std::uint64_t>{};
 
   auto dict0 = TypeParam({6, 6});
-  auto [dataConstructor, wordsCount, bitsCount] =
-      ael::ArithmeticCoder().encode(encoded, dict0).finalize();
+  auto [dataConstructor, _0, _1] =
+      ArithmeticCoder().encode(encoded, dict0).finalize();
 
   auto dict1 = TypeParam({6, 6});
   auto parser = ael::DataParser(dataConstructor->getDataSpan());
@@ -71,7 +69,7 @@ TYPED_TEST_P(PPMADEncodeDecodeTest, EncodeSmall) {
 TYPED_TEST_P(PPMADEncodeDecodeTest, EncodeDecodeSmallSequence) {
   auto dict0 = TypeParam({8, 5});
   auto [dataConstructor, wordsCnt, bitsCount] =
-      ael::ArithmeticCoder().encode(this->smallSequence, dict0).finalize();
+      ArithmeticCoder().encode(this->smallSequence, dict0).finalize();
 
   auto dict1 = TypeParam({8, 5});
   auto dataParser = ael::DataParser(dataConstructor->getDataSpan());
@@ -83,7 +81,7 @@ TYPED_TEST_P(PPMADEncodeDecodeTest, EncodeDecodeSmallSequence) {
 TYPED_TEST_P(PPMADEncodeDecodeTest, EncodeDecodeSmallSequenceBitsLimit) {
   auto dict0 = TypeParam({8, 5});
   auto [dataConstructor, wordsCnt, bitsCnt] =
-      ael::ArithmeticCoder().encode(this->smallSequence, dict0).finalize();
+      ArithmeticCoder().encode(this->smallSequence, dict0).finalize();
 
   auto dict1 = TypeParam({8, 5});
   auto parser = ael::DataParser(dataConstructor->getDataSpan());
@@ -93,11 +91,10 @@ TYPED_TEST_P(PPMADEncodeDecodeTest, EncodeDecodeSmallSequenceBitsLimit) {
 }
 
 TYPED_TEST_P(PPMADEncodeDecodeTest, EncodesAndDecodes) {
-  for (auto iteration : std::ranges::iota_view(0, 15)) {
-    const std::size_t length = this->gen() % 250;
+  for (auto iteration : rng::iota_view(0, 15)) {
     const std::uint32_t rng = this->gen() % 256;
-
-    auto encoded = this->generateEncoded(length, rng);
+    const auto encoded =
+        this->generateEncoded(this->gen() % 250 /*length*/, rng);
 
     const std::size_t ctxLen = this->gen() % 6;  // [0..6)
 
@@ -115,11 +112,10 @@ TYPED_TEST_P(PPMADEncodeDecodeTest, EncodesAndDecodes) {
 }
 
 TYPED_TEST_P(PPMADEncodeDecodeTest, EncodesAndDecodesBitsLimit) {
-  for (auto iteration : std::ranges::iota_view(0, 15)) {
-    const std::size_t length = this->gen() % 250;
+  for (auto iteration : rng::iota_view(0, 15)) {
     const std::uint32_t rng = this->gen() % 256;
-
-    auto encoded = this->generateEncoded(length, rng);
+    const auto encoded =
+        this->generateEncoded(this->gen() % 250 /*length*/, rng);
 
     const std::size_t ctxLen = this->gen() % 6;  // [0..6)
 
