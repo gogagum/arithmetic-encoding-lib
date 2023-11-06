@@ -70,7 +70,7 @@ static void runEscTests(benchmark::State& state,
     auto dataConstructor = ael::ByteDataConstructor();
 
     [[maybe_unused]] auto encoded =
-        ael::esc::ArithmeticCoder::encode(src, dataConstructor, dict);
+        ael::esc::ArithmeticCoder().encode(src, dict);
   }
 }
 

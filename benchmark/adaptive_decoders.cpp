@@ -71,18 +71,17 @@ static void runEscTests(benchmark::State& state,
   constexpr auto seed = std::uint64_t{42};
 
   auto src = TwoPartsSource::getGeneration(maxOrd, m, h, seqLength, seed);
-  auto dataConstructor = ael::ByteDataConstructor();
 
   auto encodeDict = dictInitializer();
 
-  const auto [wordsCount, bitsCount] =
-      ael::esc::ArithmeticCoder::encode(src, dataConstructor, encodeDict);
+  auto [dataConstructor, wordsCount, bitsCount] =
+      ael::esc::ArithmeticCoder().encode(src, encodeDict).finalize();
 
   for ([[maybe_unused]] const auto st : state) {
     auto decodeDict = dictInitializer();
     auto decoded = std::vector<std::uint64_t>();
 
-    auto dataParser = ael::DataParser(dataConstructor.getDataSpan());
+    auto dataParser = ael::DataParser(dataConstructor->getDataSpan());
     ael::esc::ArithmeticDecoder::decode(dataParser, decodeDict,
                                         std::back_inserter(decoded),
                                         {wordsCount, bitsCount});

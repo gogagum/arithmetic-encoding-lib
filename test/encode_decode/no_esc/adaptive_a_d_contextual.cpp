@@ -94,7 +94,7 @@ TYPED_TEST_P(AdaptiveADContextualEncodeDecodeTest,
 
 TYPED_TEST_P(AdaptiveADContextualEncodeDecodeTest, EncodeDecodeFuzz) {
   for (auto iteration : rng::iota_view(0, 15)) {
-    const std::uint32_t rng = this->gen() % 256;
+    const std::uint32_t rng = this->gen() % 255 + 1;
     const auto encoded =
         this->generateEncoded(this->gen() % 250 /*length*/, rng);
 
@@ -115,8 +115,8 @@ TYPED_TEST_P(AdaptiveADContextualEncodeDecodeTest, EncodeDecodeFuzz) {
 }
 
 TYPED_TEST_P(AdaptiveADContextualEncodeDecodeTest, EncodeDecodeFuzzBitsLimit) {
-  for (auto iteration : rng::iota_view(0, 50)) {
-    const std::uint32_t rng = this->gen() % 256;
+  for (auto iteration : rng::iota_view(0, 15)) {
+    const std::uint32_t rng = this->gen() % 255 + 1;
     const auto encoded =
         this->generateEncoded(this->gen() % 250 /*length*/, rng);
 

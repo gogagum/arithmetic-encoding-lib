@@ -52,6 +52,7 @@ target_sources(${PROJECT_NAME}
         src/bytes_iterator.cpp
         src/numerical_coder.cpp
         src/numerical_decoder.cpp
+        src/esc_arithmetic_coder.cpp
 )
 
 target_include_directories(${PROJECT_NAME}

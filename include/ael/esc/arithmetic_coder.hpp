@@ -4,6 +4,7 @@
 #include <ael/byte_data_constructor.hpp>
 #include <ael/impl/ranges_calc.hpp>
 #include <cstdint>
+#include <memory>
 
 namespace ael::esc {
 
@@ -12,12 +13,22 @@ namespace ael::esc {
 ///
 class ArithmeticCoder {
  public:
-  struct EncodeRet {
+  struct Stats {
+    std::size_t wordsCount;
+    std::size_t bitsEncoded;
+  };
+
+  struct FinalRet {
+    std::unique_ptr<ByteDataConstructor> dataConstructor;
     std::size_t wordsCount;
     std::size_t bitsEncoded;
   };
 
  public:
+  explicit ArithmeticCoder(
+      std::unique_ptr<ByteDataConstructor>&& dataConstructor =
+          std::make_unique<ByteDataConstructor>());
+
   /**
    * @brief encode - encode byte flow.
    * @param ordFlow - orders range.
@@ -26,9 +37,7 @@ class ArithmeticCoder {
    * @return [wordsCount, bitsEncoded]
    */
   template <class DictT>
-  [[nodiscard]] static EncodeRet encode(auto ordFlow,
-                                        ByteDataConstructor& dataConstructor,
-                                        DictT& dict);
+  [[nodiscard]] ArithmeticCoder&& encode(auto ordFlow, DictT& dict);
 
   /**
    * @brief encode - encode byte flow.
@@ -40,27 +49,60 @@ class ArithmeticCoder {
    * @return [wordsCount, bitsEncoded]
    */
   template <class DictT>
-  [[nodiscard]] static EncodeRet encode(auto ordFlow,
-                                        ByteDataConstructor& dataConstructor,
-                                        DictT& dict, auto tick);
+  [[nodiscard]] ArithmeticCoder&& encode(auto ordFlow, DictT& dict, auto tick);
+
+  /**
+   * @brief Get encoded orders and encoded bits counts change since last
+   * `getStatsChange()` call. On a first call returns just encoded orders and
+   * encoded bits counts.
+   *
+   * @return [encodedOrdersChange, encodedBitsChange]
+   */
+  Stats getStatsChange();
+
+  FinalRet finalize() &&;
+
+ private:
+  struct TmpRange_ {
+    using WideNum = boost::multiprecision::uint256_t;
+    WideNum low;
+    WideNum high;
+    WideNum total;
+  };
+
+ private:
+  template <class RC>
+  RC::Range calcRange_();
+
+ private:
+  std::unique_ptr<ByteDataConstructor> dataConstructor_;
+  std::size_t bitsEncoded_{0};
+  std::size_t wordsCnt_{0};
+  std::size_t prevBitsEncoded_{0};
+  std::size_t prevWordsCnt_{0};
+  std::size_t btf_{0};
+  bool finalizeChoice_{false};
+  TmpRange_ prevRange_{0, 1, 1};
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-template <class DictT>
-auto ArithmeticCoder::encode(auto ordFlow, ByteDataConstructor& dataConstructor,
-                             DictT& dict) -> EncodeRet {
-  return encode(ordFlow, dataConstructor, dict, [] {});
+inline ArithmeticCoder::ArithmeticCoder(
+    std::unique_ptr<ByteDataConstructor>&& dataConstructor)
+    : dataConstructor_{std::move(dataConstructor)} {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 template <class DictT>
-auto ArithmeticCoder::encode(auto ordFlow, ByteDataConstructor& dataConstructor,
-                             DictT& dict, auto tick) -> EncodeRet {
-  auto ret = EncodeRet();
+ArithmeticCoder&& ArithmeticCoder::encode(auto ordFlow, DictT& dict) {
+  return encode(ordFlow, dict, [] {});
+}
+
+////////////////////////////////////////////////////////////////////////////////
+template <class DictT>
+ArithmeticCoder&& ArithmeticCoder::encode(auto ordFlow, DictT& dict,
+                                          auto tick) {
   using RC = impl::RangesCalc<typename DictT::Count, DictT::countNumBits>;
   auto currRange = typename RC::Range{0, RC::total};
-
-  auto btf = std::size_t{0};
 
   for (auto ord : ordFlow) {
     const auto statsSeq = dict.getProbabilityStats(ord);
@@ -70,36 +112,44 @@ auto ArithmeticCoder::encode(auto ordFlow, ByteDataConstructor& dataConstructor,
 
       while (true) {
         if (currRange.high <= RC::half) {
-          ret.bitsEncoded += btf + 1;
-          dataConstructor.putBit(false);
-          dataConstructor.putBitsRepeatWithReset(true, btf);
+          bitsEncoded_ += btf_ + 1;
+          dataConstructor_->putBit(false);
+          dataConstructor_->putBitsRepeatWithReset(true, btf_);
         } else if (currRange.low >= RC::half) {
-          ret.bitsEncoded += btf + 1;
-          dataConstructor.putBit(true);
-          dataConstructor.putBitsRepeatWithReset(false, btf);
+          bitsEncoded_ += btf_ + 1;
+          dataConstructor_->putBit(true);
+          dataConstructor_->putBitsRepeatWithReset(false, btf_);
         } else if (currRange.low >= RC::quarter &&
                    currRange.high <= RC::threeQuarters) {
-          ++btf;
+          ++btf_;
         } else {
           break;
         }
         currRange = RC::recalcRange(currRange);
       }
-      ++ret.wordsCount;
+      ++wordsCnt_;
     }
     tick();
   }
 
-  ret.bitsEncoded += btf + 2;
-  if (currRange.low < RC::quarter) {
-    dataConstructor.putBit(false);
-    dataConstructor.putBitsRepeat(true, btf + 1);
-  } else {
-    dataConstructor.putBit(true);
-    dataConstructor.putBitsRepeat(false, btf + 1);
-  }
+  finalizeChoice_ = currRange.low < RC::quarter;
+  prevRange_.low = currRange.low;
+  prevRange_.high = currRange.high;
+  prevRange_.total = RC::total;
 
-  return ret;
+  return std::move(*this);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+template <class RC>
+auto ArithmeticCoder::calcRange_() -> RC::Range {
+  auto retLow = impl::multiply_and_divide(
+      prevRange_.low, TmpRange_::WideNum{RC::total}, prevRange_.total);
+  auto retHigh =
+      impl::multiply_decrease_and_divide(
+          prevRange_.high, TmpRange_::WideNum{RC::total}, prevRange_.total) +
+      1;
+  return {static_cast<RC::Count>(retLow), static_cast<RC::Count>(retHigh)};
 }
 
 }  // namespace ael::esc
