@@ -1,3 +1,6 @@
+#ifndef ORD_GENERATOR_HPP
+#define ORD_GENERATOR_HPP
+
 #include <cstdint>
 
 namespace ael::test {
@@ -19,3 +22,5 @@ class OrdGenerator {
 };
 
 }  // namespace ael::test
+
+#endif  // ORD_GENERATOR_HPP

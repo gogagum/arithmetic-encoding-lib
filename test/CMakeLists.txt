@@ -34,19 +34,13 @@ add_executable(ael-tests
     esc/ppmd_dictionary.cpp
     numerical_coder.cpp
     numerical_decoder.cpp
-    encode_decode/no_esc/adaptive_a.cpp
-    encode_decode/no_esc/adaptive_d.cpp
+    encode_decode/no_esc/adaptive_a_d.cpp
     encode_decode/no_esc/adaptive.cpp
-    encode_decode/no_esc/ppma.cpp
-    encode_decode/no_esc/ppmd.cpp
-    encode_decode/no_esc/adaptive_a_contextual.cpp
-    encode_decode/no_esc/adaptive_d_contextual.cpp
-    encode_decode/no_esc/adaptive_a_contextual_improved.cpp
-    encode_decode/no_esc/adaptive_d_contextual_improved.cpp
-    encode_decode/esc/adaptive_a.cpp
-    encode_decode/esc/adaptive_d.cpp
+    encode_decode/no_esc/ppm_a_d.cpp
+    encode_decode/no_esc/adaptive_a_d_contextual.cpp
     encode_decode/numerical.cpp
     encode_decode/esc/ppm_a_d.cpp
+    encode_decode/esc/adaptive_a_d.cpp
 )
 
 target_include_directories(ael-tests PRIVATE lib)
