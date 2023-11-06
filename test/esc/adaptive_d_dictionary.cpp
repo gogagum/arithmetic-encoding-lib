@@ -73,7 +73,7 @@ TEST(EscAdaptiveDDictionary, getTotalWordCntOnInit) {
   EXPECT_EQ(totalCnt, 1);
 }
 
-TEST(EscAdapriveDDictionary, GetStatsOnStartCenter) {
+TEST(EscAdaptiveDDictionary, GetStatsOnStartCenter) {
   auto dict = AdaptiveDDictionary(8);
   const auto stats = dict.getProbabilityStats(6);
   EXPECT_EQ(stats.size(), 2);
@@ -85,7 +85,7 @@ TEST(EscAdapriveDDictionary, GetStatsOnStartCenter) {
   EXPECT_EQ(stats[1].low, 6);
   EXPECT_EQ(stats[1].high, 7);
   EXPECT_EQ(stats[1].total, 8);
-  // Unuform probability. Each letter 1/8.
+  // Uniform probability. Each letter 1/8.
 }
 
 TEST(EscAdaptiveDDictionary, GetStatsOnStartEnd) {
@@ -100,7 +100,7 @@ TEST(EscAdaptiveDDictionary, GetStatsOnStartEnd) {
   EXPECT_EQ(stats[1].low, 7);
   EXPECT_EQ(stats[1].high, 8);
   EXPECT_EQ(stats[1].total, 8);
-  // Unuform probability. Each letter 1/8.
+  // Uniform probability. Each letter 1/8.
 }
 
 TEST(EscAdaptiveDDictionary, GetStatsOnStartBegin) {
@@ -115,7 +115,7 @@ TEST(EscAdaptiveDDictionary, GetStatsOnStartBegin) {
   EXPECT_EQ(stats[1].low, 0);
   EXPECT_EQ(stats[1].high, 1);
   EXPECT_EQ(stats[1].total, 8);
-  // Unuform probability. Each letter 1/8.
+  // Uniform probability. Each letter 1/8.
 }
 
 TEST(EscAdaptiveDDictionary, Example) {

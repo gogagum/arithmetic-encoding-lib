@@ -4,7 +4,7 @@
 #include <ael/arithmetic_decoder.hpp>
 #include <ael/byte_data_constructor.hpp>
 #include <ael/data_parser.hpp>
-#include <ael/dictionary/adaptive_dictionary.hpp>
+#include <ael/dictionary/static_dictionary.hpp>
 #include <encode_decode_test.hpp>
 
 // NOLINTBEGIN(cppcoreguidelines-*, cert-*, readability-magic-numbers,
@@ -17,10 +17,12 @@ namespace rng = std::ranges;
 using ael::ArithmeticCoder;
 using ael::ArithmeticDecoder;
 
-using AdaptiveEncodeDecode = EncodeDecodeTest<ael::dict::AdaptiveDictionary>;
+using StaticEncodeDecode = EncodeDecodeTest<ael::dict::StaticDictionary>;
 
-TEST_F(AdaptiveEncodeDecode, EncodeEmpty) {
-  auto dict = ael::dict::AdaptiveDictionary({6, 10});
+using CountsMapping = std::vector<ael::dict::StaticDictionary::CountMapping>;
+
+TEST_F(StaticEncodeDecode, EncodeEmpty) {
+  auto dict = ael::dict::StaticDictionary(6, CountsMapping{});
   auto [dataConstructor, wordsCnt, bitsCnt] =
       ArithmeticCoder().encode(encoded, dict).finalize();
 
@@ -29,29 +31,30 @@ TEST_F(AdaptiveEncodeDecode, EncodeEmpty) {
   EXPECT_EQ(dataConstructor->size(), 1);
 }
 
-TEST_F(AdaptiveEncodeDecode, DecodeEmpty) {
+TEST_F(StaticEncodeDecode, DecodeEmpty) {
   const auto data = std::array<std::byte, 0>{};
-  auto dict = ael::dict::AdaptiveDictionary({6, 7});
+  auto dict = ael::dict::StaticDictionary(6, CountsMapping{});
   auto dataParser = ael::DataParser(data);
   ArithmeticDecoder(dataParser, 0).decode(dict, outIter, 0);
 
   EXPECT_EQ(decoded.size(), 0);
 }
 
-TEST_F(AdaptiveEncodeDecode, EncodeDecodeEmptySequence) {
-  auto dict0 = ael::dict::AdaptiveDictionary({8, 7});
+TEST_F(StaticEncodeDecode, EncodeDecodeEmptySequence) {
+  auto dict0 = ael::dict::StaticDictionary(8, CountsMapping{});
   auto [dataConstructor, wordsCnt, _] =
       ArithmeticCoder().encode(encoded, dict0).finalize();
 
-  auto dict1 = ael::dict::AdaptiveDictionary({8, 7});
+  auto dict1 = ael::dict::StaticDictionary(8, CountsMapping{});
   auto parser = ael::DataParser(dataConstructor->getDataSpan());
   ArithmeticDecoder(parser).decode(dict1, outIter, wordsCnt);
 
   EXPECT_EQ(encoded.size(), decoded.size());
 }
 
-TEST_F(AdaptiveEncodeDecode, EncodeSmall) {
-  auto dict = ael::dict::AdaptiveDictionary({8, 7});
+TEST_F(StaticEncodeDecode, EncodeSmall) {
+  auto dict = ael::dict::StaticDictionary(
+      8, CountsMapping{{2, 1}, {5, 2}, {3, 1}, {7, 1}});
   auto [dataConstructor, wordsCnt, bitsCnt] =
       ArithmeticCoder().encode(smallSequence, dict).finalize();
 
@@ -59,40 +62,47 @@ TEST_F(AdaptiveEncodeDecode, EncodeSmall) {
   EXPECT_GE(dataConstructor->size(), 0);
 }
 
-TEST_F(AdaptiveEncodeDecode, EncodeDecodeSmallSequence) {
-  auto dict0 = ael::dict::AdaptiveDictionary({8, 5});
+TEST_F(StaticEncodeDecode, EncodeDecodeSmallSequence) {
+  auto cntMapping = CountsMapping{{2, 1}, {5, 2}, {3, 1}, {7, 1}};
+
+  auto dict0 = ael::dict::StaticDictionary(8, cntMapping);
   const auto [dataConstructor, wordsCnt, bitsCnt] =
       ArithmeticCoder().encode(smallSequence, dict0).finalize();
 
-  auto dict = ael::dict::AdaptiveDictionary({8, 5});
+  auto dict = ael::dict::StaticDictionary(8, cntMapping);
   auto parser = ael::DataParser(dataConstructor->getDataSpan());
   ArithmeticDecoder(parser).decode(dict, outIter, encoded.size());
 
   EXPECT_TRUE(rng::equal(encoded, decoded));
 }
 
-TEST_F(AdaptiveEncodeDecode, EncodeDecodeSmallSequenceBitsLimit) {
-  auto dict0 = ael::dict::AdaptiveDictionary({8, 5});
+TEST_F(StaticEncodeDecode, EncodeDecodeSmallSequenceBitsLimit) {
+  auto cntMapping = CountsMapping{{2, 1}, {5, 2}, {3, 1}, {7, 1}};
+
+  auto dict0 = ael::dict::StaticDictionary(8, cntMapping);
   const auto [dataConstructor, wordsCnt, bitsCnt] =
       ArithmeticCoder().encode(encoded, dict0).finalize();
 
-  auto dict1 = ael::dict::AdaptiveDictionary({8, 5});
+  auto dict1 = ael::dict::StaticDictionary(8, cntMapping);
   auto parser = ael::DataParser(dataConstructor->getDataSpan());
   ArithmeticDecoder(parser, bitsCnt).decode(dict1, outIter, wordsCnt);
 
   EXPECT_TRUE(rng::equal(encoded, decoded));
 }
 
-TEST_F(AdaptiveEncodeDecode, EncodeDecodeFuzz) {
+TEST_F(StaticEncodeDecode, EncodeDecodeFuzz) {
   for (auto iteration : rng::iota_view(0, 15)) {
     refreshForFuzzTest();
-    const std::size_t ratio = gen() % 10 + 5;  // [5..15)
+    const auto flatCountMapping =
+        encoded | rng::views::transform([](std::uint64_t encEl) {
+          return ael::dict::StaticDictionary::CountMapping{encEl, 1};
+        });
 
-    auto dict0 = ael::dict::AdaptiveDictionary({maxOrd, ratio});
+    auto dict0 = ael::dict::StaticDictionary(maxOrd, flatCountMapping);
     const auto [dataConstructor, wordsCount, bitsCount] =
         ArithmeticCoder().encode(encoded, dict0).finalize();
 
-    auto dict1 = ael::dict::AdaptiveDictionary({maxOrd, ratio});
+    auto dict1 = ael::dict::StaticDictionary(maxOrd, flatCountMapping);
     auto parser = ael::DataParser(dataConstructor->getDataSpan());
     ArithmeticDecoder(parser).decode(dict1, outIter, encoded.size());
 
@@ -100,16 +110,19 @@ TEST_F(AdaptiveEncodeDecode, EncodeDecodeFuzz) {
   }
 }
 
-TEST_F(AdaptiveEncodeDecode, EncodeDecodeFuzzBitsLimit) {
+TEST_F(StaticEncodeDecode, EncodeDecodeFuzzBitsLimit) {
   for (auto iteration : rng::iota_view(0, 15)) {
     refreshForFuzzTest();
-    const std::size_t ratio = gen() % 10 + 5;  // [5..15)
+    const auto flatCountMapping =
+        encoded | rng::views::transform([](std::uint64_t encEl) {
+          return ael::dict::StaticDictionary::CountMapping{encEl, 1};
+        });
 
-    auto dict0 = ael::dict::AdaptiveDictionary({maxOrd, ratio});
+    auto dict0 = ael::dict::StaticDictionary(maxOrd, flatCountMapping);
     const auto [dataConstructor, wordsCnt, bitsCnt] =
         ArithmeticCoder().encode(encoded, dict0).finalize();
 
-    auto dict1 = ael::dict::AdaptiveDictionary({maxOrd, ratio});
+    auto dict1 = ael::dict::StaticDictionary(maxOrd, flatCountMapping);
     auto parser = ael::DataParser(dataConstructor->getDataSpan());
     ArithmeticDecoder(parser, bitsCnt).decode(dict1, outIter, wordsCnt);
 

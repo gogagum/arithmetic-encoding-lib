@@ -14,6 +14,7 @@ class UniformDictionary {
   using Ord = std::uint64_t;
   using Count = std::uint64_t;
   using ProbabilityStats = ael::impl::dict::WordProbabilityStats<Count>;
+  constexpr static std::uint16_t countNumBits = 62;
 
  public:
   UniformDictionary() = delete;
@@ -43,7 +44,7 @@ class UniformDictionary {
    * @brief totalWordsCount
    * @return
    */
-  [[nodiscard]] Count getTotalWordsCount() const {
+  [[nodiscard]] Count getTotalWordsCnt() const {
     return maxOrd_;
   }
 

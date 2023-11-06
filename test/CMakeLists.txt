@@ -38,6 +38,8 @@ add_executable(ael-tests
     encode_decode/no_esc/adaptive.cpp
     encode_decode/no_esc/ppm_a_d.cpp
     encode_decode/no_esc/adaptive_a_d_contextual.cpp
+    encode_decode/no_esc/uniform.cpp
+    encode_decode/no_esc/static.cpp
     encode_decode/numerical.cpp
     encode_decode/esc/ppm_a_d.cpp
     encode_decode/esc/adaptive_a_d.cpp

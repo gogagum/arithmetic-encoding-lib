@@ -71,7 +71,7 @@ TEST(EscPPMDDictionary, GetStatsOnStartCenter) {
   EXPECT_EQ(stats[1].low, 6);
   EXPECT_EQ(stats[1].high, 7);
   EXPECT_EQ(stats[1].total, 8);
-  // Unuform probability. Each letter 1/8.
+  // Uniform probability. Each letter 1/8.
 }
 
 TEST(EscPPMDDictionary, GetStatsOnStartEnd) {
@@ -86,7 +86,7 @@ TEST(EscPPMDDictionary, GetStatsOnStartEnd) {
   EXPECT_EQ(stats[1].low, 7);
   EXPECT_EQ(stats[1].high, 8);
   EXPECT_EQ(stats[1].total, 8);
-  // Unuform probability. Each letter 1/8.
+  // Uniform probability. Each letter 1/8.
 }
 
 TEST(EscPPMDDictionary, GetStatsOnStartBegin) {
@@ -101,7 +101,7 @@ TEST(EscPPMDDictionary, GetStatsOnStartBegin) {
   EXPECT_EQ(stats[1].low, 0);
   EXPECT_EQ(stats[1].high, 1);
   EXPECT_EQ(stats[1].total, 8);
-  // Unuform probability. Each letter 1/8.
+  // Uniform probability. Each letter 1/8.
 }
 
 TEST(EscPPMDDictionary, GetStatsAfterUpdate) {
@@ -112,7 +112,7 @@ TEST(EscPPMDDictionary, GetStatsAfterUpdate) {
   EXPECT_EQ(stats1[0].low, 0);
   EXPECT_EQ(stats1[0].high, 1);
   EXPECT_EQ(stats1[0].total, 2);
-  // Unuform probability. Each letter 1/8.
+  // Uniform probability. Each letter 1/8.
 }
 
 TEST(EscPPMDDictionary, GetStatsAfterIncreaseOneUpdateOtherCenterCenter) {

@@ -18,13 +18,13 @@ TEST(AdaptiveDDictionary, GetStats) {
   [[maybe_unused]] const auto _stats = dict.getProbabilityStats(1);
 }
 
-TEST(AdapriveDDictionary, GetStatsOnStartCenter) {
+TEST(AdaptiveDDictionary, GetStatsOnStartCenter) {
   auto dict = AdaptiveDDictionary(8);
   const auto [low, high, total] = dict.getProbabilityStats(6);
   EXPECT_EQ(low, 6);
   EXPECT_EQ(high, 7);
   EXPECT_EQ(total, 8);
-  // Unuform probability. Each letter 1/8.
+  // Uniform probability. Each letter 1/8.
 }
 
 TEST(AdaptiveDDictionary, GetStatsOnStartEnd) {
@@ -33,7 +33,7 @@ TEST(AdaptiveDDictionary, GetStatsOnStartEnd) {
   EXPECT_EQ(low, 7);
   EXPECT_EQ(high, 8);
   EXPECT_EQ(total, 8);
-  // Unuform probability. Each letter 1/8.
+  // Uniform probability. Each letter 1/8.
 }
 
 TEST(AdaptiveDDictionary, GetStatsOnStartBegin) {
@@ -42,7 +42,7 @@ TEST(AdaptiveDDictionary, GetStatsOnStartBegin) {
   EXPECT_EQ(low, 0);
   EXPECT_EQ(high, 1);
   EXPECT_EQ(total, 8);
-  // Unuform probability. Each letter 1/8.
+  // Uniform probability. Each letter 1/8.
 }
 
 TEST(AdaptiveDDictionary, Example) {

@@ -126,7 +126,7 @@ TEST(EscAdaptiveADictionary, GetStatsAfterUpdate) {
   EXPECT_EQ(stats1[0].low, 0);
   EXPECT_EQ(stats1[0].high, 1);
   EXPECT_EQ(stats1[0].total, 2);
-  // Unuform probability. Each letter 1/8.
+  // Uniform probability. Each letter 1/8.
 }
 
 TEST(EscAdaptiveADictionary, GetStatsAfterIncreaseOneUpdateOtherCenterCenter) {

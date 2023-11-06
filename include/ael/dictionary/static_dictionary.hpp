@@ -1,11 +1,11 @@
 #ifndef AEL_DICT_STATIC_DICTIONARY_HPP
 #define AEL_DICT_STATIC_DICTIONARY_HPP
 
-#include <cstdint>
-#include <vector>
-#include <ranges>
-
 #include <ael/impl/dictionary/word_probability_stats.hpp>
+#include <cstdint>
+#include <map>
+#include <ranges>
+#include <vector>
 
 namespace ael::dict {
 
@@ -17,6 +17,12 @@ class StaticDictionary {
   using Ord = std::uint64_t;
   using Count = std::uint64_t;
   using ProbabilityStats = ael::impl::dict::WordProbabilityStats<Count>;
+  constexpr static std::uint16_t countNumBits = 62;
+
+  struct CountMapping {
+    Ord ord;
+    Count count;
+  };
 
  public:
   /**
@@ -25,7 +31,10 @@ class StaticDictionary {
    * @return
    */
   template <std::ranges::input_range RangeT>
-  explicit StaticDictionary(Ord maxOrd, const RangeT& countsRng);
+  explicit StaticDictionary(Ord maxOrd, const RangeT& countsRng)
+    requires std::is_same_v<std::ranges::range_value_t<RangeT>, CountMapping>;
+
+  explicit StaticDictionary(Ord maxOrd, const std::map<Ord, Count>& countsRng);
 
   /**
    * @brief getWord - get word by cumulative num found.
@@ -46,7 +55,7 @@ class StaticDictionary {
    * @brief totalWordsCount
    * @return
    */
-  [[nodiscard]] Ord getTotalWordsCount() const {
+  [[nodiscard]] Ord getTotalWordsCnt() const {
     return *cumulativeNumFound_.rbegin();
   }
 
@@ -58,24 +67,29 @@ class StaticDictionary {
   }
 
  private:
+  template <class Rng>
+  std::map<Ord, Count> countCntMapping_(const Rng& countsRng);
+
+ private:
   std::vector<Count> cumulativeNumFound_{};
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 template <std::ranges::input_range RangeT>
-StaticDictionary::StaticDictionary(Ord maxOrd, const RangeT& countsRng) {
-  cumulativeNumFound_.resize(maxOrd);
-  auto currOrd = Ord{0};
-  auto currCumulativeNumFound = Count{0};
-  for (auto& [ord, count] : countsRng) {
-    for (; currOrd < ord; ++currOrd) {
-      cumulativeNumFound_[currOrd] = currCumulativeNumFound;
-    }
-    currCumulativeNumFound += count;
+StaticDictionary::StaticDictionary(Ord maxOrd, const RangeT& countsRng)
+  requires std::is_same_v<std::ranges::range_value_t<RangeT>, CountMapping>
+    : StaticDictionary(maxOrd, countCntMapping_(countsRng)) {
+}
+
+////////////////////////////////////////////////////////////////////////////////
+template <class Rng>
+auto StaticDictionary::countCntMapping_(const Rng& countsRng)
+    -> std::map<Ord, Count> {
+  std::map<Ord, Count> countMapping;
+  for (const auto& [ord, count] : countsRng) {
+    countMapping[ord] += count;
   }
-  for (; currOrd < maxOrd; ++currOrd) {
-    cumulativeNumFound_[currOrd] = currCumulativeNumFound;
-  }
+  return countMapping;
 }
 
 }  // namespace ael::dict
