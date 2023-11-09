@@ -4,7 +4,8 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
-#include <ranges>
+#include <span>
+#include <stdexcept>
 #include <vector>
 
 namespace ael {
@@ -34,7 +35,7 @@ class ByteDataConstructor {
 
  public:
   /**
-   * @brief ArithmeticCoderEncoded - enpty encoded constructor
+   * @brief ArithmeticCoderEncoded - empty encoded constructor
    */
   ByteDataConstructor() = default;
 

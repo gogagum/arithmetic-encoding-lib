@@ -5,7 +5,6 @@
 #include <ael/impl/dictionary/cumulative_unique_count.hpp>
 #include <ael/impl/dictionary/max_ord_base.hpp>
 #include <cstdint>
-#include <ranges>
 
 namespace ael::impl::dict {
 

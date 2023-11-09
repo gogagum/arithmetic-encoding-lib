@@ -3,7 +3,6 @@
 
 #include <ael/impl/dictionary/word_probability_stats.hpp>
 #include <cstdint>
-#include <iostream>
 
 #include "multiply_and_divide.hpp"
 

@@ -34,7 +34,8 @@ class StaticDictionary {
   explicit StaticDictionary(Ord maxOrd, const RangeT& countsRng)
     requires std::is_same_v<std::ranges::range_value_t<RangeT>, CountMapping>;
 
-  explicit StaticDictionary(Ord maxOrd, const std::map<Ord, Count>& countsRng);
+  explicit StaticDictionary(Ord maxOrd,
+                            const std::map<Ord, Count>& countsMapping);
 
   /**
    * @brief getWord - get word by cumulative num found.

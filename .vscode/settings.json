@@ -107,10 +107,18 @@
     ],
     "C_Cpp.errorSquiggles": "disabled",
     "cSpell.words": [
+        "bugprone",
+        "Constexpr",
+        "cppcoreguidelines",
+        "Cumul",
         "multiprecision",
         "Ords",
         "PPMA",
         "PPMD",
-        "recalc"
+        "Probs",
+        "recalc",
+        "Struct",
+        "swappable",
+        "tparam"
     ]
 }

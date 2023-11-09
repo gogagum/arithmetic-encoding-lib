@@ -3,8 +3,6 @@
 
 #include <ael/byte_data_constructor.hpp>
 #include <ael/impl/ranges_calc.hpp>
-#include <boost/container/static_vector.hpp>
-#include <cstdint>
 #include <memory>
 
 namespace ael {

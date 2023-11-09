@@ -6,7 +6,6 @@
 #include <cstdint>
 #include <map>
 #include <memory>
-#include <ranges>
 
 #include "arithmetic_coder.hpp"
 #include "byte_data_constructor.hpp"

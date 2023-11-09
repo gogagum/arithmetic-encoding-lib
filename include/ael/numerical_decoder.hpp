@@ -1,7 +1,7 @@
 #ifndef AEL_NUMERICAL_DECODER_HPP
 #define AEL_NUMERICAL_DECODER_HPP
 
-#include <concepts>
+#include <iterator>
 #include <cstddef>
 #include <cstdint>
 #include <vector>

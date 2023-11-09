@@ -3,8 +3,6 @@
 
 namespace ael::dict {
 
-namespace rng = std::ranges;
-
 ////////////////////////////////////////////////////////////////////////////////
 StaticDictionary::StaticDictionary(Ord maxOrd,
                                    const std::map<Ord, Count>& countsMapping) {
@@ -24,7 +22,7 @@ StaticDictionary::StaticDictionary(Ord maxOrd,
 
 ////////////////////////////////////////////////////////////////////////////////
 auto StaticDictionary::getWordOrd(Count cumulativeNumFound) const -> Ord {
-  return rng::upper_bound(cumulativeNumFound_, cumulativeNumFound) -
+  return std::ranges::upper_bound(cumulativeNumFound_, cumulativeNumFound) -
          cumulativeNumFound_.begin();
 }
 

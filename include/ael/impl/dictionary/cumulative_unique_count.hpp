@@ -60,7 +60,7 @@ class CumulativeUniqueCount {
   }
 
  protected:
-  [[nodiscard]] Ord getmaxOrd_() const {
+  [[nodiscard]] Ord getMaxOrd_() const {
     return maxOrd_;
   }
 

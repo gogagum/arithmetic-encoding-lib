@@ -31,8 +31,8 @@ bool DataParser::takeBit() {
   if (dataIter_ >= data_.end()) {
     return false;
   }
-  const bool ret =
-      bitsView_[(dataIter_ - data_.begin()) * CHAR_BIT + inByteOffset_];
+  const auto ret =
+      bool{bitsView_[(dataIter_ - data_.begin()) * CHAR_BIT + inByteOffset_]};
   moveInByteOffset_();
   return ret;
 }

@@ -5,11 +5,9 @@
 #include <ael/impl/dictionary/cumulative_unique_count.hpp>
 #include <ael/impl/dictionary/ppm_a_d_dictionary_base.hpp>
 #include <ael/impl/dictionary/word_probability_stats.hpp>
-#include <boost/container/static_vector.hpp>
 #include <boost/container_hash/hash.hpp>
 #include <boost/multiprecision/cpp_int.hpp>
 #include <cstdint>
-#include <deque>
 #include <unordered_map>
 
 namespace ael::dict {
