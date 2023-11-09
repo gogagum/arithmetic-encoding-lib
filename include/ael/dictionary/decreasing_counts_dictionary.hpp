@@ -2,7 +2,7 @@
 #define AEL_DICT_DECREASING_COUNTS_DICTIONARY_HPP
 
 #include <ael/impl/dictionary/word_probability_stats.hpp>
-#include <stdexcept>
+#include <cassert>
 
 namespace ael::dict {
 
