@@ -21,5 +21,20 @@ TEST(NumericalCoder, EncodeSmallSequence) {
   ael::NumericalCoder().encode(sequence, countsMapping);
 }
 
+TEST(NumericalCoder, EncodeSmallSequenceWithTicks) {
+  auto sequence = std::vector<std::uint32_t>{5, 6, 2, 5, 3, 2};
+  auto countsMapping = ael::NumericalCoder::countWords(sequence);
+
+  auto n = std::size_t{0};
+
+  auto tick = [&n]() {
+    ++n;
+  };
+
+  ael::NumericalCoder().encode(sequence, countsMapping, tick, []{}, []{});
+
+  EXPECT_EQ(n, sequence.size());
+}
+
 // NOLINTEND(cppcoreguidelines-*, cert-*, readability-magic-numbers,
 // cert-err58-cpp)

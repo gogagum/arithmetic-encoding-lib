@@ -81,7 +81,8 @@ auto NumericalCoder::encode(const OrdFlow& ordFlow,
                             const std::vector<CountEntry>& countsMapping,
                             auto wordTick, auto wordCntTick,
                             auto contentTick) && -> EncodeRet {
-  return encode_(ordFlow, countsMapping, wordTick, wordCntTick, contentTick);
+  return std::move(*this).encode_(ordFlow, countsMapping, wordTick, wordCntTick,
+                                  contentTick);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
