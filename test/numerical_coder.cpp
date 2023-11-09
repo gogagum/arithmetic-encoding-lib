@@ -2,8 +2,7 @@
 
 #include <ael/numerical_coder.hpp>
 #include <cstdint>
-
-#include "ael/byte_data_constructor.hpp"
+#include <set>
 
 // NOLINTBEGIN(cppcoreguidelines-*, cert-*, readability-magic-numbers,
 // cert-err58-cpp)
@@ -32,8 +31,7 @@ TEST(NumericalCoder, EncodeSmallSequenceWithTicks) {
   };
 
   ael::NumericalCoder().encode(sequence, countsMapping, tick, []{}, []{});
-
-  EXPECT_EQ(n, sequence.size());
+  EXPECT_EQ(n, std::set(sequence.begin(), sequence.end()).size());
 }
 
 // NOLINTEND(cppcoreguidelines-*, cert-*, readability-magic-numbers,
