@@ -3,6 +3,7 @@
 
 #include <ael/impl/dictionary/word_probability_stats.hpp>
 #include <cassert>
+#include <cstdint>
 
 namespace ael::dict {
 
@@ -22,7 +23,7 @@ class DecreasingCountDictionary {
 
   /**
    * @brief DecreasingCountDictionary constructor.
-   * @param initialCount - intintal count.
+   * @param initialCount - initial count.
    */
   explicit DecreasingCountDictionary(Count initialCount);
 

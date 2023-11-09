@@ -1,6 +1,7 @@
 #ifndef AEL_BYTE_DATA_CONSTRUCTOR_HPP
 #define AEL_BYTE_DATA_CONSTRUCTOR_HPP
 
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstdint>
@@ -204,8 +205,8 @@ class ByteDataConstructor::BytesAfterBits : std::logic_error {
 ////////////////////////////////////////////////////////////////////////////////
 void ByteDataConstructor::putT(auto element) {
   auto* elPtr = static_cast<void*>(&element);
-  auto* bytes = static_cast<TBytes<decltype(element)>*>(elPtr);
-  std::copy(bytes->begin(), bytes->end(), getByteBackInserter());
+  auto& bytes = *static_cast<TBytes<decltype(element)>*>(elPtr);
+  std::ranges::copy(bytes, getByteBackInserter());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -214,9 +215,9 @@ void ByteDataConstructor::putTToPosition(auto element, std::size_t position) {
     throw std::out_of_range("Can not write to position this count of bytes.");
   }
   auto* elPtr = static_cast<void*>(&element);
-  auto* bytes = static_cast<TBytes<decltype(element)>*>(elPtr);
-  std::copy(bytes->begin(), bytes->end(),
-            data_.begin() + static_cast<std::ptrdiff_t>(position));
+  auto& bytes = *static_cast<TBytes<decltype(element)>*>(elPtr);
+  std::ranges::copy(bytes,
+                    data_.begin() + static_cast<std::ptrdiff_t>(position));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

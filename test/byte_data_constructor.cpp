@@ -9,7 +9,7 @@ using ael::ByteDataConstructor;
 // NOLINTBEGIN(cppcoreguidelines-*, cert-*, readability-magic-numbers,
 // cert-err58-cpp)
 
-TEST(ByteDataConstructor, Consruct) {
+TEST(ByteDataConstructor, Construct) {
   auto encoded = ByteDataConstructor();
 }
 

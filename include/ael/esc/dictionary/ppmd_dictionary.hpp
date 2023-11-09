@@ -39,7 +39,7 @@ class PPMDDictionary
   PPMDDictionary() = delete;
 
   /**
-   * @brief PPMD dictionary with esc sympols constructor.
+   * @brief PPMD dictionary with esc symbols constructor.
    *
    * @param constructInfo - maximal order and context length.
    */
@@ -65,7 +65,7 @@ class PPMDDictionary
   /**
    * @brief get probability statistics for decoding.
    *
-   * @param ord ordere (index) of a word.
+   * @param ord order (index) of a word.
    * @return [low, high, total]
    */
   [[nodiscard]] ProbabilityStats getDecodeProbabilityStats(Ord ord);
@@ -100,7 +100,7 @@ class PPMDDictionary
 
   [[nodiscard]] ProbabilityStats getZeroCtxEscStats_() const;
 
-  [[nodiscard]] const CtxCell_& getCurrCtxCell_(SearchCtx_&& currCtx) const;
+  [[nodiscard]] const CtxCell_& getCurrCtxCell_(SearchCtx_& currCtx) const;
 
  private:
   using SearchCtxHash_ = boost::hash<SearchCtx_>;

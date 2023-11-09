@@ -21,7 +21,7 @@ auto PPMDDictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
     return getMaxOrd_();
   }
   if (getEscDecoded_() <= currCtx.size()) {
-    const auto& cell = getCurrCtxCell_(std::move(currCtx));
+    const auto& cell = getCurrCtxCell_(currCtx);
     const auto getLowerCumulCnt = [&cell](Ord ord) {
       return 2 * cell.cnt.getLowerCumulativeCnt(ord + 1) -
              cell.uniqueCnt.getLowerCumulativeCnt(ord + 1);
@@ -232,7 +232,7 @@ auto PPMDDictionary::getZeroCtxEscStats_() const -> ProbabilityStats {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto PPMDDictionary::getCurrCtxCell_(SearchCtx_&& currCtx) const
+auto PPMDDictionary::getCurrCtxCell_(SearchCtx_& currCtx) const
     -> const CtxCell_& {
   if (getEscDecoded_() < currCtx.size()) {
     skipCtxsByEsc_(currCtx);

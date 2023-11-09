@@ -7,7 +7,6 @@
 #include <boost/container/static_vector.hpp>
 #include <boost/container_hash/hash.hpp>
 #include <cstdint>
-#include <deque>
 #include <unordered_map>
 
 namespace ael::esc::dict {
@@ -95,7 +94,7 @@ class PPMADictionary
   [[nodiscard]] ProbabilityStats getZeroCtxEscStats_() const;
 
   [[nodiscard]] const CumulativeCount_& getCurrCumulativeCnt_(
-      SearchCtx_&& currCtx) const;
+      SearchCtx_& currCtx) const;
 
  private:
   using SearchCtxHash_ = boost::hash<SearchCtx_>;

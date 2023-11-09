@@ -1,8 +1,6 @@
 #include <gtest/gtest.h>
 
 #include <ael/dictionary/adaptive_d_dictionary.hpp>
-#include <array>
-#include <cstddef>
 
 using ael::dict::AdaptiveDDictionary;
 

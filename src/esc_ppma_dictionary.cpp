@@ -18,7 +18,7 @@ PPMADictionary::PPMADictionary(ConstructInfo constructInfo)
 auto PPMADictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
   auto currCtx = getSearchCtxEmptySkipped_();
   if (getEscDecoded_() <= currCtx.size()) {
-    const auto& cell = getCurrCumulativeCnt_(std::move(currCtx));
+    const auto& cell = getCurrCumulativeCnt_(currCtx);
     const auto getLowerCumulCnt = [&cell](Ord ord) {
       return cell.getLowerCumulativeCnt(ord + 1);
     };
@@ -191,7 +191,7 @@ auto PPMADictionary::getZeroCtxEscStats_() const -> ProbabilityStats {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto PPMADictionary::getCurrCumulativeCnt_(SearchCtx_&& currCtx) const
+auto PPMADictionary::getCurrCumulativeCnt_(SearchCtx_& currCtx) const
     -> const CumulativeCount_& {
   if (getEscDecoded_() < currCtx.size()) {
     skipCtxsByEsc_(currCtx);

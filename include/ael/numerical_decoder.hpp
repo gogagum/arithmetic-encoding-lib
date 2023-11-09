@@ -1,9 +1,9 @@
 #ifndef AEL_NUMERICAL_DECODER_HPP
 #define AEL_NUMERICAL_DECODER_HPP
 
-#include <iterator>
 #include <cstddef>
 #include <cstdint>
+#include <iterator>
 #include <vector>
 
 #include "arithmetic_decoder.hpp"
@@ -105,7 +105,7 @@ template <class SourceT>
 std::vector<std::uint64_t> NumericalDecoder<SourceT>::decodeCounts_(
     auto&& tick) {
   auto countsDictionary =
-      dict::DecreasingCountDictionary<std::uint64_t>(wordsCnt_);
+      dict::DecreasingCountDictionary<std::uint64_t>{wordsCnt_};
   auto counts = std::vector<std::uint64_t>();
   decoder_.decode(countsDictionary, std::back_inserter(counts), dictSize_,
                   tick);
@@ -121,11 +121,11 @@ void NumericalDecoder<SourceT>::decodeContent_(
     const std::vector<std::uint64_t>& counts, auto&& tick) {
   assert(ords.size() == counts.size());
   auto contentDictInitialCounts = std::vector<CountEntry_>();
-  std::transform(ords.begin(), ords.end(), counts.begin(),
-                 std::back_inserter(contentDictInitialCounts),
-                 [](std::uint64_t wordOrd, std::uint64_t count) -> CountEntry_ {
-                   return {wordOrd, count};
-                 });
+  std::ranges::transform(
+      ords, counts, std::back_inserter(contentDictInitialCounts),
+      [](std::uint64_t wordOrd, std::uint64_t count) -> CountEntry_ {
+        return {wordOrd, count};
+      });
   auto contentDictionary =
       dict::DecreasingOnUpdateDictionary(maxOrd, contentDictInitialCounts);
   decoder_.decode(contentDictionary, outIter, wordsCnt_, tick);
