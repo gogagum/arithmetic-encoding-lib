@@ -48,8 +48,6 @@ target_sources(${PROJECT_NAME}
         src/contextual_dictionary_base_improved.cpp
         src/contextual_dictionary_base.cpp
         src/word_probability_stats.cpp
-        src/bits_iterator.cpp
-        src/bytes_iterator.cpp
         src/numerical_coder.cpp
         src/numerical_decoder.cpp
         src/esc_arithmetic_coder.cpp

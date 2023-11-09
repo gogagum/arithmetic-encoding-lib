@@ -1,6 +1,7 @@
-#include <ael/bits_iterator.hpp>
 #include <ael/byte_data_constructor.hpp>
 #include <algorithm>
+#include <climits>
+#include <ranges>
 
 namespace ael {
 
@@ -33,9 +34,13 @@ void ByteDataConstructor::putByte(std::byte byteToPut) {
   if (currBitFlag_ == startMask_) {
     data_.push_back(byteToPut);
   } else {
-    constexpr std::size_t bitsInByte = 8;
-    std::copy_n(impl::BitsIterator(byteToPut, 0), bitsInByte,
-                getBitBackInserter());
+    auto bits = std::views::iota(std::size_t{0}, std::size_t{CHAR_BIT}) |
+                std::views::reverse |
+                std::views::transform([byteToPut](std::size_t i) {
+                  return ((byteToPut >> i) & std::byte{1}) == std::byte{1};
+                });
+
+    std::ranges::copy(bits, getBitBackInserter());
   }
 }
 

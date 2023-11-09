@@ -9,8 +9,6 @@ FetchContent_MakeAvailable(googletest)
 enable_testing()
 
 add_executable(ael-tests
-    bits_iterator.cpp
-    bytes_iterator.cpp
     byte_data_constructor.cpp
     data_parser.cpp
     context_buffer.cpp
