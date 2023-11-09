@@ -1,13 +1,14 @@
 #include <ael/data_parser.hpp>
-#include <cstddef>
+#include <ael/impl/byte_rng_to_bits.hpp>
 #include <climits>
+#include <cstddef>
 #include <ranges>
 
 namespace ael {
 
 ////////////////////////////////////////////////////////////////////////////////
 DataParser::DataParser(std::span<const std::byte> data)
-    : data_(data), dataIter_{data_.begin()} {
+    : data_(data), bitsView_{impl::to_bits(data_)}, dataIter_{data_.begin()} {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -30,7 +31,8 @@ bool DataParser::takeBit() {
   if (dataIter_ >= data_.end()) {
     return false;
   }
-  const bool ret = (*dataIter_ & getByteFlag_()) != std::byte{0};
+  const bool ret =
+      bitsView_[(dataIter_ - data_.begin()) * CHAR_BIT + inByteOffset_];
   moveInByteOffset_();
   return ret;
 }

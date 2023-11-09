@@ -1,80 +1,18 @@
-#ifndef AEL_IMPL_DATA_PARSER_HPP
-#define AEL_IMPL_DATA_PARSER_HPP
+#ifndef AEL_DATA_PARSER_HPP
+#define AEL_DATA_PARSER_HPP
 
+#include <ael/impl/byte_rng_to_bits.hpp>
 #include <array>
 #include <cstddef>
-#include <ranges>
-#include <span>
-#include <stdexcept>
-#include <vector>
 #include <cstdint>
+#include <span>
 
 namespace ael {
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \brief The ArithmeticDecoderDecoded class
+/// \brief The DataParser class
 ///
 class DataParser {
- public:
-  ////////////////////////////////////////////////////////////////////////////
-  /// \brief The BitIterator class
-  class BitsIterator {
-   public:
-    BitsIterator(DataParser& owner, std::size_t bitsPosition)
-        : owner_(&owner), bitsPosition_(bitsPosition) {
-    }
-
-    BitsIterator(const BitsIterator& other) = default;
-
-    BitsIterator(BitsIterator&& other) noexcept = default;
-
-    // NOLINTBEGIN(readability-identifier-naming)
-    ////////////////////////////////////////////////////////////////////////////
-    [[nodiscard]] bool operator*() const {
-      return owner_->seek(bitsPosition_).takeBit();
-    }
-    ////////////////////////////////////////////////////////////////////////////
-    [[nodiscard]] bool operator==(const BitsIterator& other) const {
-      return bitsPosition_ == other.bitsPosition_;
-    }
-    ////////////////////////////////////////////////////////////////////////////
-    [[nodiscard]] std::ptrdiff_t operator-(const BitsIterator& other) const {
-      return static_cast<ptrdiff_t>(other.bitsPosition_) -
-             static_cast<ptrdiff_t>(bitsPosition_);
-    }
-    ////////////////////////////////////////////////////////////////////////////
-    BitsIterator& operator=(const BitsIterator& other) = default;
-    ////////////////////////////////////////////////////////////////////////////
-    BitsIterator& operator=(BitsIterator&& other) = default;
-    ////////////////////////////////////////////////////////////////////////////
-    BitsIterator& operator++() {
-      ++bitsPosition_;
-      return *this;
-    }
-    ////////////////////////////////////////////////////////////////////////////
-    BitsIterator operator++(int) {
-      auto retCopy = *this;
-      ++bitsPosition_;
-      return retCopy;
-    }
-    ////////////////////////////////////////////////////////////////////////////
-    void operator+=(std::ptrdiff_t offset) {
-      bitsPosition_ += offset;
-    }
-    ////////////////////////////////////////////////////////////////////////////
-    ~BitsIterator() = default;
-
-    // NOLINTEND(readability-identifier-naming)
-
-   private:
-    DataParser* owner_;
-    std::size_t bitsPosition_;
-  };
-
-  //////////////////////////////////////////////////////////////////////////////
-  /// \brief The OutOfRange class
-  class OutOfRange;
-
  public:
   /**
    * @brief DataParser move constructor.
@@ -120,8 +58,7 @@ class DataParser {
    * @return number of bits.
    */
   [[nodiscard]] std::size_t getNumBits() const {
-    constexpr const auto bitsInBytes = 8;
-    return data_.size() * bitsInBytes;
+    return bitsView_.size();
   }
 
   /**
@@ -135,17 +72,16 @@ class DataParser {
    * @brief getBeginBitsIter
    * @return bits begin iterator.
    */
-  auto getBeginBitsIter() {
-    return BitsIterator(*this, 0);
+  [[nodiscard]] auto getBeginBitsIter() const {
+    return bitsView_.begin();
   }
 
   /**
    * @brief getEndBitsIter
    * @return bitsEndIterator
    */
-  auto getEndBitsIter() {
-    constexpr const auto bitsInBytes = 8;
-    return BitsIterator(*this, data_.size() * bitsInBytes);
+  [[nodiscard]] auto getEndBitsIter() const {
+    return bitsView_.end();
   }
 
   DataParser& operator=(DataParser&& other) = delete;
@@ -156,13 +92,13 @@ class DataParser {
  private:
   void moveInByteOffset_();
 
-  [[nodiscard]] std::byte getByteFlag_() const {
-    constexpr const auto startByte = std::byte{0b10000000};
-    return startByte >> inByteOffset_;
-  }
+ private:
+  using BitsView = decltype(impl::to_bits(
+      std::declval<const std::span<const std::byte>&>()));
 
  private:
   const std::span<const std::byte> data_;
+  BitsView bitsView_;
   std::span<const std::byte>::iterator dataIter_;
   std::uint8_t inByteOffset_{};
 
@@ -179,9 +115,9 @@ T DataParser::takeT() {
   using TBytes = std::array<std::byte, sizeof(T)>;
 
   auto ret = T();
-  auto* retPtr = static_cast<void*>(&ret);
-  auto* retBytes = static_cast<TBytes*>(retPtr);
-  for (auto& byte : *retBytes) {
+  auto* ret_ptr = static_cast<void*>(&ret);
+  auto* ret_bytes = static_cast<TBytes*>(ret_ptr);
+  for (auto& byte : *ret_bytes) {
     byte = takeByte();
   }
   return ret;
@@ -189,13 +125,4 @@ T DataParser::takeT() {
 
 }  // namespace ael
 
-template <>
-struct std::iterator_traits<ael::DataParser::BitsIterator> {
-  using difference_type = std::ptrdiff_t;
-  using value_type = bool;
-  using pointer = void;
-  using reference = void;
-  using iterator_category = std::input_iterator_tag;
-};
-
-#endif  // AEL_IMPL_DATA_PARSER_HPP
+#endif  // AEL_DATA_PARSER_HPP

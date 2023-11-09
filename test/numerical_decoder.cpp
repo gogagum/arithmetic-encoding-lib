@@ -1,11 +1,10 @@
 #include <gtest/gtest.h>
 
+#include <ael/data_parser.hpp>
 #include <ael/numerical_decoder.hpp>
 #include <array>
 #include <cstdint>
 #include <iterator>
-
-#include "ael/data_parser.hpp"
 
 // NOLINTBEGIN(cppcoreguidelines-*, cert-*, readability-magic-numbers,
 // cert-err58-cpp)

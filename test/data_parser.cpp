@@ -179,7 +179,7 @@ TEST(DataParser, IterateBits) {
   auto p = DataParser(testData);
 
   auto bitsReceived = std::vector<bool>();
-  std::copy(p.getBeginBitsIter(), p.getEndBitsIter(),
+  std::ranges::copy(p.getBeginBitsIter(), p.getEndBitsIter(),
             std::back_inserter(bitsReceived));
 
   const auto bitsExpected =
@@ -194,9 +194,9 @@ TEST(DataParser, IterateBitsTwice) {
   auto p = DataParser(testData);
 
   auto bitsReceived = std::vector<bool>();
-  std::copy(p.getBeginBitsIter(), p.getEndBitsIter(),
+  std::ranges::copy(p.getBeginBitsIter(), p.getEndBitsIter(),
             std::back_inserter(bitsReceived));
-  std::copy(p.getBeginBitsIter(), p.getEndBitsIter(),
+  std::ranges::copy(p.getBeginBitsIter(), p.getEndBitsIter(),
             std::back_inserter(bitsReceived));
 
   const auto bitsExpected =
