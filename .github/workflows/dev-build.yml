@@ -28,7 +28,7 @@ jobs:
         name: Linux Clang (libstdc++)
         runs-on: ubuntu-22.04
         container:
-          image: gogagum/cool_linux_build_container:latest
+          image: ghcr.io/foonathan/clang:16
           env:
             CC: clang
             CXX: clang++
@@ -46,7 +46,7 @@ jobs:
         name: Linux Clang (libc++)
         runs-on: ubuntu-22.04
         container:
-          image: gogagum/cool_linux_build_container:latest
+          image: ghcr.io/foonathan/clang:16
           env:
             CC: clang
             CXX: clang++
