@@ -111,15 +111,23 @@
         "Constexpr",
         "cppcoreguidelines",
         "Cumul",
+        "CXXFLAGS",
         "gogagum",
+        "libc",
+        "libcpp",
+        "libicu",
+        "libstdc",
+        "libstdcpp",
         "multiprecision",
         "Ords",
         "PPMA",
         "PPMD",
         "Probs",
         "recalc",
+        "stdlib",
         "Struct",
         "swappable",
-        "tparam"
+        "tparam",
+        "valgrind"
     ]
 }
