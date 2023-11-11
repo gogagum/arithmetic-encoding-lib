@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <map>
 #include <memory>
+#include <ranges>
 
 #include "arithmetic_coder.hpp"
 #include "byte_data_constructor.hpp"
@@ -39,17 +40,17 @@ class NumericalCoder {
 
   static std::vector<CountEntry> countWords(const auto& ordFlow);
 
-  template <class OrdFlow>
+  template <std::ranges::input_range OrdFlow>
   EncodeRet encode(const OrdFlow& ordFlow,
                    const std::vector<CountEntry>& countsMapping) &&;
 
-  template <class OrdFlow>
+  template <std::ranges::input_range OrdFlow>
   EncodeRet encode(const OrdFlow& ordFlow,
                    const std::vector<CountEntry>& countsMapping, auto wordTick,
                    auto wordCntTick, auto contentTick) &&;
 
  private:
-  template <class OrdFlow>
+  template <std::ranges::input_range OrdFlow>
   EncodeRet encode_(const OrdFlow& ordFlow,
                     const std::vector<CountEntry>& countsMapping, auto wordTick,
                     auto wordCntTick, auto contentTick) &&;
@@ -66,7 +67,7 @@ class NumericalCoder {
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-template <class OrdFlow>
+template <std::ranges::input_range OrdFlow>
 auto NumericalCoder::encode(
     const OrdFlow& ordFlow,
     const std::vector<CountEntry>& countsMapping) && -> EncodeRet {
@@ -75,7 +76,7 @@ auto NumericalCoder::encode(
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-template <class OrdFlow>
+template <std::ranges::input_range OrdFlow>
 auto NumericalCoder::encode(const OrdFlow& ordFlow,
                             const std::vector<CountEntry>& countsMapping,
                             auto wordTick, auto wordCntTick,
@@ -85,7 +86,7 @@ auto NumericalCoder::encode(const OrdFlow& ordFlow,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-template <class OrdFlow>
+template <std::ranges::input_range OrdFlow>
 auto NumericalCoder::encode_(const OrdFlow& ordFlow,
                              const std::vector<CountEntry>& countsMapping,
                              auto wordTick, auto wordCntTick,

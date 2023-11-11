@@ -4,6 +4,7 @@
 #include <ael/byte_data_constructor.hpp>
 #include <ael/impl/ranges_calc.hpp>
 #include <memory>
+#include <ranges>
 
 namespace ael {
 
@@ -35,8 +36,8 @@ class ArithmeticCoder {
    * @param dict dictionary with words statistics.
    * @return [wordsCount, bitsEncoded]
    */
-  template <class DictT>
-  ArithmeticCoder&& encode(auto ordFlow, DictT& dict);
+  template <std::ranges::input_range OrdFlow, class DictT>
+  ArithmeticCoder&& encode(const OrdFlow& ordFlow, DictT& dict);
 
   /**
    * @brief encode - encode byte flow.
@@ -47,9 +48,9 @@ class ArithmeticCoder {
    * encoded.
    * @return [wordsCount, bitsEncoded]
    */
-  template <class DictT>
+  template <std::ranges::input_range OrdFlow, class DictT>
   ArithmeticCoder&& encode(
-      auto ordFlow, DictT& dict, auto tick = [] {});
+      const OrdFlow& ordFlow, DictT& dict, auto tick = [] {});
 
   /**
    * @brief Get encoded orders and encoded bits counts change since last
@@ -92,14 +93,14 @@ inline ArithmeticCoder::ArithmeticCoder(
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-template <class DictT>
-ArithmeticCoder&& ArithmeticCoder::encode(auto ordFlow, DictT& dict) {
+template <std::ranges::input_range OrdFlow, class DictT>
+ArithmeticCoder&& ArithmeticCoder::encode(const OrdFlow& ordFlow, DictT& dict) {
   return encode(ordFlow, dict, [] {});
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-template <class DictT>
-ArithmeticCoder&& ArithmeticCoder::encode(auto ordFlow, DictT& dict,
+template <std::ranges::input_range OrdFlow, class DictT>
+ArithmeticCoder&& ArithmeticCoder::encode(const OrdFlow& ordFlow, DictT& dict,
                                           auto tick) {
   using RC = impl::RangesCalc<typename DictT::Count, DictT::countNumBits>;
   auto currRange = calcRange_<RC>();
