@@ -10,7 +10,7 @@ jobs:
         name: Linux GCC 13
         runs-on: ubuntu-22.04
         container:
-          image: gcc:13.2.0
+          image: gogagum/cool_linux_build_container:latest
           env:
             CC: gcc-13
             CXX: g++-13
