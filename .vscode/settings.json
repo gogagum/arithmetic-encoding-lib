@@ -111,6 +111,7 @@
         "Constexpr",
         "cppcoreguidelines",
         "Cumul",
+        "gogagum",
         "multiprecision",
         "Ords",
         "PPMA",

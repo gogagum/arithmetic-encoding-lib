@@ -27,7 +27,7 @@ class ArithmeticDecoder
 
  public:
   explicit ArithmeticDecoder(
-      SourceT& source,  // TODO(gogagum): maybe take by unique_ptr
+      SourceT& source,
       std::size_t bitsLimit = std::numeric_limits<std::size_t>::max());
 
   /**
