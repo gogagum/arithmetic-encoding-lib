@@ -12,8 +12,8 @@ jobs:
         container:
           image: gogagum/cool_linux_build_container:latest
           env:
-            CC: gcc-13
-            CXX: g++-13
+            CC: gcc
+            CXX: g++
         steps:
             - uses: actions/checkout@v3
             - run: /bin/bash .ci/build-project.sh build-simple
@@ -27,20 +27,14 @@ jobs:
     linux-clang-16-libstdcpp:
         name: Linux Clang 16 (libstdc++)
         runs-on: ubuntu-22.04
-        env:
-            CC: clang-16
-            CXX: clang++-16
+        container:
+          image: gogagum/cool_linux_build_container:latest
+          env:
+            CC: clang
+            CXX: clang++
             CXXFLAGS: -stdlib=libstdc++
         steps:
             - uses: actions/checkout@v3
-            - run: |
-                  sudo apt-get update
-                  sudo apt-get install -y ninja-build libc6-dbg
-                  sudo snap install valgrind --classic
-                  wget https://apt.llvm.org/llvm.sh
-                  chmod +x llvm.sh
-                  sudo ./llvm.sh 16
-                  sudo apt-get install -y ninja-build build-essential libstdc++-13-dev valgrind libicu-dev
             - run: /bin/bash .ci/build-project.sh build-simple
             - run: ./build-simple/test/ael-tests
             - run: ./build-simple/benchmark/test/benchmark-lib-tests
@@ -51,20 +45,14 @@ jobs:
     linux-clang-16-libcpp:
         name: Linux Clang 16 (libc++)
         runs-on: ubuntu-22.04
-        env:
-            CC: clang-16
-            CXX: clang++-16
+        container:
+          image: gogagum/cool_linux_build_container:latest
+          env:
+            CC: clang
+            CXX: clang++
             CXXFLAGS: -stdlib=libc++
         steps:
             - uses: actions/checkout@v3
-            - run: |
-                  sudo apt-get update
-                  sudo apt-get install -y ninja-build libc6-dbg
-                  sudo snap install valgrind --classic
-                  wget https://apt.llvm.org/llvm.sh
-                  chmod +x llvm.sh
-                  sudo ./llvm.sh 16
-                  sudo apt-get install -y libc++-16-dev libc++abi-16-dev ninja-build build-essential valgrind libicu-dev
             - run: /bin/bash .ci/build-project.sh build-simple
             - run: ./build-simple/test/ael-tests
             - run: ./build-simple/benchmark/test/benchmark-lib-tests
