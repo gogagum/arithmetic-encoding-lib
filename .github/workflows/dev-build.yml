@@ -6,8 +6,8 @@ on:
     branches: [ dev ]
 
 jobs:
-    linux-gcc-13:
-        name: Linux GCC 13
+    linux-gcc:
+        name: Linux GCC
         runs-on: ubuntu-22.04
         container:
           image: gogagum/cool_linux_build_container:latest
@@ -24,8 +24,8 @@ jobs:
             - run: valgrind ./build-valgrind/benchmark/test/benchmark-lib-tests
 
 
-    linux-clang-16-libstdcpp:
-        name: Linux Clang 16 (libstdc++)
+    linux-clang-libstdcpp:
+        name: Linux Clang (libstdc++)
         runs-on: ubuntu-22.04
         container:
           image: gogagum/cool_linux_build_container:latest
@@ -42,8 +42,8 @@ jobs:
             - run: valgrind ./build-valgrind/test/ael-tests
             - run: valgrind ./build-valgrind/benchmark/test/benchmark-lib-tests
 
-    linux-clang-16-libcpp:
-        name: Linux Clang 16 (libc++)
+    linux-clang-libcpp:
+        name: Linux Clang (libc++)
         runs-on: ubuntu-22.04
         container:
           image: gogagum/cool_linux_build_container:latest
