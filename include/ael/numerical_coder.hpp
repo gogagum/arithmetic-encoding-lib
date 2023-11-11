@@ -38,7 +38,8 @@ class NumericalCoder {
       std::unique_ptr<ByteDataConstructor>&& dataConstructor =
           std::make_unique<ByteDataConstructor>());
 
-  static std::vector<CountEntry> countWords(const auto& ordFlow);
+  template <std::ranges::input_range OrdFlow>
+  static std::vector<CountEntry> countWords(const OrdFlow& ordFlow);
 
   template <std::ranges::input_range OrdFlow>
   EncodeRet encode(const OrdFlow& ordFlow,
@@ -135,7 +136,8 @@ auto NumericalCoder::encode_(const OrdFlow& ordFlow,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto NumericalCoder::countWords(const auto& ordFlow)
+template <std::ranges::input_range OrdFlow>
+auto NumericalCoder::countWords(const OrdFlow& ordFlow)
     -> std::vector<CountEntry> {
   auto countsMap = std::map<std::uint64_t, std::uint64_t>();
   for (auto ord : ordFlow) {
