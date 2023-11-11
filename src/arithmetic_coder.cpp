@@ -12,9 +12,11 @@ auto ArithmeticCoder::getStatsChange() -> Stats {
 
 ////////////////////////////////////////////////////////////////////////////////
 auto ArithmeticCoder::finalize() && -> FinalRet {
+  const bool finalizeChoice = prevRange_.low * 4 < prevRange_.total;
+
   bitsEncoded_ += btf_ + 2;
-  dataConstructor_->putBit(!finalizeChoice_);
-  dataConstructor_->putBitsRepeat(finalizeChoice_, btf_ + 1);
+  dataConstructor_->putBit(!finalizeChoice);
+  dataConstructor_->putBitsRepeat(finalizeChoice, btf_ + 1);
 
   return {std::move(dataConstructor_), wordsCnt_, bitsEncoded_};
 }

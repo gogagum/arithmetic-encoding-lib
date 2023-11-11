@@ -69,12 +69,10 @@ target_include_directories(${PROJECT_NAME}
 set(public_headers
     include/ael/arithmetic_coder.hpp
     include/ael/arithmetic_decoder.hpp
-    include/ael/numerical_coder.hpp
-    include/ael/numerical_decoder.hpp
-    include/ael/bits_iterator.hpp
     include/ael/byte_data_constructor.hpp
     include/ael/data_parser.hpp
-    include/ael/dictionary/impl/a_d_dictionary_base.hpp
+    include/ael/numerical_coder.hpp
+    include/ael/numerical_decoder.hpp
     include/ael/dictionary/uniform_dictionary.hpp
     include/ael/dictionary/static_dictionary.hpp
     include/ael/dictionary/ppma_dictionary.hpp
@@ -88,13 +86,6 @@ set(public_headers
     include/ael/dictionary/adaptive_d_dictionary.hpp
     include/ael/dictionary/decreasing_counts_dictionary.hpp
     include/ael/dictionary/decreasing_on_update_dictionary.hpp
-    include/ael/dictionary/word_probability_stats.hpp
-    include/ael/flow/bytes_word_flow.hpp
-    include/ael/flow/bits_word_flow.hpp
-    include/ael/word/bytes_word.hpp
-    include/ael/word/bits_word.hpp
-    include/ael/word/integer_word.hpp
-    include/ael/word/uint_word.hpp
     include/ael/esc/arithmetic_coder.hpp
     include/ael/esc/arithmetic_decoder.hpp
     include/ael/esc/dictionary/adaptive_a_dictionary.hpp
@@ -103,7 +94,6 @@ set(public_headers
     include/ael/esc/dictionary/ppmd_dictionary.hpp
 )
 
-# note that ${public_headers} has to be in quotes
 set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${public_headers}")
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 

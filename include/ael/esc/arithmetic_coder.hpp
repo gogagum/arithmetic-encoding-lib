@@ -2,8 +2,8 @@
 #define AEL_ESC_ARITHMETIC_CODER_HPP
 
 #include <ael/byte_data_constructor.hpp>
+#include <ael/impl/range_save_base.hpp>
 #include <ael/impl/ranges_calc.hpp>
-#include <cstdint>
 #include <memory>
 
 namespace ael::esc {
@@ -11,7 +11,7 @@ namespace ael::esc {
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief The ArithmeticCoder class
 ///
-class ArithmeticCoder {
+class ArithmeticCoder : impl::RangeSaveBase {
  public:
   struct Stats {
     std::size_t wordsCount;
@@ -63,26 +63,12 @@ class ArithmeticCoder {
   FinalRet finalize() &&;
 
  private:
-  struct TmpRange_ {
-    using WideNum = boost::multiprecision::uint256_t;
-    WideNum low;
-    WideNum high;
-    WideNum total;
-  };
-
- private:
-  template <class RC>
-  RC::Range calcRange_();
-
- private:
   std::unique_ptr<ByteDataConstructor> dataConstructor_;
   std::size_t bitsEncoded_{0};
   std::size_t wordsCnt_{0};
   std::size_t prevBitsEncoded_{0};
   std::size_t prevWordsCnt_{0};
   std::size_t btf_{0};
-  bool finalizeChoice_{false};
-  TmpRange_ prevRange_{0, 1, 1};
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -102,7 +88,7 @@ template <class DictT>
 ArithmeticCoder&& ArithmeticCoder::encode(auto ordFlow, DictT& dict,
                                           auto tick) {
   using RC = impl::RangesCalc<typename DictT::Count, DictT::countNumBits>;
-  auto currRange = typename RC::Range{0, RC::total};
+  auto currRange = calcRange_<RC>();
 
   for (auto ord : ordFlow) {
     const auto statsSeq = dict.getProbabilityStats(ord);
@@ -132,24 +118,11 @@ ArithmeticCoder&& ArithmeticCoder::encode(auto ordFlow, DictT& dict,
     tick();
   }
 
-  finalizeChoice_ = currRange.low < RC::quarter;
   prevRange_.low = currRange.low;
   prevRange_.high = currRange.high;
   prevRange_.total = RC::total;
 
   return std::move(*this);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-template <class RC>
-auto ArithmeticCoder::calcRange_() -> RC::Range {
-  auto retLow = impl::multiply_and_divide(
-      prevRange_.low, TmpRange_::WideNum{RC::total}, prevRange_.total);
-  auto retHigh =
-      impl::multiply_decrease_and_divide(
-          prevRange_.high, TmpRange_::WideNum{RC::total}, prevRange_.total) +
-      1;
-  return {static_cast<RC::Count>(retLow), static_cast<RC::Count>(retHigh)};
 }
 
 }  // namespace ael::esc
