@@ -12,7 +12,7 @@
 
 set -e
 
-BUILD_DIR="build-RelWithDebInfo"
+BUILD_DIR="build-valgrind"
 
 echo "---- build-project-valgrind.sh ----"
 echo "BUILD_DIR: ${BUILD_DIR}"
