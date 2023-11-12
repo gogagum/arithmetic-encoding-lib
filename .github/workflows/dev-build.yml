@@ -30,34 +30,38 @@ jobs:
 
 
     linux-clang:
-        name: Linux Clang (libstdc++)
+        name: Linux Clang
         runs-on: ubuntu-22.04
         strategy:
           matrix:
             stdlib: [libstdc++, libc++]
+            version: [16, 17]
+            build_type: [Release, Debug]
         container:
-          image: ghcr.io/cpp-kt/clang:16
+          image: ghcr.io/cpp-kt/clang:${{ matrix.version }}
           env:
             CXXFLAGS: -stdlib=${{ matrix.stdlib }}
         steps:
             - uses: actions/checkout@v3
-            - run: /bin/bash .ci/build-project.sh build-simple
+            - run: /bin/bash .ci/build-project.sh build-simple ${{ matrix.build_type }}
             - run: ./build-simple/test/ael-tests
             - run: ./build-simple/benchmark/test/benchmark-lib-tests
 
     linux-clang-libstdcpp-valgrind:
-        name: Linux Clang (libstdc++) + Valgrind
+        name: Linux Clang + Valgrind
         runs-on: ubuntu-22.04
         strategy:
           matrix:
             stdlib: [libstdc++, libc++]
+            version: [16, 17]
+            build_type: [Release, Debug]
         container:
-          image: ghcr.io/cpp-kt/clang:16
+          image: ghcr.io/cpp-kt/clang:${{ matrix.version }}
           env:
             CXXFLAGS: -stdlib=${{ matrix.stdlib }}
         steps:
             - uses: actions/checkout@v3
-            - run: /bin/bash .ci/build-project-valgrind.sh build-valgrind
+            - run: /bin/bash .ci/build-project-valgrind.sh build-valgrind ${{ matrix.build_type }}
             - run: valgrind ./build-valgrind/test/ael-tests
             - run: valgrind ./build-valgrind/benchmark/test/benchmark-lib-tests
 

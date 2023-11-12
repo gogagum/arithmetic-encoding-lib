@@ -13,11 +13,12 @@
 set -e
 
 BUILD_DIR=${1:-build}
+BUIKD_TYPE=${2:-build_type}
 
 echo "---- build-project.sh ----"
 echo "BUILD_DIR: ${BUILD_DIR}"
 echo "--------------------------"
 
 mkdir "${BUILD_DIR}"
-cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -DAEL_TESTS:BOOL=ON -DAEL_BENCHMARK:BOOL=ON -B "${BUILD_DIR}"
+cmake -G Ninja -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DAEL_TESTS:BOOL=ON -DAEL_BENCHMARK:BOOL=ON -B "${BUILD_DIR}"
 cmake --build "${BUILD_DIR}" -j
