@@ -1,13 +1,13 @@
-#ifndef ARITHMETIC_CODER_ENCODED_HPP
-#define ARITHMETIC_CODER_ENCODED_HPP
+#ifndef AEL_BYTE_DATA_CONSTRUCTOR_HPP
+#define AEL_BYTE_DATA_CONSTRUCTOR_HPP
 
-#include <boost/range/combine.hpp>
-#include <boost/range/irange.hpp>
-#include <vector>
+#include <algorithm>
 #include <array>
-#include <cstdint>
 #include <cstddef>
-#include <ranges>
+#include <cstdint>
+#include <span>
+#include <stdexcept>
+#include <vector>
 
 namespace ael {
 
@@ -15,191 +15,222 @@ namespace ael {
 /// \brief The ArithmeticCoderEncoded class
 ///
 class ByteDataConstructor {
-public:
+ private:
+  constexpr static auto startMask_ = std::byte{0b10000000};
 
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief The ByteBackInserter class
-    ///
-    class ByteBackInserter;
+ public:
+  ////////////////////////////////////////////////////////////////////////////
+  /// \brief The ByteBackInserter class
+  ///
+  class ByteBackInserter;
 
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief The BitBackInserter class
-    ///
-    class BitBackInserter;
+  ////////////////////////////////////////////////////////////////////////////
+  /// \brief The BitBackInserter class
+  ///
+  class BitBackInserter;
 
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief The BytesAfterBits class
-    ///
-    class BytesAfterBits;
+  ////////////////////////////////////////////////////////////////////////////
+  /// \brief The BytesAfterBits class
+  ///
+  class BytesAfterBits;
 
-public:
+ public:
+  /**
+   * @brief ArithmeticCoderEncoded - empty encoded constructor
+   */
+  ByteDataConstructor() = default;
 
-    /**
-     * @brief ArithmeticCoderEncoded - enpty encoded constructor
-     */
-    ByteDataConstructor();
+  /**
+   * @brief putBit - add single bit in the end.
+   * @param bit - a bit to set.
+   */
+  void putBit(bool bit);
 
-    /**
-     * @brief putBit - add single bit in the end.
-     * @param bit - a bit to set.
-     */
-    void putBit(bool bit);
+  /**
+   * @brief putBitsRepeat
+   * @param bit - bit which is set
+   * @param num - number of bits repeated
+   */
+  void putBitsRepeat(bool bit, std::size_t num);
 
-    /**
-     * @brief putBitsRepeat
-     * @param bit - bit which is set
-     * @param num - number of bits repeated
-     */
-    void putBitsRepeat(bool bit, std::size_t num);
+  /**
+   * @brief putBitsRepeatWithReset
+   * @param bit
+   * @param num
+   */
+  void putBitsRepeatWithReset(bool bit, std::size_t& num);
 
-    /**
-     * @brief putBitsRepeatWithReset
-     * @param bit
-     * @param num
-     */
-    void putBitsRepeatWithReset(bool bit, std::size_t& num);
+  /**
+   * @brief putByte - add byte in the end
+   * @param byteToPut - byte
+   */
+  void putByte(std::byte byteToPut);
 
-    /**
-     * @brief putByte - add byte in the end
-     * @param b - byte
-     */
-    void putByte(std::byte b);
+  /**
+   * @brief putT - put object as a byte sequence
+   * @param element - object
+   */
+  void putT(auto element);
 
-    /**
-     * @brief putT - put object as a byte sequence
-     * @param s - object
-     */
-    void putT(auto s);
+  /**
+   * @brief putTToPosition
+   * @param element
+   * @param position
+   */
+  void putTToPosition(auto element, std::size_t position);
 
-    /**
-     * @brief putTToPosition
-     * @param s
-     * @param position
-     */
-    void putTToPosition(auto s, std::size_t position);
+  /**
+   * @brief data - get data pointer
+   * @return data pointer
+   */
+  [[nodiscard]] const std::byte* data() const {
+    return data_.data();
+  }
 
-    /**
-     * @brief data - get data pointer
-     * @return data pointer
-     */
-    template <class T>
-    const T* data() const;
+  /**
+   * @brief size - number of bytes in a file.
+   * @return file size.
+   */
+  [[nodiscard]] std::size_t size() const {
+    return data_.size();
+  }
 
-    /**
-     * @brief size - number of bytes in a file.
-     * @return file size.
-     */
-    std::size_t size() const;
+  /**
+   * @brief get data as byte scan.
+   * @return data span.
+   */
+  [[nodiscard]] std::span<const std::byte> getDataSpan() const {
+    return {data(), size()};
+  }
 
-    /**
-     * @brief getBitBackInserter returns bit insert iterator to add bits at
-     * the end.
-     * @return bit insert iterator.
-     */
-    BitBackInserter getBitBackInserter();
+  /**
+   * @brief getBitBackInserter returns bit insert iterator to add bits at
+   * the end.
+   * @return bit insert iterator.
+   */
+  BitBackInserter getBitBackInserter();
 
-    /**
-     * @brief getByteBackInserter returns byte insert iterator to add bytes at
-     * the end.
-     * @return
-     */
-    ByteBackInserter getByteBackInserter();
+  /**
+   * @brief getByteBackInserter returns byte insert iterator to add bytes at
+   * the end.
+   * @return
+   */
+  ByteBackInserter getByteBackInserter();
 
-    /**
-     * @brief saveSpaceForT
-     * @return
-     */
-    template <class T>
-    std::size_t saveSpaceForT();
+  /**
+   * @brief saveSpaceForT
+   * @return
+   */
+  template <class T>
+  std::size_t saveSpaceForT();
 
-private:
+ private:
+  template <class T>
+  using TBytes = std::array<std::byte, sizeof(T)>;
 
-    template <class T>
-    using TBytes = std::array<std::byte, sizeof(T)>;
+ private:
+  void moveBitFlag_();
 
-private:
-
-    void _moveBitFlag();
-
-private:
-    std::vector<std::byte> _data;
-    std::byte _currBitFlag;
-    std::uint8_t _currBitOffset;
+ private:
+  std::vector<std::byte> data_{};
+  std::byte currBitFlag_{startMask_};
+  std::uint8_t currBitOffset_{0};
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief The ByteDataConstructor::ByteBackInserter class
 ///
 class ByteDataConstructor::ByteBackInserter {
-public:
-    using difference_type = std::ptrdiff_t;
-public:
-    ByteBackInserter(ByteDataConstructor& owner) : _owner(&owner) {};
-    ByteBackInserter operator++(int) { return* this; }
-    ByteBackInserter& operator++()   { return *this; }
-    void operator=(std::byte byte)   { _owner->putByte(byte); }
-    ByteBackInserter& operator*()    { return* this; }
-private:
-    ByteDataConstructor* _owner;
+ public:
+  using difference_type = std::ptrdiff_t;
+
+ public:
+  explicit ByteBackInserter(ByteDataConstructor& owner) : owner_(&owner){};
+  ByteBackInserter operator++(int) {
+    return *this;
+  }
+  ByteBackInserter& operator++() {
+    return *this;
+  }
+  ByteBackInserter& operator=(std::byte byte) {
+    owner_->putByte(byte);
+    return *this;
+  }
+  ByteBackInserter& operator*() {
+    return *this;
+  }
+
+ private:
+  ByteDataConstructor* owner_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief The ByteDataConstructor::BitBackInserter class
 ///
 class ByteDataConstructor::BitBackInserter {
-public:
-    using difference_type = std::ptrdiff_t;
-public:
-    BitBackInserter(ByteDataConstructor& owner) : _owner(&owner) {};
-    BitBackInserter operator++(int) { return* this; }
-    BitBackInserter& operator++()   { return *this; }
-    void operator=(bool bit)        { _owner->putBit(bit); }
-    BitBackInserter& operator*()    { return *this; }
-    ByteBackInserter getBytesIter() { return _owner->getByteBackInserter(); }
-private:
-    ByteDataConstructor* _owner;
+ public:
+  using difference_type = std::ptrdiff_t;
+
+ public:
+  explicit BitBackInserter(ByteDataConstructor& owner) : owner_(&owner){};
+  BitBackInserter operator++(int) {
+    return *this;
+  }
+  BitBackInserter& operator++() {
+    return *this;
+  }
+  BitBackInserter& operator=(bool bit) {
+    owner_->putBit(bit);
+    return *this;
+  }
+  BitBackInserter& operator*() {
+    return *this;
+  }
+  ByteBackInserter getBytesIter() {
+    return owner_->getByteBackInserter();
+  }
+
+ private:
+  ByteDataConstructor* owner_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief The ByteDataConstructor::BytesAfterBits class
 ///
 class ByteDataConstructor::BytesAfterBits : std::logic_error {
-public:
-    using std::logic_error::logic_error;
+ public:
+  using std::logic_error::logic_error;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-void ByteDataConstructor::putT(auto s) {
-    auto& bytes = reinterpret_cast<TBytes<decltype(s)>&>(s);
-    std::copy(bytes.begin(), bytes.end(), getByteBackInserter());
+void ByteDataConstructor::putT(auto element) {
+  auto* elPtr = static_cast<void*>(&element);
+  auto& bytes = *static_cast<TBytes<decltype(element)>*>(elPtr);
+  std::ranges::copy(bytes, getByteBackInserter());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void ByteDataConstructor::putTToPosition(auto s, std::size_t position) {
-    if (position + sizeof(s) >= _data.size()) {
-        throw std::out_of_range("Can not write to position this count of bytes.");
-    }
-    auto& bytes = reinterpret_cast<TBytes<decltype(s)>&>(s);
-    std::copy(bytes.begin(), bytes.end(), _data.begin() + position);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-template <class T>
-const T* ByteDataConstructor::data() const {
-    return reinterpret_cast<const T*>(_data.data());
+void ByteDataConstructor::putTToPosition(auto element, std::size_t position) {
+  if (position + sizeof(element) >= data_.size()) {
+    throw std::out_of_range("Can not write to position this count of bytes.");
+  }
+  auto* elPtr = static_cast<void*>(&element);
+  auto& bytes = *static_cast<TBytes<decltype(element)>*>(elPtr);
+  std::ranges::copy(bytes,
+                    data_.begin() + static_cast<std::ptrdiff_t>(position));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 template <class T>
 std::size_t ByteDataConstructor::saveSpaceForT() {
-    if (_currBitFlag != std::byte{0b10000000}) {
-        throw BytesAfterBits("Tried saving bytes with bit flag != 0b10000000.");
-    }
-    auto ret = _data.size();
-    _data.resize(_data.size() + sizeof(T));
-    return ret;
+  if (currBitFlag_ != startMask_) {
+    throw BytesAfterBits("Tried saving bytes with bit flag != 0b10000000.");
+  }
+  const auto ret = data_.size();
+  data_.resize(data_.size() + sizeof(T));
+  return ret;
 }
 
-} // namespace ael
+}  // namespace ael
 
-#endif // ARITHMETIC_CODER_ENCODED_HPP
+#endif  // AEL_BYTE_DATA_CONSTRUCTOR_HPP

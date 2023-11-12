@@ -1,9 +1,8 @@
-#ifndef DECREASING_ON_UPDATE_DICTIONARY_HPP
-#define DECREASING_ON_UPDATE_DICTIONARY_HPP
+#ifndef AEL_DICT_DECREASING_ON_UPDATE_DICTIONARY_HPP
+#define AEL_DICT_DECREASING_ON_UPDATE_DICTIONARY_HPP
 
-#include "word_probability_stats.hpp"
-#include "impl/adaptive_dictionary_base.hpp"
-
+#include <ael/impl/dictionary/adaptive_dictionary_base.hpp>
+#include <ael/impl/dictionary/word_probability_stats.hpp>
 #include <cstdint>
 
 namespace ael::dict {
@@ -11,76 +10,77 @@ namespace ael::dict {
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief The DecreasingOnUpdateDictionary class
 ///
-class DecreasingOnUpdateDictionary 
-    : public impl::AdaptiveDictionaryBase<std::uint64_t> {
-public:
-    using Ord = std::uint64_t;
-    using Count = std::uint64_t;
-    using ProbabilityStats = WordProbabilityStats<Count>;
-    constexpr const static std::uint16_t countNumBits = 62; 
-public:    
+class DecreasingOnUpdateDictionary
+    : public ael::impl::dict::AdaptiveDictionaryBase<std::uint64_t> {
+ public:
+  using Ord = std::uint64_t;
+  using Count = std::uint64_t;
+  using ProbabilityStats = ael::impl::dict::WordProbabilityStats<Count>;
+  constexpr const static std::uint16_t countNumBits = 62;
 
-    /**
-     * @brief DecreasingOnUpdateDictionary constructor from counts mapping
-     * @param probRng - counts mapping.
-     */
-    template <std::ranges::input_range RangeT>
-    DecreasingOnUpdateDictionary(Ord maxOrd, const RangeT& probRng);
+ public:
+  /**
+   * @brief DecreasingOnUpdateDictionary constructor from counts mapping
+   * @param probRng - counts mapping.
+   */
+  template <std::ranges::input_range RangeT>
+  DecreasingOnUpdateDictionary(Ord maxOrd, const RangeT& countRng);
 
-    /**
-     * @brief DecreasingOnUpdateDictionary - generate uniform with `count for
-     * each word.
-     * @param count
-     */
-    DecreasingOnUpdateDictionary(Ord maxOrd, Count count);
+  /**
+   * @brief DecreasingOnUpdateDictionary - generate uniform with `count for
+   * each word.
+   * @param count
+   */
+  DecreasingOnUpdateDictionary(Ord maxOrd, Count count);
 
-    /**
-     * @brief getWord - word by cumulatove count.
-     * @param cumulativeNumFound - count to search for.
-     * @return found word.
-     */
-    [[nodiscard]] Ord getWordOrd(Count cumulativeNumFound) const;
+  /**
+   * @brief getWord - word by cumulatove count.
+   * @param cumulativeCnt - count to search for.
+   * @return found word.
+   */
+  [[nodiscard]] Ord getWordOrd(Count cumulativeCnt) const;
 
-    /**
-     * @brief getWordProbabilityStats - get stats for a word.
-     * @param word - word to get stats for.
-     * @return [low, high, total]
-     */
-    [[nodiscard]] ProbabilityStats getProbabilityStats(Ord ord);
+  /**
+   * @brief getWordProbabilityStats - get stats for a word.
+   * @param word - word to get stats for.
+   * @return [low, high, total]
+   */
+  [[nodiscard]] ProbabilityStats getProbabilityStats(Ord ord);
 
-    /**
-     * @brief getTotalWordsCount - get total words count.
-     * @return total words count in a dictionary.
-     */
-    [[nodiscard]] Count
-    getTotalWordsCnt() const { return this->_totalWordsCnt; }
+  /**
+   * @brief getTotalWordsCount - get total words count.
+   * @return total words count in a dictionary.
+   */
+  [[nodiscard]] Count getTotalWordsCnt() const {
+    return getRealTotalWordsCnt_();
+  }
 
-protected:
+ protected:
+  [[nodiscard]] Count getLowerCumulativeCnt_(Ord ord) const {
+    return (ord == Ord{0}) ? Count{0} : getRealCumulativeCnt_(ord - 1);
+  }
 
-    Count _getLowerCumulativeCnt(Ord ord) const;
+  void updateWordCnt_(Ord ord, Count cnt);
 
-    void _updateWordCnt(Ord ord, Count cnt);
+  [[nodiscard]] ProbabilityStats getProbabilityStats_(Ord ord) const;
 
-    ProbabilityStats _getProbabilityStats(Ord ord) const;
-
-protected:
-    const Ord _maxOrd;
+ private:
+  const Ord maxOrd_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 template <std::ranges::input_range RangeT>
 DecreasingOnUpdateDictionary::DecreasingOnUpdateDictionary(
-        Ord maxOrd,
-        const RangeT& countRng
-        ) : impl::AdaptiveDictionaryBase<Count>(maxOrd, 0),
-            _maxOrd(maxOrd) {
-    for (const auto& [ord, count] : countRng) {
-        this->_wordCnts[ord] = count;
-        this->_cumulativeWordCounts.update(ord, _maxOrd, count);
-        this->_totalWordsCnt += count;
-    }
+    Ord maxOrd, const RangeT& countRng)
+    : ael::impl::dict::AdaptiveDictionaryBase<Count>(maxOrd, 0),
+      maxOrd_(maxOrd) {
+  for (const auto& [ord, count] : countRng) {
+    changeRealWordCnt_(ord, count);
+    changeRealCumulativeWordCnt_(ord, count);
+    changeRealTotalWordsCnt_(count);
+  }
 }
 
 }  // namespace ael::dict
 
-#endif // DECREASING_TOTAL_COUNT_DICTIONARY_HPP
+#endif  // AEL_DICT_DECREASING_TOTAL_COUNT_DICTIONARY_HPP

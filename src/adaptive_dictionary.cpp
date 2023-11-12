@@ -1,50 +1,46 @@
 #include <ael/dictionary/adaptive_dictionary.hpp>
-
-#include "integer_random_access_iterator.hpp"
-#include <boost/range/iterator_range.hpp>
+#include <ranges>
 
 namespace ael::dict {
 
-////////////////////////////////////////////////////////////////////////////////
-AdaptiveDictionary::AdaptiveDictionary(Ord maxOrd, std::uint64_t ratio)
-    : impl::AdaptiveDictionaryBase<Count>(maxOrd, maxOrd),
-      _ratio(ratio),
-      _maxOrder(maxOrd) {}
+namespace rng = std::ranges;
 
 ////////////////////////////////////////////////////////////////////////////////
-auto AdaptiveDictionary::getWordOrd(Count cumulativeNumFound) const -> Ord {
-    using UintIt = ael::impl::IntegerRandomAccessIterator<std::uint64_t>;
-    const auto idxs = boost::make_iterator_range<UintIt>(0, _maxOrder);
+AdaptiveDictionary::AdaptiveDictionary(ConstructInfo constructInfo)
+    : ael::impl::dict::AdaptiveDictionaryBase<Count>(constructInfo.maxOrd,
+                                                     constructInfo.maxOrd),
+      ratio_(constructInfo.ratio),
+      maxOrder_(constructInfo.maxOrd) {
+}
 
-    // TODO: replace
-    //auto idxs = std::ranges::iota_view(std::uint64_t{0}, WordT::wordsCount);
-    const auto getLowerCumulNumFound_ = [this](Ord ord) {
-        return _getLowerCumulativeCnt(ord + 1);
-    };
-    auto it = std::ranges::upper_bound(idxs, cumulativeNumFound, {},
-                                       getLowerCumulNumFound_);
-    return it - idxs.begin();
+////////////////////////////////////////////////////////////////////////////////
+auto AdaptiveDictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
+  const auto getLowerCumulCnt_ = [this](Ord ord) {
+    return getLowerCumulativeCnt_(ord + 1);
+  };
+  return *rng::upper_bound(getOrdRng_(), cumulativeCnt, {}, getLowerCumulCnt_);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 auto AdaptiveDictionary::getProbabilityStats(Ord ord) -> ProbabilityStats {
-    const auto low = _getLowerCumulativeCnt(ord);
-    const auto high = low + this->_wordCnts[ord] * _ratio + 1;
-    const auto total = getTotalWordsCnt();
-    _updateWordCnt(ord);
-    return { low, high, total };
+  const auto low = getLowerCumulativeCnt_(ord);
+  const auto high = low + getRealWordCnt_(ord) * ratio_ + 1;
+  const auto total = getTotalWordsCnt();
+  updateWordCnt_(ord);
+  return {low, high, total};
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void AdaptiveDictionary::_updateWordCnt(Ord ord) {
-    this->_cumulativeWordCounts.update(ord, _maxOrder, 1);
-    ++this->_wordCnts[ord];
-    this->_totalWordsCnt += _ratio;
+void AdaptiveDictionary::updateWordCnt_(Ord ord) {
+  this->changeRealCumulativeWordCnt_(ord, 1);
+  this->changeRealWordCnt_(ord, 1);
+  this->changeRealTotalWordsCnt_(1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto AdaptiveDictionary::_getLowerCumulativeCnt(Ord ord) const -> Count {
-    return ord + this->_cumulativeWordCounts.get(ord - 1) * _ratio;
+auto AdaptiveDictionary::getLowerCumulativeCnt_(Ord ord) const -> Count {
+  return (ord > Ord{0}) ? ord + getRealCumulativeCnt_(ord - 1) * ratio_
+                        : Count{0};
 }
 
 }  // namespace ael::dict

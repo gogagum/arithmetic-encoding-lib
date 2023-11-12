@@ -1,90 +1,103 @@
-#ifndef PPMD_DICTIONARY_HPP
-#define PPMD_DICTIONARY_HPP
+#ifndef AEL_DICT_PPMD_DICTIONARY_HPP
+#define AEL_DICT_PPMD_DICTIONARY_HPP
 
-#include "ael/dictionary/impl/cumulative_count.hpp"
-#include "ael/dictionary/impl/cumulative_unique_count.hpp"
-#include "word_probability_stats.hpp"
-
-#include <boost/container/static_vector.hpp>
+#include <ael/impl/dictionary/cumulative_count.hpp>
+#include <ael/impl/dictionary/cumulative_unique_count.hpp>
+#include <ael/impl/dictionary/ppm_a_d_dictionary_base.hpp>
+#include <ael/impl/dictionary/word_probability_stats.hpp>
 #include <boost/container_hash/hash.hpp>
 #include <boost/multiprecision/cpp_int.hpp>
+#include <cstddef>
 #include <cstdint>
-#include <deque>
 #include <unordered_map>
 
 namespace ael::dict {
 
-namespace bm = boost::multiprecision;
+constexpr auto ppmdMaxCtxLength = std::uint16_t{16};
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief PPMDDictionary - ppmd probability model.
 ///
-class PPMDDictionary {
-public:
-    using Ord = std::uint64_t;
-    using Count = bm::uint256_t;
-    using ProbabilityStats = WordProbabilityStats<Count>;
-    constexpr const static std::uint16_t countNumBits = 240;
-private:
-    constexpr const static std::uint16_t _maxSeqLenLog2 = 40;
-public:
+class PPMDDictionary
+    : ael::impl::dict::PPMADDictionaryBase<PPMDDictionary, ppmdMaxCtxLength> {
+ protected:
+  using Base_ =
+      ael::impl::dict::PPMADDictionaryBase<PPMDDictionary, ppmdMaxCtxLength>;
+  using CumulativeCount_ = ael::impl::dict::CumulativeCount;
+  using CumulativeUniqueCount_ = ael::impl::dict::CumulativeUniqueCount;
 
-    /**
-     * PPMD dictionary constructor.
-     * @param maxOrd - maximal order. 
-     */
-    PPMDDictionary(Ord maxOrd, std::size_t ctxLength);
-    
-    /**
-     * @brief getWordOrd - get word order index by cumulative count.
-     * @param cumulativeNumFound search key.
-     * @return word with exact cumulative number found.
-     */
-    [[nodiscard]] Ord getWordOrd(Count cumulativeNumFound) const;
+ public:
+  using Ord = Base_::Ord;
+  using Count = boost::multiprecision::uint256_t;
+  using ProbabilityStats = ael::impl::dict::WordProbabilityStats<Count>;
+  constexpr const static std::uint16_t countNumBits = 240;
 
-    /**
-     * @brief getWordProbabilityStats - get probability stats and update.
-     * @param ord - order of a word.
-     * @return [low, high, total]
-     */
-    [[nodiscard]] ProbabilityStats getProbabilityStats(Ord ord);
+  ////////////////////////////////////////////////////////////////////////////
+  /// \brief The PPMDDictionary::ConstructInfo class.
+  ///
+  struct ConstructInfo {
+    Ord maxOrd{2};
+    std::size_t ctxLength{0};
+  };
 
-    /**
-     * @brief getTotalWordsCount - get total words count estimation.
-     * @return total words count estimation
-     */
-    [[nodiscard]] Count getTotalWordsCnt() const;
+ private:
+  constexpr static std::uint16_t maxSeqLenLog2_ = 40;
 
-private:
-    using _SearchCtx = boost::container::static_vector<Ord, 16>;
-    using _SearchCtxHash = boost::hash<_SearchCtx>;
-    struct _CtxCell {
-        impl::CumulativeCount cnt;
-        impl::CumulativeUniqueCount uniqueCnt;
-    };
-    using _CtxCountMapping = std::unordered_map<
-        _SearchCtx,
-        _CtxCell,
-        _SearchCtxHash
-    >;
-private:
+ public:
+  /**
+   * PPMD dictionary constructor.
+   * @param maxOrd - maximal order and context length.
+   */
+  explicit PPMDDictionary(ConstructInfo constructInfo);
 
-    Count _getLowerCumulativeCnt(Ord ord) const;
+  /**
+   * @brief getWordOrd - get word order index by cumulative count.
+   * @param cumulativeNumFound search key.
+   * @return word with exact cumulative number found.
+   */
+  [[nodiscard]] Ord getWordOrd(const Count& cumulativeNumFound) const;
 
-    ProbabilityStats _getProbabilityStats(Ord ord) const;
+  /**
+   * @brief getWordProbabilityStats - get probability stats and update.
+   * @param ord - order of a word.
+   * @return [low, high, total]
+   */
+  [[nodiscard]] ProbabilityStats getProbabilityStats(Ord ord);
 
-    void _updateWordCnt(Ord ord, impl::CumulativeCount::Count cnt);
+  /**
+   * @brief getTotalWordsCount - get total words count estimation.
+   * @return total words count estimation
+   */
+  [[nodiscard]] Count getTotalWordsCnt() const;
 
-    _SearchCtx _getSearchCtxEmptySkipped() const;
+ private:
+  using SearchCtx_ = Base_::SearchCtx_;
+  using SearchCtxHash_ = boost::hash<SearchCtx_>;
+  struct CtxCell_ {
+    explicit CtxCell_(Ord maxOrd) : cnt(maxOrd), uniqueCnt(maxOrd) {
+    }
+    CumulativeCount_ cnt;
+    CumulativeUniqueCount_ uniqueCnt;
+  };
+  using CtxCountMapping_ =
+      std::unordered_map<SearchCtx_, CtxCell_, SearchCtxHash_>;
 
-private:
-    std::size_t _maxOrd;
-    _CtxCell _zeroCtxCell;
-    std::deque<Ord> _ctx;
-    _CtxCountMapping _ctxInfo;
-    const std::size_t _ctxLength;
+ private:
+  [[nodiscard]] Count getLowerCumulativeCnt_(Ord ord) const;
+
+  [[nodiscard]] ProbabilityStats getProbabilityStats_(Ord ord) const;
+
+  void updateWordCnt_(Ord ord, std::int64_t cnt);
+
+ private:
+  CtxCell_ zeroCtxCell_;
+  CtxCountMapping_ ctxInfo_;
+
+ private:
+  template <class DictT, typename CountT, std::uint16_t maxCtxLength>
+  friend class ael::impl::dict::CtxBase;
 };
 
 }  // namespace ael::dict
 
-#endif  // PPMD_DICTIONARY_HPP
+#endif  // AEL_DICT_PPMD_DICTIONARY_HPP

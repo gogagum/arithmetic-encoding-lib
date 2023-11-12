@@ -1,0 +1,116 @@
+---
+
+Checks: >
+  -*,
+  bugprone-*,
+  google-*,
+  performance-*,
+  portability-*,
+  cppcoreguidelines-*,
+  clang-analyzer-*,
+  readability-*,
+  modernize-*,
+  clang-analyzer-*,
+  cert-*,
+  -readability-named-parameter,
+  -readability-braces-around-statements,
+  -readability-redundant-access-specifiers,
+  -readability-else-after-return,
+  -readability-uppercase-literal-suffix,
+  -readability-convert-member-functions-to-static,
+  -readability-identifier-length,
+  -modernize-use-trailing-return-type,
+  -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  -cppcoreguidelines-avoid-const-or-ref-data-members,
+  -cppcoreguidelines-pro-type-member-init,
+  -cert-dcl21-cpp,
+  -cert-dcl58-cpp,
+  -bugprone-easily-swappable-parameters
+
+HeaderFilterRegex: '\.hpp$'
+
+CheckOptions:
+  - {
+      key: readability-identifier-naming.NamespaceCase,
+      value: lower_case
+    }
+  - {
+      key: readability-identifier-naming.ClassCase,
+      value: CamelCase
+    }
+  - {
+      key: readability-identifier-naming.ClassIgnoredRegexp,
+      value: "^([A-Z][a-z]*)+_$"
+    }
+  - {
+      key: readability-identifier-naming.StructCase,
+      value: CamelCase
+    }
+  - {
+      key: readability-identifier-naming.StructIgnoredRegexp,
+      value: "^([A-Z][a-z]*)+_$"
+    }
+  - {
+      key: readability-identifier-naming.TypeTemplateParameterCase,
+      value: CamelCase
+    }
+  - {
+      key: readability-identifier-naming.ValueTemplateParameterCase,
+      value: camelCase
+    }
+  - {
+      key: readability-identifier-naming.FunctionCase,
+      value: camelCase
+    }
+  - {
+      key: readability-identifier-naming.VariableCase,
+      value: camelCase
+    }
+  - {
+      key: readability-identifier-naming.ClassMemberCase,
+      value: camelCase
+    }
+  - {
+      key: readability-identifier-naming.ClassConstantCase,
+      value: camelCase
+    }
+  - {
+      key: readability-identifier-naming.StaticConstantCase,
+      value: camelCase
+    }
+  - {
+      key: readability-identifier-naming.ConstexprVariableCase,
+      value: camelCase
+    }
+  - {
+      key: readability-identifier-naming.PrivateMemberCase,
+      value: camelCase
+    }
+  - {
+      key: readability-identifier-naming.PrivateMemberSuffix,
+      value: '_'
+    }
+  - {
+      key: readability-identifier-naming.PrivateMethodCase,
+      value: camelCase
+    }
+  - {
+      key: readability-identifier-naming.PrivateMethodSuffix,
+      value: '_'
+    }
+  - {
+      key: readability-identifier-naming.ProtectedMemberCase,
+      value: camelCase
+    }
+  - {
+      key: readability-identifier-naming.ProtectedMemberSuffix,
+      value: '_'
+    }
+  - {
+      key: readability-identifier-naming.MacroDefinitionCase,
+      value: UPPER_CASE
+    }
+  - {
+      key: readability-identifier-naming.EnumConstantCase,
+      value: CamelCase
+    }

@@ -1,9 +1,9 @@
-#ifndef DECREASING_COUNTS_DICTIONARY_HPP
-#define DECREASING_COUNTS_DICTIONARY_HPP
+#ifndef AEL_DICT_DECREASING_COUNTS_DICTIONARY_HPP
+#define AEL_DICT_DECREASING_COUNTS_DICTIONARY_HPP
 
-#include <stdexcept>
-
-#include "word_probability_stats.hpp"
+#include <ael/impl/dictionary/word_probability_stats.hpp>
+#include <cassert>
+#include <cstdint>
 
 namespace ael::dict {
 
@@ -12,67 +12,71 @@ namespace ael::dict {
 ///
 template <typename CountT>
 class DecreasingCountDictionary {
-public:
-    using Ord = CountT;
-    using Count = CountT;
-    using ProbabilityStats = WordProbabilityStats<Count>;
-    constexpr const static std::uint16_t countNumBits = 62; 
-public:
+ public:
+  using Ord = CountT;
+  using Count = CountT;
+  using ProbabilityStats = ael::impl::dict::WordProbabilityStats<Count>;
+  constexpr const static std::uint16_t countNumBits = 62;
 
-    /**
-     * @brief DecreasingCountDictionary constructor.
-     * @param initialCount - intintal count.
-     */
-    DecreasingCountDictionary(Count initialCount);
+ public:
+  DecreasingCountDictionary() = delete;
 
-    /**
-     * @brief getWord
-     * @param cumulativeNumFound
-     * @return word.
-     */
-    [[nodiscard]] Ord getWordOrd(Count cumulativeNumFound) const;
+  /**
+   * @brief DecreasingCountDictionary constructor.
+   * @param initialCount - initial count.
+   */
+  explicit DecreasingCountDictionary(Count initialCount);
 
-    /**
-     * @brief getWordProbabilityStats
-     * @param word - number to get stats for.
-     * @return [low, high, total] counts.
-     */
-    [[nodiscard]] ProbabilityStats getProbabilityStats(Ord ord);
+  /**
+   * @brief getWord
+   * @param cumulativeNumFound
+   * @return word.
+   */
+  [[nodiscard]] Ord getWordOrd(Count cumulativeNumFound) const;
 
-    /**
-     * @brief getTotalWordsCount - current number of words.
-     * @return number of words. In fact, it is last decoded/encoded word.
-     */
-    [[nodiscard]] Count getTotalWordsCnt() const { return _currentCount; }
+  /**
+   * @brief getWordProbabilityStats
+   * @param word - number to get stats for.
+   * @return [low, high, total] counts.
+   */
+  [[nodiscard]] ProbabilityStats getProbabilityStats(Ord ord);
 
-private:
-    Count _currentCount;
+  /**
+   * @brief getTotalWordsCount - current number of words.
+   * @return number of words. In fact, it is last decoded/encoded word.
+   */
+  [[nodiscard]] Count getTotalWordsCnt() const {
+    return currentCount_;
+  }
+
+ private:
+  Count currentCount_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 template <typename CountT>
 DecreasingCountDictionary<CountT>::DecreasingCountDictionary(Count initialCount)
-    : _currentCount(initialCount) {}
+    : currentCount_(initialCount) {
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 template <typename CountT>
 auto DecreasingCountDictionary<CountT>::getWordOrd(
-        Count cumulativeNumFound) const -> Ord {
-    assert (cumulativeNumFound <= _currentCount && "Non decreasing word!");
-    return cumulativeNumFound + 1;
+    Count cumulativeNumFound) const -> Ord {
+  assert(cumulativeNumFound <= currentCount_ && "Non decreasing word!");
+  return cumulativeNumFound + 1;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 template <typename CountT>
-auto DecreasingCountDictionary<CountT>::getProbabilityStats(
-        Ord ord) -> ProbabilityStats {
-    assert(ord <= _currentCount && "Non decreasing word!");
-    const auto ret = ProbabilityStats{ ord - 1, ord, _currentCount };
-    _currentCount = ord;
-    return ret;
+auto DecreasingCountDictionary<CountT>::getProbabilityStats(Ord ord)
+    -> ProbabilityStats {
+  assert(ord <= currentCount_ && "Non decreasing word!");
+  const auto ret = ProbabilityStats{ord - 1, ord, currentCount_};
+  currentCount_ = ord;
+  return ret;
 }
 
 }  // namespace ael::dict
 
-#endif // DECREASING_COUNTS_DICTIONARY_HPP
-
+#endif  // AEL_DICT_DECREASING_COUNTS_DICTIONARY_HPP

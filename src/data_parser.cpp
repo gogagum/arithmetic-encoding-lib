@@ -1,60 +1,62 @@
-#include <boost/range/irange.hpp>
 #include <ael/data_parser.hpp>
+#include <ael/impl/byte_rng_to_bits.hpp>
+#include <climits>
+#include <cstddef>
+#include <ranges>
 
 namespace ael {
 
 ////////////////////////////////////////////////////////////////////////////////
 DataParser::DataParser(std::span<const std::byte> data)
-    : _data(data),
-      _dataIter{_data.begin()},
-      _inByteOffset(0) { }
+    : data_(data), bitsView_{impl::to_bits(data_)}, dataIter_{data_.begin()} {
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 std::byte DataParser::takeByte() {
-    if (_inByteOffset == 0) {
-        std::byte ret = *_dataIter;
-        ++_dataIter;
-        return ret;
-    }
-    auto ret = std::byte{0};
-    for ([[maybe_unused]] std::size_t _: boost::irange(0, 8)) {
-        ret <<= 1;
-        ret |= takeBit() ? std::byte{0b00000001} : std::byte{0b00000000};
-    }
+  if (inByteOffset_ == 0) {
+    const std::byte ret = *dataIter_;
+    ++dataIter_;
     return ret;
+  }
+  auto ret = std::byte{0};
+  for ([[maybe_unused]] const auto _ : std::ranges::iota_view(0, 8)) {
+    ret <<= 1;
+    ret |= takeBit() ? std::byte{0b00000001} : std::byte{0b00000000};
+  }
+  return ret;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 bool DataParser::takeBit() {
-    if (_dataIter >= _data.end()) {
-        return false;
-    }
-    bool ret = (*_dataIter & _getByteFlag()) != std::byte{0};
-    _moveInByteOffset();
-    return ret;
+  if (dataIter_ >= data_.end()) {
+    return false;
+  }
+  const auto ret =
+      bool{bitsView_[(dataIter_ - data_.begin()) * CHAR_BIT + inByteOffset_]};
+  moveInByteOffset_();
+  return ret;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void DataParser::_moveInByteOffset() {
-    ++_inByteOffset;
-    if (_inByteOffset == 8) {
-        _inByteOffset = 0;
-        ++_dataIter;
-    }
+void DataParser::moveInByteOffset_() {
+  ++inByteOffset_;
+  if (inByteOffset_ == CHAR_BIT) {
+    inByteOffset_ = 0;
+    ++dataIter_;
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 DataParser& DataParser::seek(std::size_t bitsOffset) {
-    _dataIter = _data.begin() + bitsOffset / 8;
-    _inByteOffset = bitsOffset % 8;
-    return *this;
+  dataIter_ = data_.begin() + static_cast<ptrdiff_t>(bitsOffset / CHAR_BIT);
+  inByteOffset_ = bitsOffset % CHAR_BIT;
+  return *this;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 bool operator==(const DataParser& dp1, const DataParser& dp2) {
-    return dp1._data.data() == dp2._data.data()
-            && dp1._data.size() == dp2._data.size()
-            && dp1._dataIter == dp2._dataIter;
+  return dp1.data_.data() == dp2.data_.data() &&
+         dp1.data_.size() == dp2.data_.size() && dp1.dataIter_ == dp2.dataIter_;
 }
 
 }  // namespace ael

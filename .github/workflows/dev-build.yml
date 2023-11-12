@@ -1,0 +1,65 @@
+name: build-dev
+on:
+  push:
+    branches: [ dev ]
+  pull_request:
+    branches: [ dev, main ]
+
+jobs:
+    linux-gcc-debug:
+        name: Linux GCC 13
+        runs-on: ubuntu-22.04
+        strategy:
+          matrix:
+            build_type: [Release, Debug]
+        container:
+          image: ghcr.io/cpp-kt/gcc:13
+        steps:
+            - uses: actions/checkout@v3
+            - run: /bin/bash .ci/build-project.sh build-simple ${{ matrix.build_type }}
+            - run: ./build-simple/test/ael-tests
+            - run: ./build-simple/benchmark/test/benchmark-lib-tests
+            
+    linux-gcc-valgrind:
+        name: Linux GCC 13 + Valgrind
+        runs-on: ubuntu-22.04
+        container:
+          image: ghcr.io/cpp-kt/gcc:13
+        steps:
+            - uses: actions/checkout@v3
+            - run: /bin/bash .ci/build-project-valgrind.sh
+            - run: /bin/bash .ci/run-valgrind.sh test/ael-tests 
+            - run: /bin/bash .ci/run-valgrind.sh benchmark/test/benchmark-lib-tests
+
+    linux-clang:
+        name: Linux Clang 17
+        runs-on: ubuntu-22.04
+        strategy:
+          matrix:
+            stdlib: [libstdc++, libc++]
+            build_type: [Release, Debug]
+        container:
+          image: ghcr.io/cpp-kt/clang:17
+          env:
+            CXXFLAGS: -stdlib=${{ matrix.stdlib }}
+        steps:
+            - uses: actions/checkout@v3
+            - run: /bin/bash .ci/build-project.sh build-simple ${{ matrix.build_type }}
+            - run: ./build-simple/test/ael-tests
+            - run: ./build-simple/benchmark/test/benchmark-lib-tests
+
+    linux-clang-libstdcpp-valgrind:
+        name: Linux Clang 17 + Valgrind
+        runs-on: ubuntu-22.04
+        strategy:
+          matrix:
+            stdlib: [libstdc++, libc++]
+        container:
+          image: ghcr.io/cpp-kt/clang:17
+          env:
+            CXXFLAGS: -stdlib=${{ matrix.stdlib }}
+        steps:
+            - uses: actions/checkout@v3
+            - run: /bin/bash .ci/build-project-valgrind.sh
+            - run: /bin/bash .ci/run-valgrind.sh test/ael-tests 
+            - run: /bin/bash .ci/run-valgrind.sh benchmark/test/benchmark-lib-tests

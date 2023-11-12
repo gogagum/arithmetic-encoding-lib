@@ -1,35 +1,32 @@
-#ifndef RANGES_CALC_HPP
-#define RANGES_CALC_HPP
+#ifndef AEL_IMPL_RANGES_CALC_HPP
+#define AEL_IMPL_RANGES_CALC_HPP
 
-#include "ael/impl/multiply_and_divide.hpp"
+#include <ael/impl/dictionary/word_probability_stats.hpp>
 #include <cstdint>
-#include <iostream>
+
+#include "multiply_and_divide.hpp"
 
 namespace ael::impl {
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief The RangesCalc class
 ///
-template <class CountT, std::uint16_t numBits>
+template <class CountT, std::uint16_t numBits_>
 class RangesCalc {
-public:
+ public:
+  using Count = CountT;
+  struct Range;
+  using ProbabilityStats = ael::impl::dict::WordProbabilityStats<Count>;
 
-    using Count = CountT;
-    struct Range;
+  constexpr static const std::uint16_t numBits = numBits_;
+  constexpr static const Count total = Count{1} << numBits;
+  constexpr static const Count half = Count{1} << (numBits - 1);
+  constexpr static const Count quarter = Count{1} << (numBits - 2);
+  constexpr static const Count threeQuarters = 3 * quarter;
 
-public:
-    constexpr static const Count total = Count{1} << numBits;
-    constexpr static const Count half = Count{1} << (numBits - 1);
-    constexpr static const Count quater = Count{1} << (numBits - 2);
-    constexpr static const Count threeQuaters = 3 * quater;
+  static Range recalcRange(Range rng);
 
-public:
-
-    static Range recalcRange(Range r);
-
-    static Range rangeFromStatsAndPrev(
-            Range r, Count low, Count high, Count total);
-
+  static Range rangeFromStatsAndPrev(Range rng, ProbabilityStats probStats);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -37,35 +34,39 @@ public:
 ///
 template <class CountT, std::uint16_t numBits>
 struct RangesCalc<CountT, numBits>::Range {
-    Count low = Count{0};
-    Count high = total;
+  Count low = Count{0};
+  Count high = total;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 template <class CountT, std::uint16_t numBits>
-auto RangesCalc<CountT, numBits>::recalcRange(Range r) -> Range {
-    if (r.high <= half) {
-        return { r.low * 2, r.high * 2 };
-    } else if (r.low >= half) {
-        return { r.low * 2 - total, r.high * 2 - total };
-    } else if (r.low >= quater && r.high <= threeQuaters) {
-        return { r.low * 2 - half, r.high * 2 - half };
-    }
-    return r;
+auto RangesCalc<CountT, numBits>::recalcRange(Range rng) -> Range {
+  if (rng.high <= half) {
+    return {rng.low * 2, rng.high * 2};
+  }
+  if (rng.low >= half) {
+    return {rng.low * 2 - total, rng.high * 2 - total};
+  }
+  if (rng.low >= quarter && rng.high <= threeQuarters) {
+    return {rng.low * 2 - half, rng.high * 2 - half};
+  }
+  return rng;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 template <class CountT, std::uint16_t numBits>
 auto RangesCalc<CountT, numBits>::rangeFromStatsAndPrev(
-        Range r, Count low, Count high, Count total) -> Range {
-    const auto range = Count(r.high - r.low);
+    Range rng, ProbabilityStats probStats) -> Range {
+  const auto range = rng.high - rng.low;
 
-    const auto lowScaled = multiply_and_divide(range, low, total);
-    const auto highScaled = multiply_and_divide(range, high, total);
+  const auto lowScaled =
+      multiply_and_divide(range, probStats.low, probStats.total);
+  const auto highScaled =
+      multiply_and_divide(range, probStats.high, probStats.total);
 
-    return { r.low + lowScaled, r.low + highScaled };
+  return {rng.low + lowScaled, rng.low + highScaled};
 }
 
 }  // namespace ael::impl
 
-#endif // RANGES_CALC_HPP
+#endif  // AEL_IMPL_RANGES_CALC_HPP
