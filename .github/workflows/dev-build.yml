@@ -6,19 +6,24 @@ on:
     branches: [ dev ]
 
 jobs:
-    linux-gcc:
+    linux-gcc-debug:
         name: Linux GCC
         runs-on: ubuntu-22.04
         container:
-          image: gogagum/cool_linux_build_container:latest
-          env:
-            CC: gcc
-            CXX: g++
+          image: ghcr.io/cpp-kt/gcc:13
         steps:
             - uses: actions/checkout@v3
             - run: /bin/bash .ci/build-project.sh build-simple
             - run: ./build-simple/test/ael-tests
             - run: ./build-simple/benchmark/test/benchmark-lib-tests
+            
+    linux-gcc-valgrind:
+        name: Linux GCC 13 + Valgrind
+        runs-on: ubuntu-22.04
+        container:
+          image: ghcr.io/cpp-kt/gcc:13
+        steps:
+            - uses: actions/checkout@v3
             - run: /bin/bash .ci/build-project-valgrind.sh build-valgrind
             - run: valgrind ./build-valgrind/test/ael-tests
             - run: valgrind ./build-valgrind/benchmark/test/benchmark-lib-tests
@@ -30,14 +35,22 @@ jobs:
         container:
           image: ghcr.io/cpp-kt/clang:16
           env:
-            CC: clang
-            CXX: clang++
             CXXFLAGS: -stdlib=libstdc++
         steps:
             - uses: actions/checkout@v3
             - run: /bin/bash .ci/build-project.sh build-simple
             - run: ./build-simple/test/ael-tests
             - run: ./build-simple/benchmark/test/benchmark-lib-tests
+
+    linux-clang-libstdcpp:
+        name: Linux Clang (libstdc++) + Valgrind
+        runs-on: ubuntu-22.04
+        container:
+          image: ghcr.io/cpp-kt/clang:16
+          env:
+            CXXFLAGS: -stdlib=libstdc++
+        steps:
+            - uses: actions/checkout@v3
             - run: /bin/bash .ci/build-project-valgrind.sh build-valgrind
             - run: valgrind ./build-valgrind/test/ael-tests
             - run: valgrind ./build-valgrind/benchmark/test/benchmark-lib-tests
@@ -48,14 +61,22 @@ jobs:
         container:
           image: ghcr.io/cpp-kt/clang:16
           env:
-            CC: clang
-            CXX: clang++
             CXXFLAGS: -stdlib=libc++
         steps:
             - uses: actions/checkout@v3
             - run: /bin/bash .ci/build-project.sh build-simple
             - run: ./build-simple/test/ael-tests
             - run: ./build-simple/benchmark/test/benchmark-lib-tests
+
+    linux-clang-libcpp:
+        name: Linux Clang (libc++) + valgrind
+        runs-on: ubuntu-22.04
+        container:
+          image: ghcr.io/cpp-kt/clang:16
+          env:
+            CXXFLAGS: -stdlib=libc++
+        steps:
+            - uses: actions/checkout@v3
             - run: /bin/bash .ci/build-project-valgrind.sh build-valgrind
             - run: valgrind ./build-valgrind/test/ael-tests
             - run: valgrind ./build-valgrind/benchmark/test/benchmark-lib-tests
