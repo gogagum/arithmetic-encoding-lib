@@ -28,9 +28,8 @@ jobs:
         steps:
             - uses: actions/checkout@v3
             - run: /bin/bash .ci/build-project-valgrind.sh
-            - run: valgrind ./build-valgrind/test/ael-tests
-            - run: valgrind ./build-valgrind/benchmark/test/benchmark-lib-tests
-
+            - run: /bin/bash .ci/run-valgrind.sh test/ael-tests 
+            - run: /bin/bash .ci/run-valgrind.sh test/benchmark-lib-tests
 
     linux-clang:
         name: Linux Clang 17
@@ -62,5 +61,5 @@ jobs:
         steps:
             - uses: actions/checkout@v3
             - run: /bin/bash .ci/build-project-valgrind.sh
-            - run: valgrind ./build-valgrind/test/ael-tests
-            - run: valgrind ./build-valgrind/benchmark/test/benchmark-lib-tests
+            - run: /bin/bash .ci/run-valgrind.sh test/ael-tests 
+            - run: /bin/bash .ci/run-valgrind.sh test/benchmark-lib-tests
