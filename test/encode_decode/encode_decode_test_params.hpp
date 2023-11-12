@@ -13,8 +13,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief The EncodeDecodeTestParam structure
 struct EncodeDecodeTestParams {
-  std::string description;
-  std::vector<std::uint64_t> encoded;
+  std::string description{};
+  std::vector<std::uint64_t> encoded{};
 };
 
 class GenerateEncodeDecodeTests {
