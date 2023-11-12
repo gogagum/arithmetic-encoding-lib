@@ -1,19 +1,22 @@
 name: build-dev
 on:
   push:
-    branches: [ dev, dev-ci-experiment ]
+    branches: [ dev ]
   pull_request:
     branches: [ dev ]
 
 jobs:
     linux-gcc-debug:
-        name: Linux GCC
+        name: Linux GCC 13
         runs-on: ubuntu-22.04
+        strategy:
+          matrix:
+            build_type: [Release, Debug]
         container:
           image: ghcr.io/cpp-kt/gcc:13
         steps:
             - uses: actions/checkout@v3
-            - run: /bin/bash .ci/build-project.sh build-simple
+            - run: /bin/bash .ci/build-project.sh build-simple ${{ matrix.build_type }}
             - run: ./build-simple/test/ael-tests
             - run: ./build-simple/benchmark/test/benchmark-lib-tests
             
@@ -24,21 +27,20 @@ jobs:
           image: ghcr.io/cpp-kt/gcc:13
         steps:
             - uses: actions/checkout@v3
-            - run: /bin/bash .ci/build-project-valgrind.sh build-valgrind
+            - run: /bin/bash .ci/build-project-valgrind.sh
             - run: valgrind ./build-valgrind/test/ael-tests
             - run: valgrind ./build-valgrind/benchmark/test/benchmark-lib-tests
 
 
     linux-clang:
-        name: Linux Clang
+        name: Linux Clang 17
         runs-on: ubuntu-22.04
         strategy:
           matrix:
             stdlib: [libstdc++, libc++]
-            version: [16, 17]
             build_type: [Release, Debug]
         container:
-          image: ghcr.io/cpp-kt/clang:${{ matrix.version }}
+          image: ghcr.io/cpp-kt/clang:17
           env:
             CXXFLAGS: -stdlib=${{ matrix.stdlib }}
         steps:
@@ -48,20 +50,17 @@ jobs:
             - run: ./build-simple/benchmark/test/benchmark-lib-tests
 
     linux-clang-libstdcpp-valgrind:
-        name: Linux Clang + Valgrind
+        name: Linux Clang 17 + Valgrind
         runs-on: ubuntu-22.04
         strategy:
           matrix:
             stdlib: [libstdc++, libc++]
-            version: [16, 17]
-            build_type: [Release, Debug]
         container:
-          image: ghcr.io/cpp-kt/clang:${{ matrix.version }}
+          image: ghcr.io/cpp-kt/clang:17
           env:
             CXXFLAGS: -stdlib=${{ matrix.stdlib }}
         steps:
             - uses: actions/checkout@v3
-            - run: /bin/bash .ci/build-project-valgrind.sh build-valgrind ${{ matrix.build_type }}
+            - run: /bin/bash .ci/build-project-valgrind.sh
             - run: valgrind ./build-valgrind/test/ael-tests
             - run: valgrind ./build-valgrind/benchmark/test/benchmark-lib-tests
-
