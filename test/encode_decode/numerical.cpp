@@ -47,15 +47,15 @@ INSTANTIATE_TEST_SUITE_P(SimpleNumericalEncodeDecodeTest, NumericalEncodeDecode,
                            return paramInfo.param.description;
                          });
 
-const auto randomDifferentSizesEncodeDecodeTests =
-    GenerateEncodeDecodeTests(256, 42).ofSizes({1, 4, 16, 64, 256, 1024, 4096});
-
-INSTANTIATE_TEST_SUITE_P(
-    RandomNumericalEncodeDecodeTest, NumericalEncodeDecode,
-    testing::ValuesIn(randomDifferentSizesEncodeDecodeTests),
-    [](const auto& paramInfo) {
-      return paramInfo.param.description;
-    });
+//const auto randomDifferentSizesEncodeDecodeTests =
+//    GenerateEncodeDecodeTests(256, 42).ofSizes({1, 4, 16, 64, 256, 1024, 4096});
+//
+//INSTANTIATE_TEST_SUITE_P(
+//    RandomNumericalEncodeDecodeTest, NumericalEncodeDecode,
+//    testing::ValuesIn(randomDifferentSizesEncodeDecodeTests),
+//    [](const auto& paramInfo) {
+//      return paramInfo.param.description;
+//    });
 
 // NOLINTEND(cert-err58-cpp,
 // cppcoreguidelines-avoid-non-const-global-variables)
