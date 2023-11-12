@@ -29,13 +29,16 @@ jobs:
             - run: valgrind ./build-valgrind/benchmark/test/benchmark-lib-tests
 
 
-    linux-clang-libstdcpp:
+    linux-clang:
         name: Linux Clang (libstdc++)
         runs-on: ubuntu-22.04
+        strategy:
+          matrix:
+            stdlib: [libstdc++, libc++]
         container:
           image: ghcr.io/cpp-kt/clang:16
           env:
-            CXXFLAGS: -stdlib=libstdc++
+            CXXFLAGS: -stdlib=${{ matrix.stdlib }}
         steps:
             - uses: actions/checkout@v3
             - run: /bin/bash .ci/build-project.sh build-simple
@@ -45,36 +48,13 @@ jobs:
     linux-clang-libstdcpp-valgrind:
         name: Linux Clang (libstdc++) + Valgrind
         runs-on: ubuntu-22.04
+        strategy:
+          matrix:
+            stdlib: [libstdc++, libc++]
         container:
           image: ghcr.io/cpp-kt/clang:16
           env:
-            CXXFLAGS: -stdlib=libstdc++
-        steps:
-            - uses: actions/checkout@v3
-            - run: /bin/bash .ci/build-project-valgrind.sh build-valgrind
-            - run: valgrind ./build-valgrind/test/ael-tests
-            - run: valgrind ./build-valgrind/benchmark/test/benchmark-lib-tests
-
-    linux-clang-libcpp:
-        name: Linux Clang (libc++)
-        runs-on: ubuntu-22.04
-        container:
-          image: ghcr.io/cpp-kt/clang:16
-          env:
-            CXXFLAGS: -stdlib=libc++
-        steps:
-            - uses: actions/checkout@v3
-            - run: /bin/bash .ci/build-project.sh build-simple
-            - run: ./build-simple/test/ael-tests
-            - run: ./build-simple/benchmark/test/benchmark-lib-tests
-
-    linux-clang-libcpp-valgrind:
-        name: Linux Clang (libc++) + valgrind
-        runs-on: ubuntu-22.04
-        container:
-          image: ghcr.io/cpp-kt/clang:16
-          env:
-            CXXFLAGS: -stdlib=libc++
+            CXXFLAGS: -stdlib=${{ matrix.stdlib }}
         steps:
             - uses: actions/checkout@v3
             - run: /bin/bash .ci/build-project-valgrind.sh build-valgrind
