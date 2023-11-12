@@ -12,5 +12,6 @@ valgrind --tool=memcheck \
          --track-origins=yes \
          --vgdb=no \
          --error-exitcode=1 \
+         --show-error-list=yes \
          build-valgrind/${EXECUTABLE}
     
