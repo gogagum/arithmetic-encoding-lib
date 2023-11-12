@@ -6,68 +6,61 @@ on:
     branches: [ dev ]
 
 jobs:
-    linux-gcc-13:
+    linux-gcc-debug:
         name: Linux GCC 13
         runs-on: ubuntu-22.04
-        env:
-            CC: gcc-13
-            CXX: g++-13
+        strategy:
+          matrix:
+            build_type: [Release, Debug]
+        container:
+          image: ghcr.io/cpp-kt/gcc:13
         steps:
             - uses: actions/checkout@v3
-            - run: |
-                  sudo apt-get update
-                  sudo apt-get install -y ninja-build g++-13 libstdc++-13-dev build-essential valgrind libicu-dev
-            - run: /bin/bash .ci/build-project.sh build-simple
+            - run: /bin/bash .ci/build-project.sh build-simple ${{ matrix.build_type }}
             - run: ./build-simple/test/ael-tests
             - run: ./build-simple/benchmark/test/benchmark-lib-tests
-            - run: /bin/bash .ci/build-project-valgrind.sh build-valgrind
+            
+    linux-gcc-valgrind:
+        name: Linux GCC 13 + Valgrind
+        runs-on: ubuntu-22.04
+        container:
+          image: ghcr.io/cpp-kt/gcc:13
+        steps:
+            - uses: actions/checkout@v3
+            - run: /bin/bash .ci/build-project-valgrind.sh
             - run: valgrind ./build-valgrind/test/ael-tests
             - run: valgrind ./build-valgrind/benchmark/test/benchmark-lib-tests
 
-    linux-clang-16-libstdcpp:
-        name: Linux Clang 16 (libstdc++)
-        runs-on: ubuntu-22.04
-        env:
-            CC: clang-16
-            CXX: clang++-16
-            CXXFLAGS: -stdlib=libstdc++
-        steps:
-            - uses: actions/checkout@v3
-            - run: |
-                  sudo apt-get update
-                  sudo apt-get install -y ninja-build libc6-dbg
-                  sudo snap install valgrind --classic
-                  wget https://apt.llvm.org/llvm.sh
-                  chmod +x llvm.sh
-                  sudo ./llvm.sh 16
-                  sudo apt-get install -y ninja-build build-essential libstdc++-13-dev valgrind libicu-dev
-            - run: /bin/bash .ci/build-project.sh build-simple
-            - run: ./build-simple/test/ael-tests
-            - run: ./build-simple/benchmark/test/benchmark-lib-tests
-            - run: /bin/bash .ci/build-project-valgrind.sh build-valgrind
-            - run: valgrind ./build-valgrind/test/ael-tests
-            - run: valgrind ./build-valgrind/benchmark/test/benchmark-lib-tests
 
-    linux-clang-16-libcpp:
-        name: Linux Clang 16 (libc++)
+    linux-clang:
+        name: Linux Clang 17
         runs-on: ubuntu-22.04
-        env:
-            CC: clang-16
-            CXX: clang++-16
-            CXXFLAGS: -stdlib=libc++
+        strategy:
+          matrix:
+            stdlib: [libstdc++, libc++]
+            build_type: [Release, Debug]
+        container:
+          image: ghcr.io/cpp-kt/clang:17
+          env:
+            CXXFLAGS: -stdlib=${{ matrix.stdlib }}
         steps:
             - uses: actions/checkout@v3
-            - run: |
-                  sudo apt-get update
-                  sudo apt-get install -y ninja-build libc6-dbg
-                  sudo snap install valgrind --classic
-                  wget https://apt.llvm.org/llvm.sh
-                  chmod +x llvm.sh
-                  sudo ./llvm.sh 16
-                  sudo apt-get install -y libc++-16-dev libc++abi-16-dev ninja-build build-essential valgrind libicu-dev
-            - run: /bin/bash .ci/build-project.sh build-simple
+            - run: /bin/bash .ci/build-project.sh build-simple ${{ matrix.build_type }}
             - run: ./build-simple/test/ael-tests
             - run: ./build-simple/benchmark/test/benchmark-lib-tests
-            - run: /bin/bash .ci/build-project-valgrind.sh build-valgrind
+
+    linux-clang-libstdcpp-valgrind:
+        name: Linux Clang 17 + Valgrind
+        runs-on: ubuntu-22.04
+        strategy:
+          matrix:
+            stdlib: [libstdc++, libc++]
+        container:
+          image: ghcr.io/cpp-kt/clang:17
+          env:
+            CXXFLAGS: -stdlib=${{ matrix.stdlib }}
+        steps:
+            - uses: actions/checkout@v3
+            - run: /bin/bash .ci/build-project-valgrind.sh
             - run: valgrind ./build-valgrind/test/ael-tests
             - run: valgrind ./build-valgrind/benchmark/test/benchmark-lib-tests

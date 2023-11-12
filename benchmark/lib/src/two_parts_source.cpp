@@ -1,6 +1,7 @@
 #include <fmt/format.h>
 
 #include <random>
+#include <stdexcept>
 #include <two_parts_source.hpp>
 
 ////////////////////////////////////////////////////////////////////////////////

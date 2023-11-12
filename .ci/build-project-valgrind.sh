@@ -12,12 +12,12 @@
 
 set -e
 
-BUILD_DIR=${1:-build}
+BUILD_DIR="build-valgrind"
 
 echo "---- build-project-valgrind.sh ----"
 echo "BUILD_DIR: ${BUILD_DIR}"
 echo "-----------------------------------"
 
 mkdir "${BUILD_DIR}"
-cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -DAEL_TESTS:BOOL=ON -DAEL_BENCHMARK:BOOL=ON -B "${BUILD_DIR}" -DCMAKE_CXX_FLAGS="-gdwarf-4"
+cmake -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DAEL_TESTS:BOOL=ON -DAEL_BENCHMARK:BOOL=ON -B ${BUILD_DIR} -DCMAKE_CXX_FLAGS="-gdwarf-4"
 cmake --build "${BUILD_DIR}" -j

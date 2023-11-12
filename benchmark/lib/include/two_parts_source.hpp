@@ -4,8 +4,7 @@
 #include <cstdint>
 #include <iterator>
 #include <random>
-#include <stdexcept>
-#include <string_view>
+#include <ranges>
 
 #include "impl/source_iterator.hpp"
 #include "impl/two_parts_source_entropy_base.hpp"
