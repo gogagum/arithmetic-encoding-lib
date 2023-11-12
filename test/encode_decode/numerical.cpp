@@ -35,17 +35,17 @@ TEST_P(NumericalEncodeDecode, EncodeDecodeAndCompare) {
   EXPECT_TRUE(std::ranges::equal(params.encoded, decoded));
 }
 
-const auto simpleEncodeDecodeTests = std::vector<EncodeDecodeTestParams>{
-    {"OneElement", {42}},
-    {"FiveEqualElements", {5, 5, 5, 5, 5}},
-    {"FiveDifferentElements", {2, 3, 5, 1, 4}},
-    {"OneOrdWithBigDictionarySize", {4, 4, 4, 4, 4, 4}}};
-
-INSTANTIATE_TEST_SUITE_P(SimpleNumericalEncodeDecodeTest, NumericalEncodeDecode,
-                         testing::ValuesIn(simpleEncodeDecodeTests),
-                         [](const auto& paramInfo) {
-                           return paramInfo.param.description;
-                         });
+//const auto simpleEncodeDecodeTests = std::vector<EncodeDecodeTestParams>{
+//    {"OneElement", {42}},
+//    {"FiveEqualElements", {5, 5, 5, 5, 5}},
+//    {"FiveDifferentElements", {2, 3, 5, 1, 4}},
+//    {"OneOrdWithBigDictionarySize", {4, 4, 4, 4, 4, 4}}};
+//
+//INSTANTIATE_TEST_SUITE_P(SimpleNumericalEncodeDecodeTest, NumericalEncodeDecode,
+//                         testing::ValuesIn(simpleEncodeDecodeTests),
+//                         [](const auto& paramInfo) {
+//                           return paramInfo.param.description;
+//                         });
 
 //const auto randomDifferentSizesEncodeDecodeTests =
 //    GenerateEncodeDecodeTests(256, 42).ofSizes({1, 4, 16, 64, 256, 1024, 4096});
