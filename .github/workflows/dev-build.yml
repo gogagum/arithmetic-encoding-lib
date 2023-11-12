@@ -42,7 +42,7 @@ jobs:
             - run: ./build-simple/test/ael-tests
             - run: ./build-simple/benchmark/test/benchmark-lib-tests
 
-    linux-clang-libstdcpp:
+    linux-clang-libstdcpp-valgrind:
         name: Linux Clang (libstdc++) + Valgrind
         runs-on: ubuntu-22.04
         container:
@@ -68,7 +68,7 @@ jobs:
             - run: ./build-simple/test/ael-tests
             - run: ./build-simple/benchmark/test/benchmark-lib-tests
 
-    linux-clang-libcpp:
+    linux-clang-libcpp-valgrind:
         name: Linux Clang (libc++) + valgrind
         runs-on: ubuntu-22.04
         container:
