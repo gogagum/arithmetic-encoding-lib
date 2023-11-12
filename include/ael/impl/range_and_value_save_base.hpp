@@ -23,6 +23,7 @@ class RangeAndValueSaveBase : protected RangeSaveBase {
 
  protected:
   WideNum_ prevValue_{};
+
  private:
   bool firstDecode_{true};
 };
@@ -39,9 +40,8 @@ RC::Count RangeAndValueSaveBase<Derived>::calcValue_() {
     firstDecode_ = false;
     return ret;
   }
-  auto ret = impl::multiply_decrease_and_divide(prevValue_, WideNum_{RC::total},
-                                                prevRange_.total) +
-             1;
+  auto ret = impl::multiply_and_divide(prevValue_, WideNum_{RC::total},
+                                       prevRange_.total);
   return static_cast<RC::Count>(ret);
 }
 

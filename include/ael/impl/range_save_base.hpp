@@ -27,12 +27,11 @@ class RangeSaveBase {
 ////////////////////////////////////////////////////////////////////////////////
 template <class RC>
 RC::Range RangeSaveBase::calcRange_() {
-  auto retLow = impl::multiply_and_divide(
-      prevRange_.low, WideNum_{RC::total}, prevRange_.total);
-  auto retHigh =
-      impl::multiply_decrease_and_divide(
-          prevRange_.high, WideNum_{RC::total}, prevRange_.total) +
-      1;
+  auto retLow = impl::multiply_and_divide(prevRange_.low, WideNum_{RC::total},
+                                          prevRange_.total);
+  auto retHigh = impl::multiply_decrease_and_divide(
+                     prevRange_.high, WideNum_{RC::total}, prevRange_.total) +
+                 1;
   return {static_cast<RC::Count>(retLow), static_cast<RC::Count>(retHigh)};
 }
 

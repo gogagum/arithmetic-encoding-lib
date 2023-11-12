@@ -77,6 +77,8 @@ void ArithmeticDecoder<SourceT>::decode(Dict& dict, OutIter outIter,
   auto value = this->template calcValue_<RC>();
 
   for (auto i : std::ranges::iota_view(std::size_t{0}, wordsLimit)) {
+    assert(value >= currRange.low);
+    assert(value < currRange.high);
     const auto range = typename Dict::Count{currRange.high - currRange.low};
     const auto dictTotalWords = dict.getTotalWordsCnt();
     const auto offset = value - currRange.low + 1;
