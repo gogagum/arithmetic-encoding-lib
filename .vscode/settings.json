@@ -107,11 +107,14 @@
     ],
     "C_Cpp.errorSquiggles": "disabled",
     "cSpell.words": [
+        "astype",
         "bugprone",
         "Constexpr",
         "cppcoreguidelines",
         "Cumul",
         "CXXFLAGS",
+        "dropna",
+        "figsize",
         "gogagum",
         "libc",
         "libcpp",
@@ -128,6 +131,8 @@
         "Struct",
         "swappable",
         "tparam",
-        "valgrind"
+        "valgrind",
+        "xlabel",
+        "ylabel"
     ]
 }
