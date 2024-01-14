@@ -1,5 +1,12 @@
 # Encoders benchmarks
 
+## Benchmark runner
+
+Runs benchmarks for exact dictionary, builds plot into pdf, with all parameters
+labeled.
+
+## Plot builder
+
 ## Parameters
 
 - Input length.
