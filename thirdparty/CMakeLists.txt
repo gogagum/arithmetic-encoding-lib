@@ -22,7 +22,7 @@ function(add_boost_package PackageName package_repo_addr tag)
     FetchContent_MakeAvailable(${PackageName})
 endfunction()
 
-SET(BOOST_FETCHCONTENT_TAG boost-1.83.0)
+SET(BOOST_FETCHCONTENT_TAG boost-1.84.0)
 
 add_boost_package(Boost.Core core ${BOOST_FETCHCONTENT_TAG})
 add_boost_package(Boost.Config config ${BOOST_FETCHCONTENT_TAG})
