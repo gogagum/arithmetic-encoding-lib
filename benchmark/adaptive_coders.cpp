@@ -17,12 +17,14 @@
 #include <ael/esc/dictionary/ppmd_dictionary.hpp>
 #include <two_parts_source.hpp>
 
+using std::views::iota;
+
 static constexpr auto maxOrd = std::uint64_t{256};
 static constexpr auto m = std::uint64_t{64};
 
 static void setInputSizesAndMParameters(benchmark::internal::Benchmark* b) {
-  for (std::size_t i : std::ranges::iota_view(1, 11)) {
-    for (std::size_t j : std::ranges::iota_view(0, 5)) {
+  for (std::size_t i : iota(1, 11)) {
+    for (std::size_t j : iota(0, 5)) {
       const auto inputSize = static_cast<std::int64_t>((1ull << 17) * i / 11);
       const auto hQuarter = static_cast<std::int64_t>(j);  // 0, 1, 2, 3, 4
       b->Args({inputSize, hQuarter});

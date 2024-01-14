@@ -7,12 +7,13 @@
 #include <ael/dictionary/adaptive_a_dictionary.hpp>
 #include <ael/dictionary/adaptive_d_dictionary.hpp>
 #include <encode_decode_test.hpp>
-#include <random>
 
 // NOLINTBEGIN(cppcoreguidelines-*, cert-*, readability-magic-numbers,
 // cert-err58-cpp)
 
 namespace {
+
+using std::views::iota;
 
 namespace rng = std::ranges;
 using ael::ArithmeticCoder;
@@ -87,7 +88,7 @@ TYPED_TEST_P(AdaptiveADEncodeDecodeTest, EncodeDecodeSmallSequenceBitsLimit) {
 }
 
 TYPED_TEST_P(AdaptiveADEncodeDecodeTest, EncodeDecodeFuzz) {
-  for (auto iteration : rng::iota_view(0, 15)) {
+  for (auto iteration : iota(0, 15)) {
     this->refreshForFuzzTest();
 
     auto dict0 = TypeParam(this->maxOrd);
@@ -103,7 +104,7 @@ TYPED_TEST_P(AdaptiveADEncodeDecodeTest, EncodeDecodeFuzz) {
 }
 
 TYPED_TEST_P(AdaptiveADEncodeDecodeTest, EncodesAndDecodesBitsLimit) {
-  for (auto iteration : rng::iota_view(0, 15)) {
+  for (auto iteration : iota(0, 15)) {
     this->refreshForFuzzTest();
 
     auto dict0 = TypeParam(this->maxOrd);

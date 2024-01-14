@@ -14,6 +14,9 @@ namespace {
 
 namespace rng = std::ranges;
 
+using std::views::iota;
+using std::views::transform;
+
 using ael::ArithmeticCoder;
 using ael::ArithmeticDecoder;
 
@@ -91,10 +94,10 @@ TEST_F(StaticEncodeDecode, EncodeDecodeSmallSequenceBitsLimit) {
 }
 
 TEST_F(StaticEncodeDecode, EncodeDecodeFuzz) {
-  for (auto iteration : rng::iota_view(0, 15)) {
+  for (auto iteration : iota(0, 15)) {
     refreshForFuzzTest();
     const auto flatCountMapping =
-        encoded | rng::views::transform([](std::uint64_t encEl) {
+        encoded | transform([](std::uint64_t encEl) {
           return ael::dict::StaticDictionary::CountMapping{encEl, 1};
         });
 
@@ -111,10 +114,10 @@ TEST_F(StaticEncodeDecode, EncodeDecodeFuzz) {
 }
 
 TEST_F(StaticEncodeDecode, EncodeDecodeFuzzBitsLimit) {
-  for (auto iteration : rng::iota_view(0, 15)) {
+  for (auto iteration : iota(0, 15)) {
     refreshForFuzzTest();
     const auto flatCountMapping =
-        encoded | rng::views::transform([](std::uint64_t encEl) {
+        encoded | transform([](std::uint64_t encEl) {
           return ael::dict::StaticDictionary::CountMapping{encEl, 1};
         });
 

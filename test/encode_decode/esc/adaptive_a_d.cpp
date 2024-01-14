@@ -6,15 +6,15 @@
 #include <ael/esc/arithmetic_decoder.hpp>
 #include <ael/esc/dictionary/adaptive_a_dictionary.hpp>
 #include <ael/esc/dictionary/adaptive_d_dictionary.hpp>
-#include <cstdint>
 #include <encode_decode_test.hpp>
-#include <random>
 #include <ranges>
 
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,
 // cppcoreguidelines-avoid-non-const-global-variables)
 
 namespace {
+
+using std::views::iota;
 
 namespace rng = std::ranges;
 using ael::esc::ArithmeticCoder;
@@ -90,7 +90,7 @@ TYPED_TEST_P(EscAdaptiveADEncodeDecodeTest,
 }
 
 TYPED_TEST_P(EscAdaptiveADEncodeDecodeTest, EncodesAndDecodesWithNoBitsLimit) {
-  for (auto iteration : rng::iota_view(0, 15)) {
+  for (auto iteration : iota(0, 15)) {
     this->refreshForFuzzTest();
 
     auto dict0 = TypeParam(this->maxOrd);
@@ -106,7 +106,7 @@ TYPED_TEST_P(EscAdaptiveADEncodeDecodeTest, EncodesAndDecodesWithNoBitsLimit) {
 };
 
 TYPED_TEST_P(EscAdaptiveADEncodeDecodeTest, EncodesAndDecodesWithBitsLimit) {
-  for (auto iteration : rng::iota_view(0, 15)) {
+  for (auto iteration : iota(0, 15)) {
     this->refreshForFuzzTest();
 
     auto dict0 = TypeParam(this->maxOrd);

@@ -12,6 +12,8 @@
 
 namespace {
 
+using std::views::iota;
+
 namespace rng = std::ranges;
 
 using ael::ArithmeticCoder;
@@ -84,7 +86,7 @@ TEST_F(AdaptiveEncodeDecode, EncodeDecodeSmallSequenceBitsLimit) {
 }
 
 TEST_F(AdaptiveEncodeDecode, EncodeDecodeFuzz) {
-  for (auto iteration : rng::iota_view(0, 15)) {
+  for (auto iteration : iota(0, 15)) {
     refreshForFuzzTest();
     const std::size_t ratio = gen() % 10 + 5;  // [5..15)
 
@@ -101,7 +103,7 @@ TEST_F(AdaptiveEncodeDecode, EncodeDecodeFuzz) {
 }
 
 TEST_F(AdaptiveEncodeDecode, EncodeDecodeFuzzBitsLimit) {
-  for (auto iteration : rng::iota_view(0, 15)) {
+  for (auto iteration : iota(0, 15)) {
     refreshForFuzzTest();
     const std::size_t ratio = gen() % 10 + 5;  // [5..15)
 

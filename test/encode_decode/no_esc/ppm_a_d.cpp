@@ -8,12 +8,13 @@
 #include <ael/dictionary/ppmd_dictionary.hpp>
 #include <encode_decode_test.hpp>
 #include <ord_generator.hpp>
-#include <random>
 
 // NOLINTBEGIN(cppcoreguidelines-*, cert-*, readability-magic-numbers,
 // cert-err58-cpp)
 
 namespace {
+
+using std::views::iota;
 
 namespace rng = std::ranges;
 using ael::ArithmeticCoder;
@@ -88,7 +89,7 @@ TYPED_TEST_P(PPMADEncodeDecodeTest, EncodeDecodeSmallSequenceBitsLimit) {
 }
 
 TYPED_TEST_P(PPMADEncodeDecodeTest, EncodesAndDecodes) {
-  for (auto iteration : rng::iota_view(0, 15)) {
+  for (auto iteration : iota(0, 15)) {
     this->refreshForFuzzTest();
     const std::size_t ctxLen = this->gen() % 6;  // [0..6)
 
@@ -105,7 +106,7 @@ TYPED_TEST_P(PPMADEncodeDecodeTest, EncodesAndDecodes) {
 }
 
 TYPED_TEST_P(PPMADEncodeDecodeTest, EncodesAndDecodesBitsLimit) {
-  for (auto iteration : rng::iota_view(0, 15)) {
+  for (auto iteration : iota(0, 15)) {
     this->refreshForFuzzTest();
     const std::size_t ctxLen = this->gen() % 6;  // [0..6)
 

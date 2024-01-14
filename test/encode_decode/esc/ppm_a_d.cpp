@@ -8,13 +8,14 @@
 #include <ael/esc/dictionary/ppmd_dictionary.hpp>
 #include <cstdint>
 #include <encode_decode_test.hpp>
-#include <random>
 #include <ranges>
 
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,
 // cppcoreguidelines-avoid-non-const-global-variables)
 
 namespace {
+
+using std::views::iota;
 
 namespace rng = std::ranges;
 using ael::esc::ArithmeticCoder;
@@ -90,7 +91,7 @@ TYPED_TEST_P(EscPPMADEncodeDecodeTest, EncodeDecodeSmallSequenceBitsLimit) {
 }
 
 TYPED_TEST_P(EscPPMADEncodeDecodeTest, EncodesAndDecodesWithNoBitsLimit) {
-  for (auto iteration : rng::iota_view(0, 15)) {
+  for (auto iteration : iota(0, 15)) {
     this->refreshForFuzzTest();
 
     auto dict0 = TypeParam({this->maxOrd, 5});
@@ -106,7 +107,7 @@ TYPED_TEST_P(EscPPMADEncodeDecodeTest, EncodesAndDecodesWithNoBitsLimit) {
 };
 
 TYPED_TEST_P(EscPPMADEncodeDecodeTest, EncodesAndDecodesWithBitsLimit) {
-  for (auto iteration : rng::iota_view(0, 15)) {
+  for (auto iteration : iota(0, 15)) {
     this->refreshForFuzzTest();
 
     auto dict0 = TypeParam({this->maxOrd, 5});

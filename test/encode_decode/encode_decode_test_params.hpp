@@ -38,8 +38,9 @@ std::vector<EncodeDecodeTestParams> GenerateEncodeDecodeTests::ofSizes(
     std::vector<std::size_t> sizes) {
   const auto generateOne = [this](std::size_t size) -> EncodeDecodeTestParams {
     auto encoded = std::vector<std::uint64_t>{};
-    for (auto _ : std::ranges::iota_view(std::size_t{0}, size)) {
-      encoded.push_back(gen_() % maxOrd_);
+    auto distr = std::uniform_int_distribution(std::size_t{0}, maxOrd_ - 1);
+    for (auto _ : std::views::iota(std::size_t{0}, size)) {
+      encoded.push_back(distr(gen_));
     }
     return {
         fmt::format("RandomEncodeDecodeOfSize{}WithMaxOrd{}", size, maxOrd_),

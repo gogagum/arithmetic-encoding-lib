@@ -4,6 +4,9 @@
 #include <ranges>
 #include <two_parts_source_with_conditions.hpp>
 
+using std::views::iota;
+using std::views::transform;
+
 // NOLINTBEGIN(cppcoreguidelines-owning-memory,
 // cppcoreguidelines-avoid-magic-numbers)
 
@@ -71,13 +74,12 @@ TEST(TwoPartsSourceWithConditions, ResultingEntropy) {
     ++counts[ord];
   }
 
-  const auto pLogPs =
-      counts | std::views::transform([totalCount](const auto& entry) {
-        auto [ord, count] = entry;
-        const double countDouble = static_cast<double>(count);
-        const double p = countDouble / totalCount;
-        return -p * std::log2(p);
-      });
+  const auto pLogPs = counts | transform([totalCount](const auto& entry) {
+                        auto [ord, count] = entry;
+                        const double countDouble = static_cast<double>(count);
+                        const double p = countDouble / totalCount;
+                        return -p * std::log2(p);
+                      });
 
   double entropyEstimation = std::accumulate(pLogPs.begin(), pLogPs.end(), 0.);
 
@@ -98,12 +100,12 @@ TEST(TwoPartsSourceWithConditions, ResultingConditionalEntropy) {
 
   std::map<std::pair<std::uint64_t, std::uint64_t>, std::size_t> counts;
 
-  for (auto i : std::ranges::iota_view(0, 99999)) {
+  for (auto i : iota(0, 99999)) {
     ++counts[std::make_pair(firsts[i], seconds[i])];
   }
 
   const auto pLogPs =
-      counts | std::views::transform([](const auto& entry) {
+      counts | transform([](const auto& entry) {
         auto [ord, count] = entry;
         const double countDouble = static_cast<double>(count);
         const double p = countDouble / (static_cast<double>(totalCount) - 1.0);

@@ -3,26 +3,29 @@
 
 namespace ael::dict {
 
+using std::ranges::fill;
+using std::ranges::upper_bound;
+using std::views::drop;
+using std::views::take;
+
 ////////////////////////////////////////////////////////////////////////////////
 StaticDictionary::StaticDictionary(Ord maxOrd,
                                    const std::map<Ord, Count>& countsMapping) {
   cumulativeNumFound_.resize(maxOrd);
   auto currOrd = Ord{0};
-  auto currCumulativeNumFound = Count{0};
+  auto currCumulCnt = Count{0};
   for (const auto& [ord, count] : countsMapping) {
-    for (; currOrd < ord; ++currOrd) {
-      cumulativeNumFound_[currOrd] = currCumulativeNumFound;
-    }
-    currCumulativeNumFound += count;
+    fill(cumulativeNumFound_ | drop(currOrd) | take(ord - currOrd),
+         currCumulCnt);
+    currOrd = ord;
+    currCumulCnt += count;
   }
-  for (; currOrd < maxOrd; ++currOrd) {
-    cumulativeNumFound_[currOrd] = currCumulativeNumFound;
-  }
+  fill(cumulativeNumFound_ | drop(currOrd), currCumulCnt);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 auto StaticDictionary::getWordOrd(Count cumulativeNumFound) const -> Ord {
-  return std::ranges::upper_bound(cumulativeNumFound_, cumulativeNumFound) -
+  return upper_bound(cumulativeNumFound_, cumulativeNumFound) -
          cumulativeNumFound_.begin();
 }
 

@@ -9,12 +9,13 @@
 #include <ael/dictionary/adaptive_d_contextual_dictionary.hpp>
 #include <ael/dictionary/adaptive_d_contextual_dictionary_improved.hpp>
 #include <encode_decode_test.hpp>
-#include <random>
 
 // NOLINTBEGIN(cppcoreguidelines-*, cert-*, readability-magic-numbers,
 // cert-err58-cpp)
 
 namespace {
+
+using std::views::iota;
 
 namespace rng = std::ranges;
 using ael::ArithmeticCoder;
@@ -90,7 +91,7 @@ TYPED_TEST_P(AdaptiveADContextualEncodeDecodeTest,
 }
 
 TYPED_TEST_P(AdaptiveADContextualEncodeDecodeTest, EncodeDecodeFuzz) {
-  for (auto iteration : rng::iota_view(0, 15)) {
+  for (auto iteration : iota(0, 15)) {
     this->refreshForFuzzTest();
 
     const std::uint16_t ctxLength = this->gen() % 5;      // [0..5)
@@ -109,7 +110,7 @@ TYPED_TEST_P(AdaptiveADContextualEncodeDecodeTest, EncodeDecodeFuzz) {
 }
 
 TYPED_TEST_P(AdaptiveADContextualEncodeDecodeTest, EncodeDecodeFuzzBitsLimit) {
-  for (auto iteration : rng::iota_view(0, 15)) {
+  for (auto iteration : iota(0, 15)) {
     this->refreshForFuzzTest();
 
     const std::uint16_t ctxLength = this->gen() % 5;      // [0..5)
