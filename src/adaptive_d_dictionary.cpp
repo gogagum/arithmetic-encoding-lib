@@ -1,9 +1,13 @@
 #include <ael/dictionary/adaptive_d_dictionary.hpp>
+#include <boost/lambda/bind.hpp>
+#include <boost/lambda/lambda.hpp>
 #include <ranges>
 
 namespace ael::dict {
 
-namespace rng = std::ranges;
+using boost::lambda::_1;
+using boost::lambda::bind;
+using std::ranges::upper_bound;
 
 ////////////////////////////////////////////////////////////////////////////////
 AdaptiveDDictionary::AdaptiveDDictionary(Ord maxOrd)
@@ -12,25 +16,22 @@ AdaptiveDDictionary::AdaptiveDDictionary(Ord maxOrd)
 
 ////////////////////////////////////////////////////////////////////////////////
 auto AdaptiveDDictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
-  const auto getLowerCumulCnt = [this](Ord ord) {
-    return getLowerCumulativeCnt_(ord + 1);
-  };
-  return *rng::upper_bound(this->getOrdRng_(), cumulativeCnt, {},
-                           getLowerCumulCnt);
+  return *upper_bound(getOrdRng_(), cumulativeCnt, {},
+                      bind(&This_::getLowerCumulativeCnt_, this, _1 + 1));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 auto AdaptiveDDictionary::getProbabilityStats(Ord ord) -> ProbabilityStats {
   const auto ret = getProbabilityStats_(ord);
-  this->updateWordCnt_(ord, 1);
+  updateWordCnt_(ord, 1);
   return ret;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 auto AdaptiveDDictionary::getTotalWordsCnt() const -> Count {
-  const auto totalWordsCnt = this->getRealTotalWordsCnt_();
+  const auto totalWordsCnt = getRealTotalWordsCnt_();
   if (totalWordsCnt == 0) {
-    return this->getMaxOrd_();
+    return getMaxOrd_();
   }
   const auto totalWordsUniqueCnt = getTotalWordsUniqueCnt_();
   if (totalWordsUniqueCnt == getMaxOrd_()) {

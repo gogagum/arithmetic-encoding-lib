@@ -13,6 +13,9 @@ namespace ael::esc::dict {
 /// \brief The AdaptiveDDictionary class
 ///
 class AdaptiveDDictionary : public ael::impl::esc::dict::ADDictionaryBase {
+ private:
+  using This_ = AdaptiveDDictionary;
+
  public:
   using Ord = std::uint64_t;
   using Count = std::uint64_t;
@@ -61,6 +64,8 @@ class AdaptiveDDictionary : public ael::impl::esc::dict::ADDictionaryBase {
   [[nodiscard]] Ord getWordOrdAfterEsc_(Count cumulativeCnt) const;
 
   [[nodiscard]] Count getLowerCumulativeCnt_(Ord ord) const;
+
+  [[nodiscard]] Count getLowerCumulativeCntAfterEsc_(Ord ord) const;
 
   [[nodiscard]] Count getWordCnt_(Ord ord) const;
 

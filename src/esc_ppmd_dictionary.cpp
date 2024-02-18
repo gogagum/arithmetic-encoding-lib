@@ -1,10 +1,14 @@
 #include <ael/esc/dictionary/ppmd_dictionary.hpp>
 #include <algorithm>
+#include <boost/lambda/bind.hpp>
+#include <boost/lambda/lambda.hpp>
 #include <ranges>
 
 namespace ael::esc::dict {
 
-namespace rng = std::ranges;
+using boost::lambda::_1;
+using boost::lambda::bind;
+using std::ranges::upper_bound;
 
 ////////////////////////////////////////////////////////////////////////////////
 PPMDDictionary::PPMDDictionary(ConstructInfo constructInfo)
@@ -22,11 +26,11 @@ auto PPMDDictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
   }
   if (getEscDecoded_() <= currCtx.size()) {
     const auto& cell = getCurrCtxCell_(currCtx);
-    const auto getLowerCumulCnt = [&cell](Ord ord) {
-      return 2 * cell.cnt.getLowerCumulativeCnt(ord + 1) -
-             cell.uniqueCnt.getLowerCumulativeCnt(ord + 1);
-    };
-    return *rng::upper_bound(getOrdRng_(), cumulativeCnt, {}, getLowerCumulCnt);
+    return *upper_bound(
+        getOrdRng_(), cumulativeCnt, {},
+        2 * bind(&CumulativeCount_::getLowerCumulativeCnt, &cell.cnt, _1 + 1) -
+            bind(&CumulativeUniqueCount_::getLowerCumulativeCnt,
+                 &cell.uniqueCnt, _1 + 1));
   }
   return getWordOrdForNewWord_(cumulativeCnt);
 }
@@ -209,11 +213,11 @@ void PPMDDictionary::updateWordCnt_(Ord ord, std::int64_t cntChange) {
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMDDictionary::getWordOrdForNewWord_(Count cumulativeCnt) const -> Ord {
-  const auto getLowerCumulCnt = [this](Ord ord) {
-    return ord + 1 - zeroCtxCell_.uniqueCnt.getLowerCumulativeCnt(ord + 1);
-  };
   const auto retOrd =
-      *rng::upper_bound(getOrdRng_(), cumulativeCnt, {}, getLowerCumulCnt);
+      *upper_bound(getOrdRng_(), cumulativeCnt, {},
+                   _1 + 1 -
+                       bind(&CumulativeUniqueCount_::getLowerCumulativeCnt,
+                            &zeroCtxCell_.uniqueCnt, _1 + 1));
   assert(!isEsc(retOrd) &&
          "Search in symbols which were not found yet. Esc is invalid here.");
   return retOrd;

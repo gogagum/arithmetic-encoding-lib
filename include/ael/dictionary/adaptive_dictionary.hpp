@@ -12,6 +12,8 @@ namespace ael::dict {
 ///
 class AdaptiveDictionary
     : public ael::impl::dict::AdaptiveDictionaryBase<std::uint64_t> {
+ private:
+  using This_ = AdaptiveDictionary;
  public:
   using Ord = std::uint64_t;
   using Count = std::uint64_t;

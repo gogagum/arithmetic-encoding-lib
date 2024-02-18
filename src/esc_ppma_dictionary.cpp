@@ -1,15 +1,19 @@
 #include <ael/esc/dictionary/ppma_dictionary.hpp>
 #include <algorithm>
+#include <boost/lambda/bind.hpp>
+#include <boost/lambda/lambda.hpp>
 #include <ranges>
 
 namespace ael::esc::dict {
 
-namespace rng = std::ranges;
+using boost::lambda::_1;
+using boost::lambda::bind;
+using std::ranges::upper_bound;
 
 ////////////////////////////////////////////////////////////////////////////////
 PPMADictionary::PPMADictionary(ConstructInfo constructInfo)
-    : ael::impl::esc::dict::PPMADDictionaryBase<PPMADictionary>(constructInfo.maxOrd,
-                                                constructInfo.ctxLength),
+    : ael::impl::esc::dict::PPMADDictionaryBase<PPMADictionary>(
+          constructInfo.maxOrd, constructInfo.ctxLength),
       zeroCtxCnt_(constructInfo.maxOrd),
       zeroCtxUniqueCnt_(constructInfo.maxOrd) {
 }
@@ -19,10 +23,9 @@ auto PPMADictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
   auto currCtx = getSearchCtxEmptySkipped_();
   if (getEscDecoded_() <= currCtx.size()) {
     const auto& cell = getCurrCumulativeCnt_(currCtx);
-    const auto getLowerCumulCnt = [&cell](Ord ord) {
-      return cell.getLowerCumulativeCnt(ord + 1);
-    };
-    return *rng::upper_bound(getOrdRng_(), cumulativeCnt, {}, getLowerCumulCnt);
+    return *upper_bound(
+        getOrdRng_(), cumulativeCnt, {},
+        bind(&CumulativeCount_::getLowerCumulativeCnt, &cell, _1 + 1));
   }
   return getWordOrdForNewWord_(cumulativeCnt);
 }
@@ -173,10 +176,10 @@ void PPMADictionary::updateWordCnt_(Ord ord, std::int64_t cntChange) {
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMADictionary::getWordOrdForNewWord_(Count cumulativeCnt) const -> Ord {
   const auto getLowerCumulCnt = [this](Ord ord) {
-    return ord + 1 - zeroCtxUniqueCnt_.getLowerCumulativeCnt(ord + 1);
+    return ord - zeroCtxUniqueCnt_.getLowerCumulativeCnt(ord);
   };
-  const auto retOrd =
-      *rng::upper_bound(getOrdRng_(), cumulativeCnt, {}, getLowerCumulCnt);
+  const auto retOrd = *upper_bound(getOrdRng_(), cumulativeCnt, {},
+                                   bind(getLowerCumulCnt, _1 + 1));
   assert(!isEsc(retOrd) &&
          "Search in symbols which were not found yet. Esc is invalid here.");
   return retOrd;

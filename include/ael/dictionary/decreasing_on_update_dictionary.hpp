@@ -12,6 +12,8 @@ namespace ael::dict {
 ///
 class DecreasingOnUpdateDictionary
     : public ael::impl::dict::AdaptiveDictionaryBase<std::uint64_t> {
+ private:
+  using This_ = DecreasingOnUpdateDictionary;
  public:
   using Ord = std::uint64_t;
   using Count = std::uint64_t;
@@ -56,7 +58,7 @@ class DecreasingOnUpdateDictionary
   }
 
  protected:
-  [[nodiscard]] Count getLowerCumulativeCnt_(Ord ord) const {
+  [[nodiscard]] Count getRealLowerCumulativeCnt_(Ord ord) const {
     return (ord == Ord{0}) ? Count{0} : getRealCumulativeCnt_(ord - 1);
   }
 

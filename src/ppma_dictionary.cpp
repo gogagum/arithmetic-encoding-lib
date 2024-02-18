@@ -1,12 +1,16 @@
 #include <ael/dictionary/ppma_dictionary.hpp>
 #include <ael/impl/dictionary/cumulative_count.hpp>
+#include <boost/lambda/bind.hpp>
+#include <boost/lambda/lambda.hpp>
 #include <cstdint>
 #include <ranges>
 #include <stdexcept>
 
 namespace ael::dict {
 
-namespace rng = std::ranges;
+using boost::lambda::_1;
+using boost::lambda::bind;
+using std::ranges::upper_bound;
 
 ////////////////////////////////////////////////////////////////////////////////
 PPMADictionary::PPMADictionary(ConstructInfo constructInfo)
@@ -26,12 +30,9 @@ PPMADictionary::PPMADictionary(ConstructInfo constructInfo)
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMADictionary::getWordOrd(const Count& cumulativeNumFound) const -> Ord {
   assert(cumulativeNumFound <= getTotalWordsCnt());
-  const auto getLowerCumulCnt = [this](std::uint64_t ord) {
-    assert(ord < getMaxOrd_());
-    return getLowerCumulativeCnt_(ord + 1);
-  };
-  return *rng::upper_bound(getOrdRng_(), cumulativeNumFound, {},
-                           getLowerCumulCnt);
+  return *upper_bound(
+      getOrdRng_(), cumulativeNumFound, {},
+      bind(&PPMADictionary::getLowerCumulativeCnt_, this, _1 + 1));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

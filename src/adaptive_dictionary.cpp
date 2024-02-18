@@ -1,9 +1,13 @@
 #include <ael/dictionary/adaptive_dictionary.hpp>
+#include <boost/lambda/bind.hpp>
+#include <boost/lambda/lambda.hpp>
 #include <ranges>
 
 namespace ael::dict {
 
-namespace rng = std::ranges;
+using boost::lambda::_1;
+using boost::lambda::bind;
+using std::ranges::upper_bound;
 
 ////////////////////////////////////////////////////////////////////////////////
 AdaptiveDictionary::AdaptiveDictionary(ConstructInfo constructInfo)
@@ -15,10 +19,8 @@ AdaptiveDictionary::AdaptiveDictionary(ConstructInfo constructInfo)
 
 ////////////////////////////////////////////////////////////////////////////////
 auto AdaptiveDictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
-  const auto getLowerCumulCnt_ = [this](Ord ord) {
-    return getLowerCumulativeCnt_(ord + 1);
-  };
-  return *rng::upper_bound(getOrdRng_(), cumulativeCnt, {}, getLowerCumulCnt_);
+  return *upper_bound(getOrdRng_(), cumulativeCnt, {},
+                      bind(&This_::getLowerCumulativeCnt_, this, _1 + 1));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

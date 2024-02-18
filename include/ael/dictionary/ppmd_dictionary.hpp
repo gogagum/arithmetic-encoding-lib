@@ -20,6 +20,9 @@ constexpr auto ppmdMaxCtxLength = std::uint16_t{16};
 ///
 class PPMDDictionary
     : ael::impl::dict::PPMADDictionaryBase<PPMDDictionary, ppmdMaxCtxLength> {
+ private:
+  using This_ = PPMDDictionary;
+
  protected:
   using Base_ =
       ael::impl::dict::PPMADDictionaryBase<PPMDDictionary, ppmdMaxCtxLength>;

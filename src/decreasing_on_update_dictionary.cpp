@@ -1,10 +1,13 @@
 #include <ael/dictionary/decreasing_on_update_dictionary.hpp>
-#include <algorithm>
+#include <boost/lambda/bind.hpp>
+#include <boost/lambda/lambda.hpp>
 #include <ranges>
 
 namespace ael::dict {
 
-namespace rng = std::ranges;
+using boost::lambda::_1;
+using boost::lambda::bind;
+using std::ranges::upper_bound;
 
 ////////////////////////////////////////////////////////////////////////////////
 DecreasingOnUpdateDictionary::DecreasingOnUpdateDictionary(Ord maxOrd,
@@ -20,10 +23,8 @@ DecreasingOnUpdateDictionary::DecreasingOnUpdateDictionary(Ord maxOrd,
 ////////////////////////////////////////////////////////////////////////////////
 auto DecreasingOnUpdateDictionary::getWordOrd(Count cumulativeCnt) const
     -> Ord {
-  const auto getLowerCumulCnt_ = [this](Ord ord) {
-    return getLowerCumulativeCnt_(ord + 1);
-  };
-  return *rng::upper_bound(getOrdRng_(), cumulativeCnt, {}, getLowerCumulCnt_);
+  return *upper_bound(getOrdRng_(), cumulativeCnt, {},
+                      bind(&This_::getRealLowerCumulativeCnt_, this, _1 + 1));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -46,7 +47,7 @@ auto DecreasingOnUpdateDictionary::getProbabilityStats_(Ord ord) const
     -> ProbabilityStats {
   assert(getRealWordCnt_(ord) != Count{0} &&
          "Get probability stats for a word with zero real count.");
-  const auto low = getLowerCumulativeCnt_(ord);
+  const auto low = getRealLowerCumulativeCnt_(ord);
   const auto high = low + getRealWordCnt_(ord);
   const auto total = getTotalWordsCnt();
   return {low, high, total};

@@ -1,9 +1,13 @@
 #include <ael/esc/dictionary/adaptive_a_dictionary.hpp>
+#include <boost/lambda/bind.hpp>
+#include <boost/lambda/lambda.hpp>
 #include <ranges>
 
 namespace ael::esc::dict {
 
-namespace rng = std::ranges;
+using boost::lambda::_1;
+using boost::lambda::bind;
+using std::ranges::upper_bound;
 
 ////////////////////////////////////////////////////////////////////////////////
 AdaptiveADictionary::AdaptiveADictionary(Ord maxOrd)
@@ -20,9 +24,10 @@ auto AdaptiveADictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
     return getMaxOrd_();
   }
   const auto getLowerCumulCnt_ = [this](Ord ord) {
-    return getRealLowerCumulativeWordCnt_(ord + 1);
+    return getRealLowerCumulativeWordCnt_(ord);
   };
-  return *rng::upper_bound(getOrdRng_(), cumulativeCnt, {}, getLowerCumulCnt_);
+  return *upper_bound(getOrdRng_(), cumulativeCnt, {},
+                      bind(getLowerCumulCnt_, _1 + 1));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -54,9 +59,10 @@ auto AdaptiveADictionary::getTotalWordsCnt() const -> Count {
 auto AdaptiveADictionary::getWordOrdAfterEsc_(Count cumulativeCnt) const
     -> Ord {
   const auto getLowerCumulCnt_ = [this](Ord ord) {
-    return ord + 1 - getLowerCumulativeUniqueNumFound_(ord + 1);
+    return ord - getLowerCumulativeUniqueNumFound_(ord);
   };
-  return *rng::upper_bound(getOrdRng_(), cumulativeCnt, {}, getLowerCumulCnt_);
+  return *upper_bound(getOrdRng_(), cumulativeCnt, {},
+                      bind(getLowerCumulCnt_, _1 + 1));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

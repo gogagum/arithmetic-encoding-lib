@@ -1,9 +1,13 @@
 #include <ael/esc/dictionary/adaptive_d_dictionary.hpp>
+#include <boost/lambda/bind.hpp>
+#include <boost/lambda/lambda.hpp>
 #include <ranges>
 
 namespace ael::esc::dict {
 
-namespace rng = std::ranges;
+using boost::lambda::_1;
+using boost::lambda::bind;
+using std::ranges::upper_bound;
 
 ////////////////////////////////////////////////////////////////////////////////
 AdaptiveDDictionary::AdaptiveDDictionary(Ord maxOrd)
@@ -24,11 +28,8 @@ auto AdaptiveDDictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
       getRealTotalWordsCnt_() * 2 - getTotalWordsUniqueCnt_()) {
     return getMaxOrd_();
   }
-  const auto getLowerCumulCnt = [this](Ord ord) {
-    return getRealLowerCumulativeWordCnt_(ord + 1) * 2 -
-           getLowerCumulativeUniqueNumFound_(ord + 1);
-  };
-  return *rng::upper_bound(getOrdRng_(), cumulativeCnt, {}, getLowerCumulCnt);
+  return *upper_bound(getOrdRng_(), cumulativeCnt, {},
+                      bind(&This_::getLowerCumulativeCnt_, this, _1));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -60,12 +61,22 @@ auto AdaptiveDDictionary::getTotalWordsCnt() const -> Count {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+auto AdaptiveDDictionary::getLowerCumulativeCnt_(Ord ord) const -> Count {
+  return getRealLowerCumulativeWordCnt_(ord + 1) * 2 -
+         getLowerCumulativeUniqueNumFound_(ord + 1);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+auto AdaptiveDDictionary::getLowerCumulativeCntAfterEsc_(Ord ord) const
+    -> Count {
+  return ord + 1 - getLowerCumulativeUniqueNumFound_(ord + 1);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 auto AdaptiveDDictionary::getWordOrdAfterEsc_(Count cumulativeCnt) const
     -> Ord {
-  const auto getLowerCumulCnt_ = [this](std::uint64_t ord) {
-    return ord + 1 - getLowerCumulativeUniqueNumFound_(ord + 1);
-  };
-  return *rng::upper_bound(getOrdRng_(), cumulativeCnt, {}, getLowerCumulCnt_);
+  return *upper_bound(getOrdRng_(), cumulativeCnt, {},
+                      bind(&This_::getLowerCumulativeCntAfterEsc_, this, _1));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

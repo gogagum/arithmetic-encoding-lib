@@ -42,7 +42,7 @@ class ADDictionaryBase : protected MaxOrdBase<std::uint64_t> {
   }
 
   /**
-   * @brief get real word count without aplying models.
+   * @brief get real word count without applying models.
    *
    * @param ord index of a word.
    * @return real count of a word.

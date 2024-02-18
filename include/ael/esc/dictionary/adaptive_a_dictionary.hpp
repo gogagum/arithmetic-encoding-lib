@@ -12,6 +12,9 @@ namespace ael::esc::dict {
 /// \brief The AdaptiveADictionary class
 ///
 class AdaptiveADictionary : public ael::impl::esc::dict::ADDictionaryBase {
+ private:
+  using This_ = AdaptiveADictionary;
+
  public:
   using Ord = std::uint64_t;
   using Count = std::uint64_t;
