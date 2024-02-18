@@ -1,7 +1,6 @@
 #include <ael/dictionary/ppmd_dictionary.hpp>
 #include <ael/impl/dictionary/cumulative_count.hpp>
 #include <ael/impl/dictionary/cumulative_unique_count.hpp>
-#include <algorithm>
 #include <ranges>
 #include <stdexcept>
 

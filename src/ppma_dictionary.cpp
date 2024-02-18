@@ -1,6 +1,5 @@
 #include <ael/dictionary/ppma_dictionary.hpp>
 #include <ael/impl/dictionary/cumulative_count.hpp>
-#include <algorithm>
 #include <cstdint>
 #include <ranges>
 #include <stdexcept>

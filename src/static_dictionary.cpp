@@ -1,5 +1,6 @@
 #include <ael/dictionary/static_dictionary.hpp>
 #include <algorithm>
+#include <ranges>
 
 namespace ael::dict {
 

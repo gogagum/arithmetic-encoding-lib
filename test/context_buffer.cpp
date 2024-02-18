@@ -3,7 +3,6 @@
 #include <ael/impl/context_buffer.hpp>
 #include <cstdint>
 #include <deque>
-#include <initializer_list>
 #include <random>
 #include <ranges>
 
@@ -52,8 +51,7 @@ TEST(ContextBuffer, getFromOnceFilledContext) {
 
 TEST(ContextBuffer, getFromFilledMoreThanOnce) {
   auto buff = ael::impl::ContextBuffer<std::uint64_t, 3>{};
-  const auto ords = std::array{42, 37, 73, 6, 53};
-  for (auto ord : ords) {
+  for (auto ord : std::array{42, 37, 73, 6, 53}) {
     buff.add(ord);
   }
 
