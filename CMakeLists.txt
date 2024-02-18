@@ -104,6 +104,7 @@ target_link_libraries(arithmetic-encoding-lib
     Boost::multiprecision
     Boost::container
     Boost::container_hash
+    Boost::lambda
     dynamic-segment-tree)
 
 if (AEL_TESTS)
