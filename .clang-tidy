@@ -25,6 +25,7 @@ Checks: >
   -cppcoreguidelines-pro-type-member-init,
   -cert-dcl21-cpp,
   -cert-dcl58-cpp,
+  -cert-dcl03-c,
   -bugprone-easily-swappable-parameters
 
 HeaderFilterRegex: '\.hpp$'
