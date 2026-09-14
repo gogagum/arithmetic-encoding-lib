@@ -11,6 +11,11 @@ set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
 
+if (POLICY CMP0167)
+    cmake_policy(SET CMP0167 NEW)
+endif ()
+find_package(Boost 1.81 REQUIRED COMPONENTS container)
+
 add_library(${PROJECT_NAME} STATIC)
 
 add_subdirectory(thirdparty)
@@ -100,11 +105,8 @@ set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 find_library(dst dynamic-segment-tree)
 
 target_link_libraries(arithmetic-encoding-lib
-    Boost::config
-    Boost::multiprecision
+    Boost::headers
     Boost::container
-    Boost::container_hash
-    Boost::lambda
     dynamic-segment-tree)
 
 if (AEL_TESTS)
