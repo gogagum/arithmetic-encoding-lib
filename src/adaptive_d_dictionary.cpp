@@ -50,9 +50,9 @@ auto AdaptiveDDictionary::getLowerCumulativeCnt_(Ord ord) const -> Count {
   if (totalUniqueWordsCnt == getMaxOrd_()) {
     return cumulativeWordsCnt;
   }
-  return (getMaxOrd_() - totalUniqueWordsCnt) * 2 * cumulativeWordsCnt +
-         ord * totalUniqueWordsCnt -
-         getMaxOrd_() * getLowerCumulativeUniqueNumFound_(ord);
+  return ((getMaxOrd_() - totalUniqueWordsCnt) * 2 * cumulativeWordsCnt) +
+         (ord * totalUniqueWordsCnt) -
+         (getMaxOrd_() * getLowerCumulativeUniqueNumFound_(ord));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -65,8 +65,8 @@ auto AdaptiveDDictionary::getWordCnt_(Ord ord) const -> Count {
   if (totalUniqueWordsCount == getMaxOrd_()) {
     return realWordCnt;
   }
-  return (getMaxOrd_() - totalUniqueWordsCount) * 2 * realWordCnt +
-         totalUniqueWordsCount - getMaxOrd_() * getWordUniqueCnt_(ord);
+  return ((getMaxOrd_() - totalUniqueWordsCount) * 2 * realWordCnt) +
+         totalUniqueWordsCount - (getMaxOrd_() * getWordUniqueCnt_(ord));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

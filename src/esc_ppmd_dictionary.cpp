@@ -53,7 +53,7 @@ auto PPMDDictionary::getProbabilityStats(Ord ord) -> StatsSeq {
     }
     const auto currTotal = currCtxInfo.cnt.getTotalWordsCnt();
     const auto currTotalUnique = currCtxInfo.uniqueCnt.getTotalWordsCnt();
-    const auto escLow = 2 * currTotal - currTotalUnique;
+    const auto escLow = (2 * currTotal) - currTotalUnique;
     const auto escHigh = escLow + currTotalUnique;
     const auto escTotal = 2 * currTotal;
     ret.emplace_back(escLow, escHigh, escTotal);
@@ -66,7 +66,7 @@ auto PPMDDictionary::getProbabilityStats(Ord ord) -> StatsSeq {
         zeroCtxCell_.uniqueCnt.getLowerCumulativeCnt(ord);
     if (const auto zeroCount = zeroCtxCell_.cnt.getCount(ord); 0 == zeroCount) {
       const auto zeroTotalUnique = zeroCtxCell_.uniqueCnt.getTotalWordsCnt();
-      const auto escLow = 2 * zeroTotal - zeroTotalUnique;
+      const auto escLow = (2 * zeroTotal) - zeroTotalUnique;
       const auto escHigh = escLow + std::max(Count{1}, zeroTotalUnique);
       const auto escTotal = std::max(Count{1}, 2 * zeroTotal);
       ret.emplace_back(escLow, escHigh, escTotal);
@@ -77,8 +77,8 @@ auto PPMDDictionary::getProbabilityStats(Ord ord) -> StatsSeq {
     } else {
       const auto zeroLower = zeroCtxCell_.cnt.getLowerCumulativeCnt(ord);
       const auto zeroUnique = zeroCtxCell_.uniqueCnt.getCount(ord);
-      const auto symLow = 2 * zeroLower - zeroLowerUnique;
-      const auto symHigh = symLow + 2 * zeroCount - zeroUnique;
+      const auto symLow = (2 * zeroLower) - zeroLowerUnique;
+      const auto symHigh = symLow + (2 * zeroCount) - zeroUnique;
       const auto symTotal = 2 * zeroTotal;
       ret.emplace_back(symLow, symHigh, symTotal);
     }
@@ -87,10 +87,10 @@ auto PPMDDictionary::getProbabilityStats(Ord ord) -> StatsSeq {
     const auto lowerCnt = currCtxInfo.cnt.getLowerCumulativeCnt(ord);
     const auto lowerUniqueCnt =
         currCtxInfo.uniqueCnt.getLowerCumulativeCnt(ord);
-    const auto symLow = 2 * lowerCnt - lowerUniqueCnt;
+    const auto symLow = (2 * lowerCnt) - lowerUniqueCnt;
     const auto cnt = currCtxInfo.cnt.getCount(ord);
     const auto uniqueCnt = currCtxInfo.uniqueCnt.getCount(ord);
-    const auto symHigh = symLow + 2 * cnt - uniqueCnt;
+    const auto symHigh = symLow + (2 * cnt) - uniqueCnt;
     const auto symTotal = 2 * currCtxInfo.cnt.getTotalWordsCnt();
     ret.emplace_back(symLow, symHigh, symTotal);
     for (; !currCtx.empty(); currCtx.pop_back()) {
@@ -149,8 +149,8 @@ auto PPMDDictionary::getDecodeProbabilityStats_(Ord ord) -> ProbabilityStats {
           zeroCtxCell_.uniqueCnt.getLowerCumulativeCnt(ord);
       const auto zeroCnt = zeroCtxCell_.cnt.getCount(ord);
       const auto zeroUniqueCnt = zeroCtxCell_.uniqueCnt.getCount(ord);
-      const auto symLow = 2 * zeroLower - zeroLowerUnique;
-      const auto symHigh = symLow + 2 * zeroCnt - zeroUniqueCnt;
+      const auto symLow = (2 * zeroLower) - zeroLowerUnique;
+      const auto symHigh = symLow + (2 * zeroCnt) - zeroUniqueCnt;
       const auto symTotal = 2 * zeroCtxCell_.cnt.getTotalWordsCnt();
       updateEscDecoded_(ord);
       return {symLow, symHigh, symTotal};
@@ -167,7 +167,7 @@ auto PPMDDictionary::getDecodeProbabilityStats_(Ord ord) -> ProbabilityStats {
   const auto totalCnt = currCtxInfo.cnt.getTotalWordsCnt();
   if (isEsc(ord)) {
     const auto totalUniqueCnt = currCtxInfo.uniqueCnt.getTotalWordsCnt();
-    const auto escLow = 2 * totalCnt - totalUniqueCnt;
+    const auto escLow = (2 * totalCnt) - totalUniqueCnt;
     const auto escHigh = escLow + totalUniqueCnt;
     const auto escTotal = 2 * totalCnt;
     return {escLow, escHigh, escTotal};
@@ -176,8 +176,8 @@ auto PPMDDictionary::getDecodeProbabilityStats_(Ord ord) -> ProbabilityStats {
   const auto lowerUniqueCnt = currCtxInfo.uniqueCnt.getLowerCumulativeCnt(ord);
   const auto cnt = currCtxInfo.cnt.getCount(ord);
   const auto uniqueCnt = currCtxInfo.uniqueCnt.getCount(ord);
-  const auto symLow = 2 * lowerCnt - lowerUniqueCnt;
-  const auto symHigh = symLow + 2 * cnt - uniqueCnt;
+  const auto symLow = (2 * lowerCnt) - lowerUniqueCnt;
+  const auto symHigh = symLow + (2 * cnt) - uniqueCnt;
   const auto symTotal = 2 * totalCnt;
   return {symLow, symHigh, symTotal};
 }
@@ -229,7 +229,7 @@ auto PPMDDictionary::getZeroCtxEscStats_() const -> ProbabilityStats {
   if (0 == zeroTotal) [[unlikely]] {
     return {0, 1, 1};
   }
-  const auto escLow = 2 * zeroTotal - zeroCtxCell_.uniqueCnt.getTotalWordsCnt();
+  const auto escLow = (2 * zeroTotal) - zeroCtxCell_.uniqueCnt.getTotalWordsCnt();
   const auto escHigh = escLow + zeroCtxCell_.uniqueCnt.getTotalWordsCnt();
   const auto escTotal = 2 * zeroCtxCell_.cnt.getTotalWordsCnt();
   return {escLow, escHigh, escTotal};

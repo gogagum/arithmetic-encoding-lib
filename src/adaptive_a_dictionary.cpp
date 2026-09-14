@@ -46,7 +46,7 @@ auto AdaptiveADictionary::getLowerCumulativeCnt_(Ord ord) const -> Count {
   const auto numUniqueWordsTotal = getTotalWordsUniqueCnt_();
   const auto cumulativeUniqueWordsNumFound =
       getLowerCumulativeUniqueNumFound_(ord);
-  return (getMaxOrd_() - numUniqueWordsTotal) * cumulativeNumFound +
+  return ((getMaxOrd_() - numUniqueWordsTotal) * cumulativeNumFound) +
          (ord - cumulativeUniqueWordsNumFound);
 }
 

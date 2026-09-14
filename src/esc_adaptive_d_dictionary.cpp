@@ -25,7 +25,7 @@ auto AdaptiveDDictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
   assert(cumulativeCnt < getRealTotalWordsCnt_() * 2 &&
          "Invalid cumulative count.");
   if (cumulativeCnt >=
-      getRealTotalWordsCnt_() * 2 - getTotalWordsUniqueCnt_()) {
+      (getRealTotalWordsCnt_() * 2) - getTotalWordsUniqueCnt_()) {
     return getMaxOrd_();
   }
   return *upper_bound(getOrdRng_(), cumulativeCnt, {},
@@ -62,7 +62,7 @@ auto AdaptiveDDictionary::getTotalWordsCnt() const -> Count {
 
 ////////////////////////////////////////////////////////////////////////////////
 auto AdaptiveDDictionary::getLowerCumulativeCnt_(Ord ord) const -> Count {
-  return getRealLowerCumulativeWordCnt_(ord + 1) * 2 -
+  return (getRealLowerCumulativeWordCnt_(ord + 1) * 2) -
          getLowerCumulativeUniqueNumFound_(ord + 1);
 }
 
@@ -84,9 +84,9 @@ auto AdaptiveDDictionary::getProbabilityStats_(Ord ord) const -> StatsSeq {
   if (getRealWordCnt_(ord) == 0) {
     return getProbabilityStatsForNewWord_(ord);
   }
-  const auto symLow = getRealLowerCumulativeWordCnt_(ord) * 2 -
+  const auto symLow = (getRealLowerCumulativeWordCnt_(ord) * 2) -
                       getLowerCumulativeUniqueNumFound_(ord);
-  const auto symHigh = symLow + getRealWordCnt_(ord) * 2 - 1;
+  const auto symHigh = symLow + (getRealWordCnt_(ord) * 2) - 1;
   const auto symTotal = getRealTotalWordsCnt_() * 2;
 
   return {{symLow, symHigh, symTotal}};
@@ -101,7 +101,7 @@ auto AdaptiveDDictionary::getDecodeProbabilityStats_(Ord ord)
   }
   if (isEsc(ord)) {
     escJustDecoded_ = true;
-    const auto escLow = 2 * getRealTotalWordsCnt_() - getTotalWordsUniqueCnt_();
+    const auto escLow = (2 * getRealTotalWordsCnt_()) - getTotalWordsUniqueCnt_();
     const auto escHigh = 2 * getRealTotalWordsCnt_();
     const auto escTotal = 2 * getRealTotalWordsCnt_();
     return {escLow, escHigh, escTotal};
@@ -113,9 +113,9 @@ auto AdaptiveDDictionary::getDecodeProbabilityStats_(Ord ord)
     const auto symTotal = getMaxOrd_() - getTotalWordsUniqueCnt_();
     return {symLow, symHigh, symTotal};
   }
-  const auto symLow = 2 * getRealLowerCumulativeWordCnt_(ord) -
+  const auto symLow = (2 * getRealLowerCumulativeWordCnt_(ord)) -
                       getLowerCumulativeUniqueNumFound_(ord);
-  const auto symHigh = symLow + 2 * getRealWordCnt_(ord) - 1;
+  const auto symHigh = symLow + (2 * getRealWordCnt_(ord)) - 1;
   const auto symTotal = 2 * getRealTotalWordsCnt_();
   return {symLow, symHigh, symTotal};
 }
@@ -127,7 +127,7 @@ auto AdaptiveDDictionary::getProbabilityStatsForNewWord_(Ord ord) const
   if (getRealTotalWordsCnt_() == 0) [[unlikely]] {
     ret.push_back({Count{0}, Count{1}, Count{1}});
   } else {
-    const auto escLow = getRealTotalWordsCnt_() * 2 - getTotalWordsUniqueCnt_();
+    const auto escLow = (getRealTotalWordsCnt_() * 2) - getTotalWordsUniqueCnt_();
     const auto escHigh = getRealTotalWordsCnt_() * 2;
     const auto escTotal = getRealTotalWordsCnt_() * 2;
     ret.push_back({escLow, escHigh, escTotal});
