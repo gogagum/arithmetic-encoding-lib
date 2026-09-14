@@ -84,14 +84,9 @@ class PPMADictionary
  protected:
   [[nodiscard]] ProbabilityStats getDecodeProbabilityStats_(Ord ord);
 
-  [[nodiscard]] ProbabilityStats getDecodeProbabilityStatsForNewWord_(
-      Ord ord) const;
-
   void updateWordCnt_(Ord ord, std::int64_t cntChange);
 
   [[nodiscard]] Ord getWordOrdForNewWord_(Count cumulativeCnt) const;
-
-  [[nodiscard]] ProbabilityStats getZeroCtxEscStats_() const;
 
   [[nodiscard]] const CumulativeCount_& getCurrCumulativeCnt_(
       SearchCtx_& currCtx) const;

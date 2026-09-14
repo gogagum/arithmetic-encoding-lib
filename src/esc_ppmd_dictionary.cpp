@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <boost/lambda/bind.hpp>
 #include <boost/lambda/lambda.hpp>
+#include <memory>
 #include <ranges>
 
 namespace ael::esc::dict {
@@ -38,7 +39,7 @@ auto PPMDDictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMDDictionary::getProbabilityStats(Ord ord) -> StatsSeq {
   StatsSeq ret;
-  auto currCtx = getInitSearchCtx_();
+  SearchCtx_ currCtx = getInitSearchCtx_();
   updateCtx_(ord);
   for (; !currCtx.empty() && !ctxInfo_.contains(currCtx); currCtx.pop_back()) {
     auto [iter, insertionHappened] = ctxInfo_.emplace(currCtx, getMaxOrd_());
@@ -130,72 +131,74 @@ auto PPMDDictionary::getTotalWordsCnt() const -> Count {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto PPMDDictionary::getDecodeProbabilityStats_(Ord ord) -> ProbabilityStats {
-  auto currCtx = getSearchCtxEmptySkipped_();
+auto PPMDDictionary::getDecodeProbabilityStats_(const Ord ord)
+    -> ProbabilityStats {
+  const auto ord_update = [ord](PPMDDictionary* const val) {
+    val->updateEscDecoded_(ord);
+  };
+  std::unique_ptr<PPMDDictionary, decltype(ord_update)> esc_decoded_update{
+      this, ord_update};
+  SearchCtx_ currCtx = getSearchCtxEmptySkipped_();
   if (getEscDecoded_() >= currCtx.size()) {
     if (isEsc(ord)) {
-      assert(getEscDecoded_() == currCtx.size() &&
-             "escDecoded_ can not be greater than size at this moment.");
-      updateEscDecoded_(ord);
+      assert(
+          getEscDecoded_() == currCtx.size() &&
+          "escDecoded_ can not be greater than context size at this moment.");
       return getZeroCtxEscStats_();
     }
     if (getEscDecoded_() == currCtx.size()) {
       if (0 == zeroCtxCell_.cnt.getTotalWordsCnt()) {
-        updateEscDecoded_(ord);
-        return {0, 1, 1};
+        return {
+            .low = 0,
+            .high = 1,
+            .total = 1,
+        };
       }
-      const auto zeroLower = zeroCtxCell_.cnt.getLowerCumulativeCnt(ord);
-      const auto zeroLowerUnique =
+      const Count zeroLower = zeroCtxCell_.cnt.getLowerCumulativeCnt(ord);
+      const Count zeroLowerUnique =
           zeroCtxCell_.uniqueCnt.getLowerCumulativeCnt(ord);
-      const auto zeroCnt = zeroCtxCell_.cnt.getCount(ord);
-      const auto zeroUniqueCnt = zeroCtxCell_.uniqueCnt.getCount(ord);
-      const auto symLow = (2 * zeroLower) - zeroLowerUnique;
-      const auto symHigh = symLow + (2 * zeroCnt) - zeroUniqueCnt;
-      const auto symTotal = 2 * zeroCtxCell_.cnt.getTotalWordsCnt();
-      updateEscDecoded_(ord);
-      return {symLow, symHigh, symTotal};
+      const Count zeroCnt = zeroCtxCell_.cnt.getCount(ord);
+      const Count zeroUniqueCnt = zeroCtxCell_.uniqueCnt.getCount(ord);
+      const Count symLow = (2 * zeroLower) - zeroLowerUnique;
+      return {
+          .low = symLow,
+          .high = symLow + (2 * zeroCnt) - zeroUniqueCnt,
+          .total = 2 * zeroCtxCell_.cnt.getTotalWordsCnt(),
+      };
     }
     assert(getEscDecoded_() == currCtx.size() + 1 &&
            "escDecoded_ can not be that big.");
-    updateEscDecoded_(ord);
-    assert(!isEsc(ord) && "ord can not be esc at this moment.");
-    return getDecodeProbabilityStatsForNewWord_(ord);
+    const Count symLow =
+        Count{ord} - zeroCtxCell_.uniqueCnt.getLowerCumulativeCnt(ord);
+    return {
+        .low = symLow,
+        .high = symLow + 1,
+        .total = getMaxOrd_() - zeroCtxCell_.uniqueCnt.getTotalWordsCnt(),
+    };
   }
   skipCtxsByEsc_(currCtx);
-  updateEscDecoded_(ord);
-  const auto& currCtxInfo = ctxInfo_.at(currCtx);
-  const auto totalCnt = currCtxInfo.cnt.getTotalWordsCnt();
+  const CtxCell_& currCtxInfo = ctxInfo_.at(currCtx);
+  const Count totalCnt = currCtxInfo.cnt.getTotalWordsCnt();
   if (isEsc(ord)) {
-    const auto totalUniqueCnt = currCtxInfo.uniqueCnt.getTotalWordsCnt();
-    const auto escLow = (2 * totalCnt) - totalUniqueCnt;
-    const auto escHigh = escLow + totalUniqueCnt;
-    const auto escTotal = 2 * totalCnt;
-    return {escLow, escHigh, escTotal};
+    return {
+        .low = (2 * totalCnt) - currCtxInfo.uniqueCnt.getTotalWordsCnt(),
+        .high = 2 * totalCnt,
+        .total = 2 * totalCnt,
+    };
   }
-  const auto lowerCnt = currCtxInfo.cnt.getLowerCumulativeCnt(ord);
-  const auto lowerUniqueCnt = currCtxInfo.uniqueCnt.getLowerCumulativeCnt(ord);
-  const auto cnt = currCtxInfo.cnt.getCount(ord);
-  const auto uniqueCnt = currCtxInfo.uniqueCnt.getCount(ord);
-  const auto symLow = (2 * lowerCnt) - lowerUniqueCnt;
-  const auto symHigh = symLow + (2 * cnt) - uniqueCnt;
-  const auto symTotal = 2 * totalCnt;
-  return {symLow, symHigh, symTotal};
-}
-
-////////////////////////////////////////////////////////////////////////////////
-auto PPMDDictionary::getDecodeProbabilityStatsForNewWord_(Ord ord) const
-    -> ProbabilityStats {
-  const auto symLow =
-      Count{ord} - zeroCtxCell_.uniqueCnt.getLowerCumulativeCnt(ord);
-  const auto symHigh = symLow + 1;
-  const auto symTotal =
-      getMaxOrd_() - zeroCtxCell_.uniqueCnt.getTotalWordsCnt();
-  return {symLow, symHigh, symTotal};
+  const Count symLow = (2 * currCtxInfo.cnt.getLowerCumulativeCnt(ord)) -
+                       currCtxInfo.uniqueCnt.getLowerCumulativeCnt(ord);
+  return {
+      .low = symLow,
+      .high = symLow + (2 * currCtxInfo.cnt.getCount(ord)) -
+              currCtxInfo.uniqueCnt.getCount(ord),
+      .total = 2 * totalCnt,
+  };
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void PPMDDictionary::updateWordCnt_(Ord ord, std::int64_t cntChange) {
-  auto currCtx = getInitSearchCtx_();
+  SearchCtx_ currCtx = getInitSearchCtx_();
   for (; !currCtx.empty() && !ctxInfo_.contains(currCtx); currCtx.pop_back()) {
     auto [iter, insertionHappened] = ctxInfo_.emplace(currCtx, getMaxOrd_());
     assert(insertionHappened && "Insertion must happen.");
@@ -229,7 +232,8 @@ auto PPMDDictionary::getZeroCtxEscStats_() const -> ProbabilityStats {
   if (0 == zeroTotal) [[unlikely]] {
     return {0, 1, 1};
   }
-  const auto escLow = (2 * zeroTotal) - zeroCtxCell_.uniqueCnt.getTotalWordsCnt();
+  const auto escLow =
+      (2 * zeroTotal) - zeroCtxCell_.uniqueCnt.getTotalWordsCnt();
   const auto escHigh = escLow + zeroCtxCell_.uniqueCnt.getTotalWordsCnt();
   const auto escTotal = 2 * zeroCtxCell_.cnt.getTotalWordsCnt();
   return {escLow, escHigh, escTotal};

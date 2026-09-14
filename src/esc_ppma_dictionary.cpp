@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <boost/lambda/bind.hpp>
 #include <boost/lambda/lambda.hpp>
+#include <memory>
 #include <ranges>
 
 namespace ael::esc::dict {
@@ -20,9 +21,9 @@ PPMADictionary::PPMADictionary(ConstructInfo constructInfo)
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMADictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
-  auto currCtx = getSearchCtxEmptySkipped_();
+  SearchCtx_ currCtx = getSearchCtxEmptySkipped_();
   if (getEscDecoded_() <= currCtx.size()) {
-    const auto& cell = getCurrCumulativeCnt_(currCtx);
+    const CumulativeCount_& cell = getCurrCumulativeCnt_(currCtx);
     return *upper_bound(
         getOrdRng_(), cumulativeCnt, {},
         bind(&CumulativeCount_::getLowerCumulativeCnt, &cell, _1 + 1));
@@ -33,7 +34,7 @@ auto PPMADictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMADictionary::getProbabilityStats(Ord ord) -> StatsSeq {
   StatsSeq ret;
-  auto currCtx = getInitSearchCtx_();
+  SearchCtx_ currCtx = getInitSearchCtx_();
   updateCtx_(ord);  // ctx_ is never read later
   for (; !currCtx.empty() && !ctxInfo_.contains(currCtx); currCtx.pop_back()) {
     ctxInfo_.emplace(currCtx, getMaxOrd_());
@@ -55,8 +56,8 @@ auto PPMADictionary::getProbabilityStats(Ord ord) -> StatsSeq {
       const auto escHigh = escLow + 1;
       const auto escTotal = zeroTotal + 1;
       ret.emplace_back(escLow, escHigh, escTotal);
-      const auto zeroLower = zeroCtxUniqueCnt_.getLowerCumulativeCnt(ord);
-      const auto symLow = Count{ord} - zeroLower;
+      const auto symLow =
+          Count{ord} - zeroCtxUniqueCnt_.getLowerCumulativeCnt(ord);
       const auto symHigh = symLow + 1;
       const auto symTotal = getMaxOrd_() - zeroCtxUniqueCnt_.getTotalWordsCnt();
       ret.emplace_back(symLow, symHigh, symTotal);
@@ -111,56 +112,66 @@ auto PPMADictionary::getTotalWordsCnt() const -> Count {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto PPMADictionary::getDecodeProbabilityStats_(Ord ord) -> ProbabilityStats {
-  auto currCtx = getSearchCtxEmptySkipped_();
+auto PPMADictionary::getDecodeProbabilityStats_(const Ord ord)
+    -> ProbabilityStats {
+  const auto ord_update = [ord](PPMADictionary* const val) {
+    val->updateEscDecoded_(ord);
+  };
+  std::unique_ptr<PPMADictionary, decltype(ord_update)> esc_decoded_update{
+      this, ord_update};
+  SearchCtx_ currCtx = getSearchCtxEmptySkipped_();
   if (getEscDecoded_() >= currCtx.size()) {
     if (isEsc(ord)) {
       assert(
           getEscDecoded_() == currCtx.size() &&
           "escDecoded_ can not be greater than context size at this moment.");
-      updateEscDecoded_(ord);
-      return getZeroCtxEscStats_();
+      const auto escLow = zeroCtxCnt_.getTotalWordsCnt();
+      const auto escHigh = escLow + 1;
+      return {
+          .low = escLow,
+          .high = escLow + 1,
+          .total = escLow + 1,
+      };
     }
     if (getEscDecoded_() == currCtx.size()) {
-      const auto symLow = zeroCtxCnt_.getLowerCumulativeCnt(ord);
-      const auto symHigh = symLow + zeroCtxCnt_.getCount(ord);
-      const auto symTotal = zeroCtxCnt_.getTotalWordsCnt() + 1;
-      updateEscDecoded_(ord);
-      return {symLow, symHigh, symTotal};
+      const Count symLow = zeroCtxCnt_.getLowerCumulativeCnt(ord);
+      return {
+          .low = symLow,
+          .high = symLow + zeroCtxCnt_.getCount(ord),
+          .total = zeroCtxCnt_.getTotalWordsCnt() + 1,
+      };
     }
     assert(getEscDecoded_() == currCtx.size() + 1 &&
            "escDecoded_ can not be that big.");
-    updateEscDecoded_(ord);
-    assert(!isEsc(ord) && "ord can not be esc at this moment.");
-    return getDecodeProbabilityStatsForNewWord_(ord);
+    const Count symLow =
+        Count{ord} - zeroCtxUniqueCnt_.getLowerCumulativeCnt(ord);
+    return {
+        .low = symLow,
+        .high = symLow + 1,
+        .total = getMaxOrd_() - zeroCtxUniqueCnt_.getTotalWordsCnt(),
+    };
   }
   skipCtxsByEsc_(currCtx);
-  updateEscDecoded_(ord);
-  const auto& currCtxInfo = ctxInfo_.at(currCtx);
+  const CumulativeCount_& currCtxInfo = ctxInfo_.at(currCtx);
   if (isEsc(ord)) {
-    const auto escLow = currCtxInfo.getTotalWordsCnt();
-    const auto escHigh = escLow + 1;
-    const auto escTotal = currCtxInfo.getTotalWordsCnt() + 1;
-    return {escLow, escHigh, escTotal};
+    const Count escLow = currCtxInfo.getTotalWordsCnt();
+    return {
+        .low = escLow,
+        .high = escLow + 1,
+        .total = currCtxInfo.getTotalWordsCnt() + 1,
+    };
   }
-  const auto symLow = currCtxInfo.getLowerCumulativeCnt(ord);
-  const auto symHigh = symLow + currCtxInfo.getCount(ord);
-  const auto symTotal = currCtxInfo.getTotalWordsCnt() + 1;
-  return {symLow, symHigh, symTotal};
-}
-
-////////////////////////////////////////////////////////////////////////////////
-auto PPMADictionary::getDecodeProbabilityStatsForNewWord_(Ord ord) const
-    -> ProbabilityStats {
-  const auto symLow = Count{ord} - zeroCtxUniqueCnt_.getLowerCumulativeCnt(ord);
-  const auto symHigh = symLow + 1;
-  const auto symTotal = getMaxOrd_() - zeroCtxUniqueCnt_.getTotalWordsCnt();
-  return {symLow, symHigh, symTotal};
+  const Count symLow = currCtxInfo.getLowerCumulativeCnt(ord);
+  return {
+      .low = symLow,
+      .high = symLow + currCtxInfo.getCount(ord),
+      .total = currCtxInfo.getTotalWordsCnt() + 1,
+  };
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void PPMADictionary::updateWordCnt_(Ord ord, std::int64_t cntChange) {
-  auto currCtx = getInitSearchCtx_();
+  SearchCtx_ currCtx = getInitSearchCtx_();
   for (; !currCtx.empty() && !ctxInfo_.contains(currCtx); currCtx.pop_back()) {
     auto [iter, insertionHappened] = ctxInfo_.emplace(currCtx, getMaxOrd_());
     assert(insertionHappened && "Insertion must has happened here.");
@@ -175,22 +186,14 @@ void PPMADictionary::updateWordCnt_(Ord ord, std::int64_t cntChange) {
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMADictionary::getWordOrdForNewWord_(Count cumulativeCnt) const -> Ord {
-  const auto getLowerCumulCnt = [this](Ord ord) {
+  const auto getLowerCumulCnt = [this](const Ord ord) {
     return ord - zeroCtxUniqueCnt_.getLowerCumulativeCnt(ord);
   };
-  const auto retOrd = *upper_bound(getOrdRng_(), cumulativeCnt, {},
-                                   bind(getLowerCumulCnt, _1 + 1));
+  const Ord retOrd = *upper_bound(getOrdRng_(), cumulativeCnt, {},
+                                  bind(getLowerCumulCnt, _1 + 1));
   assert(!isEsc(retOrd) &&
          "Search in symbols which were not found yet. Esc is invalid here.");
   return retOrd;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-auto PPMADictionary::getZeroCtxEscStats_() const -> ProbabilityStats {
-  const auto escLow = zeroCtxCnt_.getTotalWordsCnt();
-  const auto escHigh = escLow + 1;
-  const auto escTotal = zeroCtxCnt_.getTotalWordsCnt() + 1;
-  return {escLow, escHigh, escTotal};
 }
 
 ////////////////////////////////////////////////////////////////////////////////

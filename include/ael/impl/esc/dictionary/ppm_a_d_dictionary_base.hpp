@@ -53,7 +53,13 @@ class PPMADDictionaryBase
     return escDecoded_;
   }
 
-  void updateEscDecoded_(Ord ord);
+  void updateEscDecoded_(Ord ord) {
+    if (isEsc(ord)) {
+      ++escDecoded_;
+    } else {
+      escDecoded_ = 0;
+    }
+  }
 
   void skipCtxsByEsc_(SearchCtx_& currCtx) const {
     assert(getEscDecoded_() < currCtx.size() && "Checked other cases.");
@@ -63,16 +69,6 @@ class PPMADDictionaryBase
  private:
   std::size_t escDecoded_{0};
 };
-
-////////////////////////////////////////////////////////////////////////////////
-template <class DictT>
-void PPMADDictionaryBase<DictT>::updateEscDecoded_(Ord ord) {
-  if (isEsc(ord)) {
-    ++escDecoded_;
-  } else {
-    escDecoded_ = 0;
-  }
-}
 
 }  // namespace ael::impl::esc::dict
 

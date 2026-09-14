@@ -91,9 +91,6 @@ class PPMDDictionary
  protected:
   [[nodiscard]] ProbabilityStats getDecodeProbabilityStats_(Ord ord);
 
-  [[nodiscard]] ProbabilityStats getDecodeProbabilityStatsForNewWord_(
-      Ord ord) const;
-
   void updateWordCnt_(Ord ord, std::int64_t cntChange);
 
   [[nodiscard]] Ord getWordOrdForNewWord_(Count cumulativeCnt) const;
