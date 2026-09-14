@@ -1,9 +1,12 @@
 cmake_minimum_required(VERSION 3.15)
 
 include(FetchContent)
+
+set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "" FORCE)
+
 FetchContent_Declare(
     googlebenchmark
-    URL https://github.com/google/benchmark/archive/refs/tags/v1.8.3.zip
+    URL https://github.com/google/benchmark/archive/refs/tags/v1.9.5.zip
 )
 
 FetchContent_MakeAvailable(googlebenchmark)
