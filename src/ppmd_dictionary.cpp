@@ -68,7 +68,7 @@ auto PPMDDictionary::getLowerCumulativeCnt_(Ord ord) const -> Count {
     lower *= ctxTotalCnt * 2;
     const auto lowerCnt = ctxCell.cnt.getLowerCumulativeCnt(ord);
     const auto lowerUniqueCnt = ctxCell.uniqueCnt.getLowerCumulativeCnt(ord);
-    lower += (lowerCnt * 2 - lowerUniqueCnt) * uniqueCountsProd;
+    lower += ((lowerCnt * 2) - lowerUniqueCnt) * uniqueCountsProd;
     uniqueCountsProd *= ctxCell.uniqueCnt.getTotalWordsCnt();
   }
   const auto zeroCtxTotalUniqueCnt = zeroCtxCell_.uniqueCnt.getTotalWordsCnt();
@@ -78,7 +78,7 @@ auto PPMDDictionary::getLowerCumulativeCnt_(Ord ord) const -> Count {
     const auto cumulativeCnt = zeroCtxCell_.cnt.getLowerCumulativeCnt(ord);
     const auto cumulativeUniqueCnt =
         zeroCtxCell_.uniqueCnt.getLowerCumulativeCnt(ord);
-    lower += (cumulativeCnt * 2 - cumulativeUniqueCnt) * uniqueCountsProd;
+    lower += ((cumulativeCnt * 2) - cumulativeUniqueCnt) * uniqueCountsProd;
     uniqueCountsProd *= zeroCtxTotalUniqueCnt;
   }
   if (zeroCtxTotalUniqueCnt < getMaxOrd_()) {
@@ -103,12 +103,12 @@ auto PPMDDictionary::getProbabilityStats_(Ord ord) const -> ProbabilityStats {
     lower *= ctxTotalCnt * 2;
     const auto lowerCnt = ctxInfo.getLowerCumulativeCnt(ord);
     const auto lowerUniqueCnt = ctxUniqueInfo.getLowerCumulativeCnt(ord);
-    lower += (lowerCnt * 2 - lowerUniqueCnt) * uniqueCountsProd;
+    lower += ((lowerCnt * 2) - lowerUniqueCnt) * uniqueCountsProd;
     total *= ctxTotalCnt * 2;
     count *= ctxTotalCnt * 2;
     const auto cnt = ctxInfo.getCount(ord);
     const auto uniqueCnt = ctxUniqueInfo.getCount(ord);
-    count += (cnt * 2 - uniqueCnt) * uniqueCountsProd;
+    count += ((cnt * 2) - uniqueCnt) * uniqueCountsProd;
     uniqueCountsProd *= ctxUniqueInfo.getTotalWordsCnt();
   }
   const auto zeroCtxUniqueTotal = zeroCtxCell_.uniqueCnt.getTotalWordsCnt();
@@ -116,11 +116,11 @@ auto PPMDDictionary::getProbabilityStats_(Ord ord) const -> ProbabilityStats {
   lower *= zeroCtxTotal * 2;
   const auto lowerCnt = zeroCtxCell_.cnt.getLowerCumulativeCnt(ord);
   const auto lowerUniqueCnt = zeroCtxCell_.uniqueCnt.getLowerCumulativeCnt(ord);
-  lower += (lowerCnt * 2 - lowerUniqueCnt) * uniqueCountsProd;
+  lower += ((lowerCnt * 2) - lowerUniqueCnt) * uniqueCountsProd;
   count *= zeroCtxTotal * 2;
   const auto cnt = zeroCtxCell_.cnt.getCount(ord);
   const auto uniqueCnt = zeroCtxCell_.uniqueCnt.getCount(ord);
-  count += (cnt * 2 - uniqueCnt) * uniqueCountsProd;
+  count += ((cnt * 2) - uniqueCnt) * uniqueCountsProd;
   if (zeroCtxTotal != 0) {
     total *= zeroCtxTotal * 2;
     uniqueCountsProd *= zeroCtxUniqueTotal;
