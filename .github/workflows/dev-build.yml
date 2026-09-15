@@ -53,6 +53,8 @@ jobs:
           image: ubuntu:24.04
           env:
             CXXFLAGS: -stdlib=${{ matrix.stdlib }}
+            CC: /usr/bin/clang
+            CXX: /usr/bin/clang++
         steps:
             - name: Checkout
               uses: actions/checkout@v4
@@ -75,6 +77,8 @@ jobs:
           image: ubuntu:24.04
           env:
             CXXFLAGS: -stdlib=${{ matrix.stdlib }}
+            CC: /usr/bin/clang
+            CXX: /usr/bin/clang++
         steps:
             - name: Checkout
               uses: actions/checkout@v4
