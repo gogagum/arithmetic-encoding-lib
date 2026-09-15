@@ -121,6 +121,8 @@
         "libboost",
         "libc",
         "libcpp",
+        "libfmt",
+        "libgtest",
         "libicu",
         "libstdc",
         "libstdcpp",
