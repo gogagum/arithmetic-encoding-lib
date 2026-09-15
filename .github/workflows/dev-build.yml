@@ -20,7 +20,7 @@ jobs:
             - name: Install Dependencies
               run: |
                 apt-get update && apt-get install -y --no-install-recommends \
-                  cmake make git libboost-all-dev googletest libbenchmark-dev
+                  cmake make git ninja-build libboost-all-dev googletest libbenchmark-dev
             - run: /bin/bash .ci/build-project.sh build-simple ${{ matrix.build_type }}
             - run: ./build-simple/test/ael-tests
             - run: ./build-simple/benchmark/test/benchmark-lib-tests
@@ -36,7 +36,7 @@ jobs:
             - name: Install Dependencies
               run: |
                 apt-get update && apt-get install -y --no-install-recommends \
-                  cmake make git libboost-all-dev googletest libbenchmark-dev
+                  cmake make git ninja-build libboost-all-dev googletest libbenchmark-dev
             - run: /bin/bash .ci/build-project-valgrind.sh
             - run: /bin/bash .ci/run-valgrind.sh test/ael-tests 
             - run: /bin/bash .ci/run-valgrind.sh benchmark/test/benchmark-lib-tests
@@ -58,7 +58,7 @@ jobs:
             - name: Install Dependencies
               run: |
                 apt-get update && apt-get install -y --no-install-recommends \
-                  cmake make git libboost-all-dev googletest libbenchmark-dev
+                  cmake make git ninja-build libboost-all-dev googletest libbenchmark-dev
             - run: /bin/bash .ci/build-project.sh build-simple ${{ matrix.build_type }}
             - run: ./build-simple/test/ael-tests
             - run: ./build-simple/benchmark/test/benchmark-lib-tests
@@ -79,7 +79,7 @@ jobs:
             - name: Install Dependencies
               run: |
                 apt-get update && apt-get install -y --no-install-recommends \
-                  cmake make git libboost-all-dev googletest libbenchmark-dev
+                  cmake make git ninja-build libboost-all-dev googletest libbenchmark-dev
             - run: /bin/bash .ci/build-project-valgrind.sh
             - run: /bin/bash .ci/run-valgrind.sh test/ael-tests 
             - run: /bin/bash .ci/run-valgrind.sh benchmark/test/benchmark-lib-tests
