@@ -108,14 +108,10 @@ auto PPMDDictionary::getProbabilityStats(Ord ord) -> StatsSeq {
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMDDictionary::getDecodeProbabilityStats(Ord ord) -> ProbabilityStats {
-  const auto ord_update = [ord](PPMDDictionary* const val) {
-    if (!val->isEsc(ord)) {
-      val->updateWordCnt_(ord, 1);
-      val->updateCtx_(ord);
-    }
-  };
-  std::unique_ptr<PPMDDictionary, decltype(ord_update)> ord_update_guard{
-      this, ord_update};
+  const std::unique_ptr ord_update_guard =
+      ordUpdateGuard([ord](This_* const val) {
+        val->updateProbabilityStats_(ord);
+      });
   return getDecodeProbabilityStats_(ord);
 }
 
@@ -137,11 +133,10 @@ auto PPMDDictionary::getTotalWordsCnt() const -> Count {
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMDDictionary::getDecodeProbabilityStats_(const Ord ord)
     -> ProbabilityStats {
-  const auto ord_update = [ord](PPMDDictionary* const val) {
-    val->updateEscDecoded_(ord);
-  };
-  std::unique_ptr<PPMDDictionary, decltype(ord_update)> esc_decoded_update{
-      this, ord_update};
+  const std::unique_ptr ord_update_guard =
+      ordUpdateGuard([ord](This_* const val) {
+        val->updateEscDecoded_(ord);
+      });
   SearchCtx_ currCtx = getSearchCtxEmptySkipped_();
   if (getEscDecoded_() >= currCtx.size()) {
     if (isEsc(ord)) {

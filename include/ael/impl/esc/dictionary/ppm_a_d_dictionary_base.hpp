@@ -6,6 +6,8 @@
 #include <ael/impl/dictionary/word_probability_stats.hpp>
 #include <boost/container/static_vector.hpp>
 #include <cstdint>
+#include <memory>
+#include <type_traits>
 
 namespace ael::impl::esc::dict {
 
@@ -59,6 +61,21 @@ class PPMADDictionaryBase
     } else {
       escDecoded_ = 0;
     }
+  }
+
+  void updateProbabilityStats_(Ord ord) {
+    if (!isEsc(ord)) {
+      static_cast<DictT*>(this)->updateWordCnt_(ord, 1);
+      static_cast<DictT*>(this)->updateCtx_(ord);
+    }
+  }
+
+  template <class Func>
+  [[nodiscard]] auto ordUpdateGuard(Func&& func) {
+    return std::unique_ptr<DictT, std::remove_cvref_t<Func>>{
+        static_cast<DictT* const>(this),
+        std::forward<Func>(func),
+    };
   }
 
   void skipCtxsByEsc_(SearchCtx_& currCtx) const {
