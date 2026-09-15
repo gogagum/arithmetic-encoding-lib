@@ -27,7 +27,7 @@ jobs:
             
     linux-gcc-valgrind:
         name: Linux GCC 16 + Valgrind
-        runs-on: ubuntu-22.04
+        runs-on: ubuntu-latest
         container:
           image: sourcemation/gcc-16:latest
         steps:
@@ -42,14 +42,13 @@ jobs:
             - run: /bin/bash .ci/run-valgrind.sh benchmark/test/benchmark-lib-tests
 
     linux-clang:
-        name: Linux Clang 17
-        runs-on: ubuntu-22.04
+        name: Linux Clang 19
+        runs-on: ubuntu-latest
         strategy:
           matrix:
             stdlib: [libstdc++, libc++]
             build_type: [Release, Debug]
         container:
-          image: ghcr.io/cpp-kt/clang:17
           env:
             CXXFLAGS: -stdlib=${{ matrix.stdlib }}
         steps:
@@ -58,19 +57,19 @@ jobs:
             - name: Install Dependencies
               run: |
                 apt-get update && apt-get install -y --no-install-recommends \
-                  cmake make git ninja-build libboost-all-dev libgtest-dev libbenchmark-dev libfmt-dev
+                  cmake make git ninja-build libboost-all-dev libgtest-dev \
+                  libbenchmark-dev libfmt-dev clang-19 lld-19
             - run: /bin/bash .ci/build-project.sh build-simple ${{ matrix.build_type }}
             - run: ./build-simple/test/ael-tests
             - run: ./build-simple/benchmark/test/benchmark-lib-tests
 
     linux-clang-libstdcpp-valgrind:
-        name: Linux Clang 17 + Valgrind
-        runs-on: ubuntu-22.04
+        name: Linux Clang 19 + Valgrind
+        runs-on: ubuntu-latest
         strategy:
           matrix:
             stdlib: [libstdc++, libc++]
         container:
-          image: ghcr.io/cpp-kt/clang:17
           env:
             CXXFLAGS: -stdlib=${{ matrix.stdlib }}
         steps:
@@ -79,7 +78,8 @@ jobs:
             - name: Install Dependencies
               run: |
                 apt-get update && apt-get install -y --no-install-recommends \
-                  cmake make git ninja-build libboost-all-dev libgtest-dev libbenchmark-dev libfmt-dev
+                  cmake make git ninja-build libboost-all-dev libgtest-dev \ 
+                  libbenchmark-dev libfmt-dev clang-19 lld-19
             - run: /bin/bash .ci/build-project-valgrind.sh
             - run: /bin/bash .ci/run-valgrind.sh test/ael-tests 
             - run: /bin/bash .ci/run-valgrind.sh benchmark/test/benchmark-lib-tests
