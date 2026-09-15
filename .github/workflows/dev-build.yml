@@ -36,7 +36,8 @@ jobs:
             - name: Install Dependencies
               run: |
                 apt-get update && apt-get install -y --no-install-recommends \
-                  cmake make git ninja-build libboost-all-dev libgtest-dev libbenchmark-dev libfmt-dev
+                  cmake make git ninja-build libboost-all-dev libgtest-dev \
+                  libbenchmark-dev libfmt-dev valgrind
             - run: /bin/bash .ci/build-project-valgrind.sh
             - run: /bin/bash .ci/run-valgrind.sh test/ael-tests 
             - run: /bin/bash .ci/run-valgrind.sh benchmark/test/benchmark-lib-tests
@@ -48,9 +49,8 @@ jobs:
           matrix:
             stdlib: [libstdc++, libc++]
             build_type: [Release, Debug]
-        container:
-          env:
-            CXXFLAGS: -stdlib=${{ matrix.stdlib }}
+        env:
+          CXXFLAGS: -stdlib=${{ matrix.stdlib }}
         steps:
             - name: Checkout
               uses: actions/checkout@v4
@@ -69,9 +69,8 @@ jobs:
         strategy:
           matrix:
             stdlib: [libstdc++, libc++]
-        container:
-          env:
-            CXXFLAGS: -stdlib=${{ matrix.stdlib }}
+        env:
+          CXXFLAGS: -stdlib=${{ matrix.stdlib }}
         steps:
             - name: Checkout
               uses: actions/checkout@v4
@@ -79,7 +78,7 @@ jobs:
               run: |
                 apt-get update && apt-get install -y --no-install-recommends \
                   cmake make git ninja-build libboost-all-dev libgtest-dev \ 
-                  libbenchmark-dev libfmt-dev clang-19 lld-19
+                  libbenchmark-dev libfmt-dev clang-19 lld-19 valgrind
             - run: /bin/bash .ci/build-project-valgrind.sh
             - run: /bin/bash .ci/run-valgrind.sh test/ael-tests 
             - run: /bin/bash .ci/run-valgrind.sh benchmark/test/benchmark-lib-tests
