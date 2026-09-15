@@ -62,7 +62,8 @@ jobs:
               run: |
                 apt-get update && apt-get install -y --no-install-recommends \
                   cmake make git ninja-build libboost-all-dev libgtest-dev \
-                  libbenchmark-dev libfmt-dev clang lld llvm ca-certificates
+                  libbenchmark-dev libfmt-dev clang lld llvm ca-certificates \
+                  libc++-dev libc++abi-dev
             - run: /bin/bash .ci/build-project.sh build-simple ${{ matrix.build_type }}
             - run: ./build-simple/test/ael-tests
             - run: ./build-simple/benchmark/test/benchmark-lib-tests
@@ -86,7 +87,8 @@ jobs:
               run: |
                 apt-get update && apt-get install -y --no-install-recommends \
                   cmake make git ninja-build libboost-all-dev libgtest-dev \ 
-                  libbenchmark-dev libfmt-dev valgrind clang lld llvm ca-certificates
+                  libbenchmark-dev libfmt-dev valgrind clang lld llvm \
+                  ca-certificates libc++-dev libc++abi-dev
             - run: /bin/bash .ci/build-project-valgrind.sh
             - run: /bin/bash .ci/run-valgrind.sh test/ael-tests 
             - run: /bin/bash .ci/run-valgrind.sh benchmark/test/benchmark-lib-tests
