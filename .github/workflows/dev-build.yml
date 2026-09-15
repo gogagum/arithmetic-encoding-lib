@@ -21,6 +21,11 @@ jobs:
               run: |
                 apt-get update && apt-get install -y --no-install-recommends \
                   cmake make git ninja-build libboost-all-dev googletest libbenchmark-dev
+
+                mkdir -p /usr/src/googletest/build
+                cd /usr/src/googletest/build
+                cmake -G Ninja ..
+                ninja install
             - run: /bin/bash .ci/build-project.sh build-simple ${{ matrix.build_type }}
             - run: ./build-simple/test/ael-tests
             - run: ./build-simple/benchmark/test/benchmark-lib-tests
