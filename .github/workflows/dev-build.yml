@@ -7,26 +7,36 @@ on:
 
 jobs:
     linux-gcc-debug:
-        name: Linux GCC 13
-        runs-on: ubuntu-22.04
+        name: Linux GCC 16
+        runs-on: ubuntu-latest
         strategy:
           matrix:
             build_type: [Release, Debug]
         container:
-          image: ghcr.io/cpp-kt/gcc:13
+          image: sourcemation/gcc-16:latest
         steps:
-            - uses: actions/checkout@v3
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Install Dependencies
+              run: |
+                apt-get update && apt-get install -y --no-install-recommends \
+                  cmake make git libboost-all-dev googletest libbenchmark-dev
             - run: /bin/bash .ci/build-project.sh build-simple ${{ matrix.build_type }}
             - run: ./build-simple/test/ael-tests
             - run: ./build-simple/benchmark/test/benchmark-lib-tests
             
     linux-gcc-valgrind:
-        name: Linux GCC 13 + Valgrind
+        name: Linux GCC 16 + Valgrind
         runs-on: ubuntu-22.04
         container:
-          image: ghcr.io/cpp-kt/gcc:13
+          image: sourcemation/gcc-16:latest
         steps:
-            - uses: actions/checkout@v3
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Install Dependencies
+              run: |
+                apt-get update && apt-get install -y --no-install-recommends \
+                  cmake make git libboost-all-dev googletest libbenchmark-dev
             - run: /bin/bash .ci/build-project-valgrind.sh
             - run: /bin/bash .ci/run-valgrind.sh test/ael-tests 
             - run: /bin/bash .ci/run-valgrind.sh benchmark/test/benchmark-lib-tests
@@ -43,7 +53,12 @@ jobs:
           env:
             CXXFLAGS: -stdlib=${{ matrix.stdlib }}
         steps:
-            - uses: actions/checkout@v3
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Install Dependencies
+              run: |
+                apt-get update && apt-get install -y --no-install-recommends \
+                  cmake make git libboost-all-dev googletest libbenchmark-dev
             - run: /bin/bash .ci/build-project.sh build-simple ${{ matrix.build_type }}
             - run: ./build-simple/test/ael-tests
             - run: ./build-simple/benchmark/test/benchmark-lib-tests
@@ -59,7 +74,12 @@ jobs:
           env:
             CXXFLAGS: -stdlib=${{ matrix.stdlib }}
         steps:
-            - uses: actions/checkout@v3
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Install Dependencies
+              run: |
+                apt-get update && apt-get install -y --no-install-recommends \
+                  cmake make git libboost-all-dev googletest libbenchmark-dev
             - run: /bin/bash .ci/build-project-valgrind.sh
             - run: /bin/bash .ci/run-valgrind.sh test/ael-tests 
             - run: /bin/bash .ci/run-valgrind.sh benchmark/test/benchmark-lib-tests
