@@ -88,12 +88,15 @@ auto PPMADictionary::getProbabilityStats(Ord ord) -> StatsSeq {
 
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMADictionary::getDecodeProbabilityStats(Ord ord) -> ProbabilityStats {
-  auto ret = getDecodeProbabilityStats_(ord);
-  if (!isEsc(ord)) {
-    updateWordCnt_(ord, 1);
-    updateCtx_(ord);
-  }
-  return ret;
+  const auto ord_update = [ord](PPMADictionary* const val) {
+    if (!val->isEsc(ord)) {
+      val->updateWordCnt_(ord, 1);
+      val->updateCtx_(ord);
+    }
+  };
+  std::unique_ptr<PPMADictionary, decltype(ord_update)> ord_update_guard{
+      this, ord_update};
+  return getDecodeProbabilityStats_(ord);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
