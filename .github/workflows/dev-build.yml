@@ -50,7 +50,7 @@ jobs:
             stdlib: [libstdc++, libc++]
             build_type: [Release, Debug]
         container:
-          image: silkeh/clang:19
+          image: ghcr.io/llvm/llvm-build-env-ubuntu-24.04:latest
           env:
             CXXFLAGS: -stdlib=${{ matrix.stdlib }}
         steps:
@@ -72,7 +72,7 @@ jobs:
           matrix:
             stdlib: [libstdc++, libc++]
         container:
-          image: silkeh/clang:19
+          image: ghcr.io/llvm/llvm-build-env-ubuntu-24.04:latest
           env:
             CXXFLAGS: -stdlib=${{ matrix.stdlib }}
         steps:
