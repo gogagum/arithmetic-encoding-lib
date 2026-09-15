@@ -50,7 +50,7 @@ jobs:
             stdlib: [libstdc++, libc++]
             build_type: [Release, Debug]
         container:
-          image: ghcr.io/llvm/llvm-build-env-ubuntu-24.04:latest
+          image: ubuntu:24.04
           env:
             CXXFLAGS: -stdlib=${{ matrix.stdlib }}
         steps:
@@ -60,7 +60,7 @@ jobs:
               run: |
                 apt-get update && apt-get install -y --no-install-recommends \
                   cmake make git ninja-build libboost-all-dev libgtest-dev \
-                  libbenchmark-dev libfmt-dev
+                  libbenchmark-dev libfmt-dev clang lld llvm
             - run: /bin/bash .ci/build-project.sh build-simple ${{ matrix.build_type }}
             - run: ./build-simple/test/ael-tests
             - run: ./build-simple/benchmark/test/benchmark-lib-tests
@@ -72,7 +72,7 @@ jobs:
           matrix:
             stdlib: [libstdc++, libc++]
         container:
-          image: ghcr.io/llvm/llvm-build-env-ubuntu-24.04:latest
+          image: ubuntu:24.04
           env:
             CXXFLAGS: -stdlib=${{ matrix.stdlib }}
         steps:
@@ -82,7 +82,7 @@ jobs:
               run: |
                 apt-get update && apt-get install -y --no-install-recommends \
                   cmake make git ninja-build libboost-all-dev libgtest-dev \ 
-                  libbenchmark-dev libfmt-dev valgrind
+                  libbenchmark-dev libfmt-dev valgrind clang lld llvm
             - run: /bin/bash .ci/build-project-valgrind.sh
             - run: /bin/bash .ci/run-valgrind.sh test/ael-tests 
             - run: /bin/bash .ci/run-valgrind.sh benchmark/test/benchmark-lib-tests
