@@ -79,7 +79,7 @@ class CumulativeCount {
 
  private:
   DST_ cumulativeCnt_;
-  std::unordered_map<Ord, Count> cnt_{};
+  std::unordered_map<Ord, Count> cnt_;
   Count totalWordsCnt_{0};
   const Ord maxOrd_;
 };

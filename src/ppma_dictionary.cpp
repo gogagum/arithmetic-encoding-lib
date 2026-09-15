@@ -36,9 +36,9 @@ auto PPMADictionary::getWordOrd(const Count& cumulativeNumFound) const -> Ord {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto PPMADictionary::getProbabilityStats(Ord ord) -> ProbabilityStats {
+auto PPMADictionary::getProbabilityStats(const Ord ord) -> ProbabilityStats {
   assert(ord < getMaxOrd_());
-  auto ret = getProbabilityStats_(ord);
+  ProbabilityStats ret = getProbabilityStats_(ord);
   updateWordCnt_(ord, 1);
   return std::move(ret);
 }
@@ -46,12 +46,13 @@ auto PPMADictionary::getProbabilityStats(Ord ord) -> ProbabilityStats {
 ////////////////////////////////////////////////////////////////////////////////
 auto PPMADictionary::getTotalWordsCnt() const -> Count {
   Count total = 1;
-  for (auto ctx = getSearchCtxEmptySkipped_(); !ctx.empty(); ctx.pop_back()) {
-    const auto totalCnt = ctxInfo_.at(ctx).getTotalWordsCnt();
+  for (SearchCtx_ ctx = getSearchCtxEmptySkipped_(); !ctx.empty();
+       ctx.pop_back()) {
+    const Count totalCnt = ctxInfo_.at(ctx).getTotalWordsCnt();
     total *= totalCnt + 1;
   }
   total *= zeroCtxCnt_.getTotalWordsCnt() + 1;
-  if (const auto zeroUniqueCnt = zeroCtxUniqueCnt_.getTotalWordsCnt();
+  if (const Count zeroUniqueCnt = zeroCtxUniqueCnt_.getTotalWordsCnt();
       zeroUniqueCnt < getMaxOrd_()) {
     total *= getMaxOrd_() - zeroUniqueCnt;
   }
@@ -59,17 +60,18 @@ auto PPMADictionary::getTotalWordsCnt() const -> Count {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto PPMADictionary::getLowerCumulativeCnt_(Ord ord) const -> Count {
+auto PPMADictionary::getLowerCumulativeCnt_(const Ord ord) const -> Count {
   Count lower = 0;
-  for (auto ctx = getSearchCtxEmptySkipped_(); !ctx.empty(); ctx.pop_back()) {
-    const auto& ctxInfo = ctxInfo_.at(ctx);
-    const auto ctxTotalCnt = ctxInfo.getTotalWordsCnt();
+  for (SearchCtx_ ctx = getSearchCtxEmptySkipped_(); !ctx.empty();
+       ctx.pop_back()) {
+    const impl::dict::CumulativeCount& ctxInfo = ctxInfo_.at(ctx);
+    const Count ctxTotalCnt = ctxInfo.getTotalWordsCnt();
     lower *= ctxTotalCnt + 1;
     lower += ctxInfo.getLowerCumulativeCnt(ord);
   }
   lower *= zeroCtxCnt_.getTotalWordsCnt() + 1;
   lower += zeroCtxCnt_.getLowerCumulativeCnt(ord);
-  if (const auto zeroUniqueCnt = zeroCtxUniqueCnt_.getTotalWordsCnt();
+  if (const Count zeroUniqueCnt = zeroCtxUniqueCnt_.getTotalWordsCnt();
       zeroUniqueCnt < getMaxOrd_()) {
     lower *= getMaxOrd_() - zeroUniqueCnt;
     lower += ord - zeroCtxUniqueCnt_.getLowerCumulativeCnt(ord);
@@ -78,26 +80,28 @@ auto PPMADictionary::getLowerCumulativeCnt_(Ord ord) const -> Count {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto PPMADictionary::getProbabilityStats_(Ord ord) const -> ProbabilityStats {
+auto PPMADictionary::getProbabilityStats_(const Ord ord) const
+    -> ProbabilityStats {
   Count lower = 0;
   Count count = 0;
   Count total = 1;
-  for (auto ctx = getSearchCtxEmptySkipped_(); !ctx.empty(); ctx.pop_back()) {
-    const auto& ctxInfo = ctxInfo_.at(ctx);
-    const auto ctxTotalCnt = ctxInfo.getTotalWordsCnt();
+  for (SearchCtx_ ctx = getSearchCtxEmptySkipped_(); !ctx.empty();
+       ctx.pop_back()) {
+    const impl::dict::CumulativeCount& ctxInfo = ctxInfo_.at(ctx);
+    const Count ctxTotalCnt = ctxInfo.getTotalWordsCnt();
     lower *= ctxTotalCnt + 1;
     total *= ctxTotalCnt + 1;
     lower += ctxInfo.getLowerCumulativeCnt(ord);
     count *= ctxTotalCnt + 1;
     count += ctxInfo.getCount(ord);
   }
-  const auto zeroTotal = zeroCtxCnt_.getTotalWordsCnt();
+  const Count zeroTotal = zeroCtxCnt_.getTotalWordsCnt();
   lower *= zeroTotal + 1;
   total *= zeroTotal + 1;
   lower += zeroCtxCnt_.getLowerCumulativeCnt(ord);
   count *= zeroTotal + 1;
   count += zeroCtxCnt_.getCount(ord);
-  if (const auto zeroUniqueCnt = zeroCtxUniqueCnt_.getTotalWordsCnt();
+  if (const Count zeroUniqueCnt = zeroCtxUniqueCnt_.getTotalWordsCnt();
       zeroUniqueCnt < getMaxOrd_()) {
     total *= getMaxOrd_() - zeroUniqueCnt;
     lower *= getMaxOrd_() - zeroUniqueCnt;
@@ -107,12 +111,16 @@ auto PPMADictionary::getProbabilityStats_(Ord ord) const -> ProbabilityStats {
   }
   assert(count > 0);
   assert(lower + count <= total);
-  return {lower, lower + count, total};
+  return {
+      .low = lower,
+      .high = lower + count,
+      .total = total,
+  };
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void PPMADictionary::updateWordCnt_(Ord ord, std::int64_t cnt) {
-  for (auto ctx = getInitSearchCtx_(); !ctx.empty(); ctx.pop_back()) {
+void PPMADictionary::updateWordCnt_(const Ord ord, const std::int64_t cnt) {
+  for (SearchCtx_ ctx = getInitSearchCtx_(); !ctx.empty(); ctx.pop_back()) {
     if (!ctxInfo_.contains(ctx)) {
       ctxInfo_.emplace(ctx, getMaxOrd_());
     }

@@ -11,8 +11,9 @@ namespace ael::impl::dict {
 /// \brief PPMA and PPMD dictionary base class.
 ///
 template <class DictT, std::uint16_t maxCtxLength>
-class PPMADDictionaryBase : protected MaxOrdBase<std::uint64_t>,
-                            protected CtxBase<DictT, std::uint64_t, maxCtxLength> {
+class PPMADDictionaryBase
+    : protected MaxOrdBase<std::uint64_t>,
+      protected CtxBase<DictT, std::uint64_t, maxCtxLength> {
  public:
   using Ord = MaxOrdBase::Ord;
 
@@ -24,7 +25,8 @@ class PPMADDictionaryBase : protected MaxOrdBase<std::uint64_t>,
 
  protected:
   explicit PPMADDictionaryBase(Ord maxOrd, std::size_t ctxLength)
-      : MaxOrdBase(maxOrd), CtxBase<DictT, std::uint64_t, maxCtxLength>(ctxLength) {
+      : MaxOrdBase(maxOrd),
+        CtxBase<DictT, std::uint64_t, maxCtxLength>(ctxLength) {
   }
 };
 

@@ -157,7 +157,7 @@ void ContextualDictionaryStatsBase<InternalDictT>::updateContextualDictionary_(
 ////////////////////////////////////////////////////////////////////////////////
 template <class InternalDictT>
 auto ContextualDictionaryStatsBase<InternalDictT>::getContextualProbStats_(
-    const SearchCtx_& searchCtx, Ord ord) -> WordProbabilityStats<Count> {
+    const SearchCtx_& searchCtx, const Ord ord) -> WordProbabilityStats<Count> {
   return contextProbs_.at(searchCtx).getProbabilityStats(ord);
 }
 
