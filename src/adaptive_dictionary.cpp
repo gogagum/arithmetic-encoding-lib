@@ -40,7 +40,7 @@ void AdaptiveDictionary::updateWordCnt_(Ord ord) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto AdaptiveDictionary::getLowerCumulativeCnt_(Ord ord) const -> Count {
+auto AdaptiveDictionary::getLowerCumulativeCnt_(const Ord ord) const -> Count {
   return (ord > Ord{0}) ? ord + (getRealCumulativeCnt_(ord - 1) * ratio_)
                         : Count{0};
 }

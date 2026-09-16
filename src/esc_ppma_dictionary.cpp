@@ -20,7 +20,7 @@ PPMADictionary::PPMADictionary(ConstructInfo constructInfo)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto PPMADictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
+auto PPMADictionary::getWordOrd(const Count cumulativeCnt) const -> Ord {
   SearchCtx_ currCtx = getSearchCtxEmptySkipped_();
   if (getEscDecoded_() <= currCtx.size()) {
     const CumulativeCount_& cell = getCurrCumulativeCnt_(currCtx);
@@ -32,7 +32,7 @@ auto PPMADictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto PPMADictionary::getProbabilityStats(Ord ord) -> StatsSeq {
+auto PPMADictionary::getProbabilityStats(const Ord ord) -> StatsSeq {
   StatsSeq ret;
   SearchCtx_ currCtx = getInitSearchCtx_();
   updateCtx_(ord);  // ctx_ is never read later
@@ -59,7 +59,8 @@ auto PPMADictionary::getProbabilityStats(Ord ord) -> StatsSeq {
       const Count symLow =
           Count{ord} - zeroCtxUniqueCnt_.getLowerCumulativeCnt(ord);
       const Count symHigh = symLow + 1;
-      const Count symTotal = getMaxOrd_() - zeroCtxUniqueCnt_.getTotalWordsCnt();
+      const Count symTotal =
+          getMaxOrd_() - zeroCtxUniqueCnt_.getTotalWordsCnt();
       ret.emplace_back(symLow, symHigh, symTotal);
     } else {
       const Count symLow = zeroCtxCnt_.getLowerCumulativeCnt(ord);
@@ -87,7 +88,8 @@ auto PPMADictionary::getProbabilityStats(Ord ord) -> StatsSeq {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto PPMADictionary::getDecodeProbabilityStats(Ord ord) -> ProbabilityStats {
+auto PPMADictionary::getDecodeProbabilityStats(const Ord ord)
+    -> ProbabilityStats {
   const std::unique_ptr ord_update_guard =
       ordUpdateGuard([ord](This_* const val) {
         val->updateProbabilityStats_(ord);
@@ -167,7 +169,8 @@ auto PPMADictionary::getDecodeProbabilityStats_(const Ord ord)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void PPMADictionary::updateWordCnt_(Ord ord, std::int64_t cntChange) {
+void PPMADictionary::updateWordCnt_(const Ord ord,
+                                    const std::int64_t cntChange) {
   SearchCtx_ currCtx = getInitSearchCtx_();
   for (; !currCtx.empty() && !ctxInfo_.contains(currCtx); currCtx.pop_back()) {
     auto [iter, insertionHappened] = ctxInfo_.emplace(currCtx, getMaxOrd_());
@@ -182,7 +185,8 @@ void PPMADictionary::updateWordCnt_(Ord ord, std::int64_t cntChange) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto PPMADictionary::getWordOrdForNewWord_(Count cumulativeCnt) const -> Ord {
+auto PPMADictionary::getWordOrdForNewWord_(const Count cumulativeCnt) const
+    -> Ord {
   const auto getLowerCumulCnt = [this](const Ord ord) {
     return ord - zeroCtxUniqueCnt_.getLowerCumulativeCnt(ord);
   };

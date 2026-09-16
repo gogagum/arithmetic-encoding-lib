@@ -4,7 +4,10 @@ namespace ael {
 
 ////////////////////////////////////////////////////////////////////////////////
 auto ArithmeticCoder::getStatsChange() -> Stats {
-  auto ret = Stats{wordsCnt_ - prevWordsCnt_, bitsEncoded_ - prevBitsEncoded_};
+  const auto ret = Stats{
+      .wordsCount = wordsCnt_ - prevWordsCnt_,
+      .bitsEncoded = bitsEncoded_ - prevBitsEncoded_,
+  };
   prevWordsCnt_ = wordsCnt_;
   prevBitsEncoded_ = bitsEncoded_;
   return ret;

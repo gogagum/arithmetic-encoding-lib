@@ -19,7 +19,7 @@ PPMDDictionary::PPMDDictionary(ConstructInfo constructInfo)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto PPMDDictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
+auto PPMDDictionary::getWordOrd(const Count cumulativeCnt) const -> Ord {
   SearchCtx_ currCtx = getSearchCtxEmptySkipped_();
   if (0 == zeroCtxCell_.cnt.getTotalWordsCnt() &&
       getEscDecoded_() == currCtx.size()) [[unlikely]] {
@@ -37,7 +37,7 @@ auto PPMDDictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto PPMDDictionary::getProbabilityStats(Ord ord) -> StatsSeq {
+auto PPMDDictionary::getProbabilityStats(const Ord ord) -> StatsSeq {
   StatsSeq ret;
   SearchCtx_ currCtx = getInitSearchCtx_();
   updateCtx_(ord);
@@ -107,7 +107,8 @@ auto PPMDDictionary::getProbabilityStats(Ord ord) -> StatsSeq {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto PPMDDictionary::getDecodeProbabilityStats(Ord ord) -> ProbabilityStats {
+auto PPMDDictionary::getDecodeProbabilityStats(const Ord ord)
+    -> ProbabilityStats {
   const std::unique_ptr ord_update_guard =
       ordUpdateGuard([ord](This_* const val) {
         val->updateProbabilityStats_(ord);
@@ -196,7 +197,8 @@ auto PPMDDictionary::getDecodeProbabilityStats_(const Ord ord)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void PPMDDictionary::updateWordCnt_(Ord ord, std::int64_t cntChange) {
+void PPMDDictionary::updateWordCnt_(const Ord ord,
+                                    const std::int64_t cntChange) {
   SearchCtx_ currCtx = getInitSearchCtx_();
   for (; !currCtx.empty() && !ctxInfo_.contains(currCtx); currCtx.pop_back()) {
     auto [iter, insertionHappened] = ctxInfo_.emplace(currCtx, getMaxOrd_());
@@ -214,7 +216,8 @@ void PPMDDictionary::updateWordCnt_(Ord ord, std::int64_t cntChange) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto PPMDDictionary::getWordOrdForNewWord_(Count cumulativeCnt) const -> Ord {
+auto PPMDDictionary::getWordOrdForNewWord_(const Count cumulativeCnt) const
+    -> Ord {
   const Ord retOrd =
       *upper_bound(getOrdRng_(), cumulativeCnt, {},
                    _1 + 1 -

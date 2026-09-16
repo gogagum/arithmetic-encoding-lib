@@ -23,7 +23,6 @@ add_subdirectory(thirdparty)
 target_sources(${PROJECT_NAME}
     PRIVATE
         src/arithmetic_coder.cpp
-        src/arithmetic_decoder.cpp
         src/a_d_dictionary_base.cpp
         src/adaptive_a_dictionary.cpp
         src/adaptive_d_dictionary.cpp
@@ -36,25 +35,13 @@ target_sources(${PROJECT_NAME}
         src/multiply_and_divide.cpp
         src/ppma_dictionary.cpp
         src/ppmd_dictionary.cpp
-        src/ppm_a_d_dictionary_base.cpp
         src/static_dictionary.cpp
         src/uniform_dictionary.cpp
-        src/adaptive_dictionary_base.cpp
-        src/ranges_calc.cpp
         src/esc_adaptive_a_dictionary.cpp
         src/esc_adaptive_d_dictionary.cpp
-        src/esc_a_d_dictionary_base.cpp
         src/esc_ppma_dictionary.cpp
         src/esc_ppmd_dictionary.cpp
-        src/esc_ppm_a_d_dictionary_base.cpp
-        src/ctx_base.cpp
-        src/max_ord_base.cpp
-        src/contextual_dictionary_stats_base.cpp
-        src/contextual_dictionary_base_improved.cpp
-        src/contextual_dictionary_base.cpp
-        src/word_probability_stats.cpp
         src/numerical_coder.cpp
-        src/numerical_decoder.cpp
         src/esc_arithmetic_coder.cpp
 )
 

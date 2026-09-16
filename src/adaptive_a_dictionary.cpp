@@ -10,27 +10,27 @@ using boost::lambda::bind;
 using std::ranges::upper_bound;
 
 ////////////////////////////////////////////////////////////////////////////////
-AdaptiveADictionary::AdaptiveADictionary(Ord maxOrd)
+AdaptiveADictionary::AdaptiveADictionary(const Ord maxOrd)
     : ael::impl::dict::ADDictionaryBase(maxOrd) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto AdaptiveADictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
+auto AdaptiveADictionary::getWordOrd(const Count cumulativeCnt) const -> Ord {
   return *upper_bound(getOrdRng_(), cumulativeCnt, {},
                       bind(&This_::getLowerCumulativeCnt_, this, _1 + 1));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto AdaptiveADictionary::getProbabilityStats(Ord ord) -> ProbabilityStats {
-  const auto ret = getProbabilityStats_(ord);
+auto AdaptiveADictionary::getProbabilityStats(const Ord ord) -> ProbabilityStats {
+  const ProbabilityStats ret = getProbabilityStats_(ord);
   updateWordCnt_(ord, 1);
   return ret;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 auto AdaptiveADictionary::getTotalWordsCnt() const -> Count {
-  const auto uniqueWordsCnt = getTotalWordsUniqueCnt_();
-  const auto wordsCnt = getRealTotalWordsCnt_();
+  const Count uniqueWordsCnt = getTotalWordsUniqueCnt_();
+  const Count wordsCnt = getRealTotalWordsCnt_();
   if (getMaxOrd_() == uniqueWordsCnt) {
     return wordsCnt;
   }
@@ -38,21 +38,21 @@ auto AdaptiveADictionary::getTotalWordsCnt() const -> Count {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto AdaptiveADictionary::getLowerCumulativeCnt_(Ord ord) const -> Count {
-  const auto cumulativeNumFound = getRealLowerCumulativeWordCnt_(ord);
+auto AdaptiveADictionary::getLowerCumulativeCnt_(const Ord ord) const -> Count {
+  const Count cumulativeNumFound = getRealLowerCumulativeWordCnt_(ord);
   if (getMaxOrd_() == getTotalWordsUniqueCnt_()) {
     return cumulativeNumFound;
   }
-  const auto numUniqueWordsTotal = getTotalWordsUniqueCnt_();
-  const auto cumulativeUniqueWordsNumFound =
+  const Count numUniqueWordsTotal = getTotalWordsUniqueCnt_();
+  const Count cumulativeUniqueWordsNumFound =
       getLowerCumulativeUniqueNumFound_(ord);
   return ((getMaxOrd_() - numUniqueWordsTotal) * cumulativeNumFound) +
          (ord - cumulativeUniqueWordsNumFound);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto AdaptiveADictionary::getWordCnt_(Ord ord) const -> Count {
-  const auto totalUniqueWordsCnt = getTotalWordsUniqueCnt_();
+auto AdaptiveADictionary::getWordCnt_(const Ord ord) const -> Count {
+  const Count totalUniqueWordsCnt = getTotalWordsUniqueCnt_();
   if (getMaxOrd_() == totalUniqueWordsCnt) {
     return getRealWordCnt_(ord);
   }
@@ -62,12 +62,14 @@ auto AdaptiveADictionary::getWordCnt_(Ord ord) const -> Count {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto AdaptiveADictionary::getProbabilityStats_(Ord ord) const
+auto AdaptiveADictionary::getProbabilityStats_(const Ord ord) const
     -> ProbabilityStats {
-  const auto low = getLowerCumulativeCnt_(ord);
-  const auto high = low + getWordCnt_(ord);
-  const auto total = getTotalWordsCnt();
-  return {low, high, total};
+  const Count low = getLowerCumulativeCnt_(ord);
+  return {
+      .low = low,
+      .high = low + getTotalWordsCnt(),
+      .total = getTotalWordsCnt(),
+  };
 }
 
 }  // namespace ael::dict
