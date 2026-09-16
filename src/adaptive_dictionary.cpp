@@ -26,7 +26,7 @@ auto AdaptiveDictionary::getWordOrd(Count cumulativeCnt) const -> Ord {
 ////////////////////////////////////////////////////////////////////////////////
 auto AdaptiveDictionary::getProbabilityStats(Ord ord) -> ProbabilityStats {
   const auto low = getLowerCumulativeCnt_(ord);
-  const auto high = low + getRealWordCnt_(ord) * ratio_ + 1;
+  const auto high = low + (getRealWordCnt_(ord) * ratio_) + 1;
   const auto total = getTotalWordsCnt();
   updateWordCnt_(ord);
   return {low, high, total};
@@ -40,8 +40,8 @@ void AdaptiveDictionary::updateWordCnt_(Ord ord) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto AdaptiveDictionary::getLowerCumulativeCnt_(Ord ord) const -> Count {
-  return (ord > Ord{0}) ? ord + getRealCumulativeCnt_(ord - 1) * ratio_
+auto AdaptiveDictionary::getLowerCumulativeCnt_(const Ord ord) const -> Count {
+  return (ord > Ord{0}) ? ord + (getRealCumulativeCnt_(ord - 1) * ratio_)
                         : Count{0};
 }
 

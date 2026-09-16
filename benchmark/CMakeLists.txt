@@ -1,19 +1,11 @@
 cmake_minimum_required(VERSION 3.15)
 
 include(FetchContent)
-FetchContent_Declare(
-    googlebenchmark
-    URL https://github.com/google/benchmark/archive/refs/tags/v1.8.3.zip
-)
 
-FetchContent_MakeAvailable(googlebenchmark)
+set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "" FORCE)
 
-FetchContent_Declare(
-    fmt
-    URL https://github.com/fmtlib/fmt/releases/download/10.1.1/fmt-10.1.1.zip
-)
-
-FetchContent_MakeAvailable(fmt)
+find_package(benchmark REQUIRED)
+find_package(fmt REQUIRED)
 
 add_library(benchmark_lib STATIC)
 

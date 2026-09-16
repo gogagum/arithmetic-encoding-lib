@@ -10,7 +10,7 @@ using std::views::drop;
 using std::views::take;
 
 ////////////////////////////////////////////////////////////////////////////////
-StaticDictionary::StaticDictionary(Ord maxOrd,
+StaticDictionary::StaticDictionary(const Ord maxOrd,
                                    const std::map<Ord, Count>& countsMapping) {
   cumulativeNumFound_.resize(maxOrd);
   auto currOrd = Ord{0};
@@ -25,20 +25,22 @@ StaticDictionary::StaticDictionary(Ord maxOrd,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto StaticDictionary::getWordOrd(Count cumulativeNumFound) const -> Ord {
+auto StaticDictionary::getWordOrd(const Count cumulativeNumFound) const -> Ord {
   return upper_bound(cumulativeNumFound_, cumulativeNumFound) -
          cumulativeNumFound_.begin();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto StaticDictionary::getProbabilityStats(Ord ord) -> ProbabilityStats {
-  const auto low = getLowerCumulativeCnt_(ord);
-  const auto high = getHigherCumulativeCnt_(ord);
-  return {low, high, *cumulativeNumFound_.rbegin()};
+auto StaticDictionary::getProbabilityStats(const Ord ord) -> ProbabilityStats {
+  return {
+      .low = getLowerCumulativeCnt_(ord),
+      .high = getHigherCumulativeCnt_(ord),
+      .total = cumulativeNumFound_.back(),
+  };
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-auto StaticDictionary::getLowerCumulativeCnt_(Ord ord) const -> Count {
+auto StaticDictionary::getLowerCumulativeCnt_(const Ord ord) const -> Count {
   return ord != 0 ? cumulativeNumFound_[ord - 1] : 0;
 }
 

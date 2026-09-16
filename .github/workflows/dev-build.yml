@@ -7,59 +7,88 @@ on:
 
 jobs:
     linux-gcc-debug:
-        name: Linux GCC 13
-        runs-on: ubuntu-22.04
+        name: Linux GCC 16
+        runs-on: ubuntu-latest
         strategy:
           matrix:
             build_type: [Release, Debug]
         container:
-          image: ghcr.io/cpp-kt/gcc:13
+          image: sourcemation/gcc-16:latest
         steps:
-            - uses: actions/checkout@v3
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Install Dependencies
+              run: |
+                apt-get update && apt-get install -y --no-install-recommends \
+                  cmake make git ninja-build libboost-all-dev libgtest-dev libbenchmark-dev libfmt-dev
             - run: /bin/bash .ci/build-project.sh build-simple ${{ matrix.build_type }}
             - run: ./build-simple/test/ael-tests
             - run: ./build-simple/benchmark/test/benchmark-lib-tests
             
     linux-gcc-valgrind:
-        name: Linux GCC 13 + Valgrind
-        runs-on: ubuntu-22.04
+        name: Linux GCC 16 + Valgrind
+        runs-on: ubuntu-latest
         container:
-          image: ghcr.io/cpp-kt/gcc:13
+          image: sourcemation/gcc-16:latest
         steps:
-            - uses: actions/checkout@v3
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Install Dependencies
+              run: |
+                apt-get update && apt-get install -y --no-install-recommends \
+                  cmake make git ninja-build libboost-all-dev libgtest-dev \
+                  libbenchmark-dev libfmt-dev valgrind
             - run: /bin/bash .ci/build-project-valgrind.sh
             - run: /bin/bash .ci/run-valgrind.sh test/ael-tests 
             - run: /bin/bash .ci/run-valgrind.sh benchmark/test/benchmark-lib-tests
 
     linux-clang:
-        name: Linux Clang 17
-        runs-on: ubuntu-22.04
+        name: Linux Clang 19
+        runs-on: ubuntu-latest
         strategy:
           matrix:
             stdlib: [libstdc++, libc++]
             build_type: [Release, Debug]
         container:
-          image: ghcr.io/cpp-kt/clang:17
+          image: ubuntu:24.04
           env:
             CXXFLAGS: -stdlib=${{ matrix.stdlib }}
+            CC: /usr/bin/clang
+            CXX: /usr/bin/clang++
         steps:
-            - uses: actions/checkout@v3
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Install Dependencies
+              run: |
+                apt-get update && apt-get install -y --no-install-recommends \
+                  cmake make git ninja-build libboost-all-dev libgtest-dev \
+                  libbenchmark-dev libfmt-dev clang lld llvm ca-certificates \
+                  libc++-dev libc++abi-dev
             - run: /bin/bash .ci/build-project.sh build-simple ${{ matrix.build_type }}
             - run: ./build-simple/test/ael-tests
             - run: ./build-simple/benchmark/test/benchmark-lib-tests
 
     linux-clang-libstdcpp-valgrind:
-        name: Linux Clang 17 + Valgrind
-        runs-on: ubuntu-22.04
+        name: Linux Clang 19 + Valgrind
+        runs-on: ubuntu-latest
         strategy:
           matrix:
             stdlib: [libstdc++, libc++]
         container:
-          image: ghcr.io/cpp-kt/clang:17
+          image: ubuntu:24.04
           env:
             CXXFLAGS: -stdlib=${{ matrix.stdlib }}
+            CC: /usr/bin/clang
+            CXX: /usr/bin/clang++
         steps:
-            - uses: actions/checkout@v3
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Install Dependencies
+              run: |
+                apt-get update && apt-get install -y --no-install-recommends \
+                  cmake make git ninja-build libboost-all-dev libgtest-dev \ 
+                  libbenchmark-dev libfmt-dev valgrind clang lld llvm \
+                  ca-certificates libc++-dev libc++abi-dev
             - run: /bin/bash .ci/build-project-valgrind.sh
             - run: /bin/bash .ci/run-valgrind.sh test/ael-tests 
             - run: /bin/bash .ci/run-valgrind.sh benchmark/test/benchmark-lib-tests

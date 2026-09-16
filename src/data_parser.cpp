@@ -32,7 +32,7 @@ bool DataParser::takeBit() {
     return false;
   }
   const auto ret =
-      bool{bitsView_[(dataIter_ - data_.begin()) * CHAR_BIT + inByteOffset_]};
+      bool{bitsView_[((dataIter_ - data_.begin()) * CHAR_BIT) + inByteOffset_]};
   moveInByteOffset_();
   return ret;
 }

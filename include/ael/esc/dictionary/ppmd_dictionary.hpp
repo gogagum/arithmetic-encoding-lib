@@ -17,6 +17,7 @@ class PPMDDictionary
     : public ael::impl::esc::dict::PPMADDictionaryBase<PPMDDictionary> {
  private:
   using Base_ = ael::impl::esc::dict::PPMADDictionaryBase<PPMDDictionary>;
+  using This_ = PPMDDictionary;
   using CumulativeCount_ = impl::dict::CumulativeCount;
   using CumulativeUniqueCount_ = impl::dict::CumulativeUniqueCount;
   constexpr static auto maxCtxLength_ = std::uint16_t{16};
@@ -91,9 +92,6 @@ class PPMDDictionary
  protected:
   [[nodiscard]] ProbabilityStats getDecodeProbabilityStats_(Ord ord);
 
-  [[nodiscard]] ProbabilityStats getDecodeProbabilityStatsForNewWord_(
-      Ord ord) const;
-
   void updateWordCnt_(Ord ord, std::int64_t cntChange);
 
   [[nodiscard]] Ord getWordOrdForNewWord_(Count cumulativeCnt) const;
@@ -114,6 +112,8 @@ class PPMDDictionary
  private:
   template <class DictT, typename CountT, std::uint16_t maxCtxLength>
   friend class ael::impl::dict::CtxBase;
+
+  friend class ael::impl::esc::dict::PPMADDictionaryBase<PPMDDictionary>;
 };
 
 }  // namespace ael::esc::dict

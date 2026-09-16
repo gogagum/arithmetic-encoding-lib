@@ -17,12 +17,13 @@
 #include <ael/esc/dictionary/ppmd_dictionary.hpp>
 #include <two_parts_source.hpp>
 
+namespace {
+
 using std::views::iota;
+constexpr inline auto maxOrd = std::uint64_t{256};
+constexpr inline auto m = std::uint64_t{64};
 
-static constexpr auto maxOrd = std::uint64_t{256};
-static constexpr auto m = std::uint64_t{64};
-
-static void setInputSizesAndMParameters(benchmark::internal::Benchmark* b) {
+constexpr auto setInputSizesAndMParameters = [](auto* b) {
   for (std::size_t i : iota(1, 11)) {
     for (std::size_t j : iota(0, 5)) {
       const auto inputSize = static_cast<std::int64_t>((1ull << 17) * i / 11);
@@ -30,14 +31,16 @@ static void setInputSizesAndMParameters(benchmark::internal::Benchmark* b) {
       b->Args({inputSize, hQuarter});
     }
   }
-}
+};
+
+}  // namespace
 
 template <class DictInitializer>
 static void runTests(benchmark::State& state, DictInitializer dictInitializer,
                      std::uint64_t maxOrd, std::uint64_t m,
                      std::size_t seqLength, std::uint8_t hQuarter) {
   const auto [minH, maxH] = TwoPartsSource::getMinMaxEntropy(maxOrd, m);
-  const auto h = minH + (maxH - minH) * hQuarter / 4;
+  const auto h = minH + ((maxH - minH) * hQuarter / 4);
 
   constexpr auto seed = std::uint64_t{42};
 
@@ -61,7 +64,7 @@ static void runEscTests(benchmark::State& state,
                         std::uint64_t m, std::size_t seqLength,
                         std::uint8_t hQuarter) {
   const auto [minH, maxH] = TwoPartsSource::getMinMaxEntropy(maxOrd, m);
-  const auto h = minH + (maxH - minH) * hQuarter / 4;
+  const auto h = minH + ((maxH - minH) * hQuarter / 4);
 
   constexpr auto seed = std::uint64_t{42};
 

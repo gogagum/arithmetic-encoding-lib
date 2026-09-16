@@ -1,10 +1,5 @@
-include(FetchContent)
-FetchContent_Declare(
-    googletest
-    URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
-)
-
-FetchContent_MakeAvailable(googletest)
+find_package(GTest REQUIRED)
+find_package(fmt REQUIRED)
 
 enable_testing()
 
@@ -44,13 +39,6 @@ add_executable(ael-tests
 )
 
 target_include_directories(ael-tests PRIVATE lib)
-
-if (CMAKE_CROSSCOMPILING)
-    message("Cross compiling. Use static libraries for tests.")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static")
-elseif()
-    message("Not cross compiling. Use dynamic libraries.")
-endif()
 target_link_libraries(ael-tests LINK_PUBLIC gtest_main fmt::fmt arithmetic-encoding-lib)
 
 include(GoogleTest)

@@ -81,7 +81,7 @@ class CumulativeUniqueCount {
 
  private:
   DST_ cumulativeUniqueCnt_;
-  std::unordered_set<Ord> ords_{};
+  std::unordered_set<Ord> ords_;
   const Ord maxOrd_;
 };
 
